@@ -21,8 +21,8 @@ export default function TransportCard({ transport, compact = false }) {
           )}
         </div>
         <div className="text-right shrink-0">
-          <p className="font-bold text-foreground text-sm">{transport.price_per_seat} DKK</p>
-          <p className="text-xs text-muted-foreground">per seat</p>
+          <p className="font-bold text-foreground text-sm">{transport.round_trip_price} DKK</p>
+          <p className="text-xs text-muted-foreground">tur/retur</p>
         </div>
       </div>
 

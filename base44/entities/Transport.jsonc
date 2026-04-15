@@ -18,8 +18,9 @@
     "seats_available": {
       "type": "number"
     },
-    "price_per_seat": {
-      "type": "number"
+    "round_trip_price": {
+      "type": "number",
+      "description": "Price for full round-trip (both directions). One-way price is calculated as 60% of this."
     },
     "provider_name": {
       "type": "string"
@@ -31,9 +32,6 @@
       "type": "string"
     },
     "notes": {
-      "type": "string"
-    },
-    "linked_cabin_id": {
       "type": "string"
     },
     "status": {
@@ -51,6 +49,6 @@
     "to_location",
     "departure_date",
     "seats_available",
-    "price_per_seat"
+    "round_trip_price"
   ]
 }

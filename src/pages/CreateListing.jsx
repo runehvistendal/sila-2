@@ -32,7 +32,7 @@ export default function CreateListing() {
   // Transport form state
   const [transportForm, setTransportForm] = useState({
     from_location: '', to_location: '', departure_date: '',
-    departure_time: '', seats_available: '', price_per_seat: '',
+    departure_time: '', seats_available: '', round_trip_price: '',
     boat_type: '', notes: '', equipment: [], images: [],
   });
   const [newEquipment, setNewEquipment] = useState('');
@@ -83,7 +83,7 @@ export default function CreateListing() {
     transportMutation.mutate({
       ...transportForm,
       seats_available: Number(transportForm.seats_available),
-      price_per_seat: Number(transportForm.price_per_seat),
+      round_trip_price: Number(transportForm.round_trip_price),
       provider_name: user.full_name || '',
       provider_email: user.email,
       status: 'scheduled',
@@ -274,9 +274,12 @@ export default function CreateListing() {
               <Field label="Seats available *">
                 <Input type="number" min={1} placeholder="3" value={transportForm.seats_available} onChange={(e) => setTransportForm((p) => ({ ...p, seats_available: e.target.value }))} required className="rounded-xl" />
               </Field>
-              <Field label="Price per seat (DKK) *">
-                <Input type="number" min={0} placeholder="400" value={transportForm.price_per_seat} onChange={(e) => setTransportForm((p) => ({ ...p, price_per_seat: e.target.value }))} required className="rounded-xl" />
-              </Field>
+              <div>
+                <Field label="Round-trip price per seat (DKK) *">
+                  <Input type="number" min={0} placeholder="800" value={transportForm.round_trip_price} onChange={(e) => setTransportForm((p) => ({ ...p, round_trip_price: e.target.value }))} required className="rounded-xl" />
+                </Field>
+                <p className="text-xs text-muted-foreground mt-1">One-way price will be auto-calculated as 60% (480 DKK if you enter 800)</p>
+              </div>
             </div>
             <Field label="Boat type">
               <Input placeholder="e.g. Speedboat, Fishing boat" value={transportForm.boat_type} onChange={(e) => setTransportForm((p) => ({ ...p, boat_type: e.target.value }))} className="rounded-xl" />

@@ -16,6 +16,7 @@ export default function TransportDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [seats, setSeats] = useState(1);
+  const [tripType, setTripType] = useState('round-trip'); // 'outbound', 'return', 'round-trip'
   const [message, setMessage] = useState('');
 
   const { data: transport, isLoading } = useQuery({
@@ -36,17 +37,20 @@ export default function TransportDetail() {
     </div>
   );
 
-  const total = seats * transport.price_per_seat;
+  // Calculate price based on trip type
+  const oneWayPrice = Math.round(transport.round_trip_price * 0.6);
+  const pricePerSeat = tripType === 'round-trip' ? transport.round_trip_price : oneWayPrice;
+  const total = seats * pricePerSeat;
 
   const stripePayload = {
     bookingType: 'transport',
     listingId: transport.id,
-    listingTitle: `${transport.from_location} → ${transport.to_location}`,
+    listingTitle: `${transport.from_location} → ${transport.to_location} (${tripType === 'round-trip' ? 'Tur/retur' : tripType === 'outbound' ? 'Afgang' : 'Retur'})`,
     checkIn: transport.departure_date,
     seats,
     totalPrice: total,
     hostEmail: transport.provider_email || '',
-    message,
+    message: `[${tripType.toUpperCase()}] ${message}`,
   };
 
   return (
@@ -103,7 +107,33 @@ export default function TransportDetail() {
 
         {/* Booking card */}
         <div className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6">
-          <h2 className="text-lg font-bold text-foreground mb-5">Book a seat</h2>
+          <h2 className="text-lg font-bold text-foreground mb-5">Book dine pladser</h2>
+          
+          {/* Trip type selector */}
+          <div className="mb-5 pb-5 border-b border-border">
+            <p className="text-sm font-semibold text-foreground mb-3">Jeg ønsker:</p>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { key: 'outbound', label: 'Afgang', desc: 'Enkelt vej' },
+                { key: 'return', label: 'Retur', desc: 'Enkelt vej' },
+                { key: 'round-trip', label: 'Tur/retur', desc: 'Begge veje' },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setTripType(opt.key)}
+                  className={`p-3 rounded-lg text-sm font-medium transition-colors border text-center ${
+                    tripType === opt.key
+                      ? 'bg-primary/10 border-primary text-primary'
+                      : 'bg-muted border-border text-muted-foreground hover:border-primary/30'
+                  }`}
+                >
+                  <div className="font-semibold">{opt.label}</div>
+                  <div className="text-xs text-muted-foreground">{opt.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+          
           <div className="space-y-4 mb-5">
             <div>
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Number of seats</label>
@@ -124,11 +154,21 @@ export default function TransportDetail() {
 
           <div className="bg-muted rounded-xl p-4 mb-5 text-sm space-y-1.5">
             <div className="flex justify-between text-muted-foreground">
-              <span>{transport.price_per_seat} DKK × {seats} seat{seats !== 1 ? 's' : ''}</span>
+              <span>{pricePerSeat} DKK × {seats} plads{seats !== 1 ? 'er' : ''}</span>
               <span>{total} DKK</span>
             </div>
+            {tripType === 'round-trip' && (
+              <div className="text-xs text-muted-foreground pt-1 border-t border-border">
+                Fuld rejse begge veje ({transport.round_trip_price} DKK tur/retur)
+              </div>
+            )}
+            {tripType !== 'round-trip' && (
+              <div className="text-xs text-muted-foreground pt-1 border-t border-border">
+                Enkelt vej (60% af tur/retur-pris)
+              </div>
+            )}
             <div className="flex justify-between font-bold text-foreground pt-1 border-t border-border">
-              <span>Total</span>
+              <span>I alt</span>
               <span>{total} DKK</span>
             </div>
           </div>
