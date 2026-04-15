@@ -3,9 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import CabinCard from '@/components/cabins/CabinCard';
 import CabinFilters from '@/components/cabins/CabinFilters';
-import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Home, Map, Grid } from 'lucide-react';
+import { Home } from 'lucide-react';
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -22,7 +21,6 @@ const DEFAULT_FILTERS = {
 export default function Cabins() {
   const urlParams = new URLSearchParams(window.location.search);
   const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, search: urlParams.get('q') || '' });
-  const [view, setView] = useState('grid'); // 'grid' | 'map'
 
   const { data: rawCabins = [], isLoading } = useQuery({
     queryKey: ['cabins'],
@@ -59,16 +57,8 @@ export default function Cabins() {
     <div className="min-h-screen pt-16">
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6">
             <h1 className="text-3xl font-bold text-foreground">Hytter i Grønland</h1>
-            <div className="flex gap-1 bg-muted rounded-xl p-1">
-              <button onClick={() => setView('grid')} className={`p-2 rounded-lg transition-colors ${view === 'grid' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground'}`}>
-                <Grid className="w-4 h-4" />
-              </button>
-              <button onClick={() => setView('map')} className={`p-2 rounded-lg transition-colors ${view === 'map' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground'}`}>
-                <Map className="w-4 h-4" />
-              </button>
-            </div>
           </div>
           <CabinFilters filters={filters} onChange={setFilters} cabins={cabins} />
         </div>
@@ -85,8 +75,6 @@ export default function Cabins() {
               </div>
             ))}
           </div>
-        ) : view === 'map' ? (
-          <ImprovedGreenlandMap cabins={filtered.filter(c => c && c.id)} height="600px" />
         ) : filtered.length > 0 ? (
           <>
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} hytte{filtered.length !== 1 ? 'r' : ''} fundet</p>

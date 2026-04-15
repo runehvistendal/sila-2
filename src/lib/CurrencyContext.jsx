@@ -3,10 +3,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const CurrencyContext = createContext();
 
 export const CURRENCIES = {
-  DKK: { symbol: 'kr', rate: 1, label: 'DKK' },
-  EUR: { symbol: '€', rate: 0.134, label: 'EUR' },
-  USD: { symbol: '$', rate: 0.145, label: 'USD' },
-  GBP: { symbol: '£', rate: 0.115, label: 'GBP' },
+  DKK: { symbol: '', rate: 1, label: 'DKK' },
+  EUR: { symbol: '', rate: 0.134, label: 'EUR' },
+  USD: { symbol: '', rate: 0.145, label: 'USD' },
+  GBP: { symbol: '', rate: 0.115, label: 'GBP' },
 };
 
 export function CurrencyProvider({ children }) {
@@ -26,13 +26,9 @@ export function CurrencyProvider({ children }) {
 
   const formatPrice = (priceInDKK, showCurrency = true) => {
     const converted = convertPrice(priceInDKK);
-    const symbol = CURRENCIES[currency].symbol;
+    const label = CURRENCIES[currency].label;
     
-    if (currency === 'DKK') {
-      return showCurrency ? `${converted} ${symbol}` : converted.toString();
-    }
-    
-    return showCurrency ? `${symbol}${converted}` : converted.toString();
+    return showCurrency ? `${converted} ${label}` : converted.toString();
   };
 
   return (
