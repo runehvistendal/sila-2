@@ -31,6 +31,7 @@ import TrustScore from '@/pages/TrustScore';
 import VerifiedSafety from '@/pages/VerifiedSafety';
 import CommunityGuidelines from '@/pages/CommunityGuidelines';
 import ReportIncident from '@/pages/ReportIncident';
+import LegalAdmin from '@/pages/LegalAdmin';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -74,6 +75,7 @@ const AuthenticatedApp = () => {
         <Route path="/verified-safety" element={<VerifiedSafety />} />
         <Route path="/community-guidelines" element={<CommunityGuidelines />} />
         <Route path="/report-incident" element={<ReportIncident />} />
+        <Route path="/admin/legal" element={<LegalAdmin />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

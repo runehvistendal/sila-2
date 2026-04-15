@@ -1,0 +1,52 @@
+{
+  "name": "LegalDocumentVersion",
+  "type": "object",
+  "properties": {
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "privacy_policy",
+        "terms_of_service",
+        "safety_policy",
+        "payment_policy"
+      ]
+    },
+    "version_number": {
+      "type": "number",
+      "description": "Version number (1.0, 1.1, 2.0, etc)"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full document content"
+    },
+    "change_summary": {
+      "type": "string",
+      "description": "Summary of changes from previous version"
+    },
+    "gdpr_compliant": {
+      "type": "boolean",
+      "default": true
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "published_by": {
+      "type": "string",
+      "description": "Email of admin who published"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this the current active version?"
+    }
+  },
+  "required": [
+    "document_type",
+    "version_number",
+    "content"
+  ]
+}

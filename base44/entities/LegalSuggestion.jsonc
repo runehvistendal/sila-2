@@ -1,0 +1,70 @@
+{
+  "name": "LegalSuggestion",
+  "type": "object",
+  "properties": {
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "privacy_policy",
+        "terms_of_service",
+        "safety_policy",
+        "payment_policy"
+      ],
+      "description": "Which legal document needs updating"
+    },
+    "trigger_feature": {
+      "type": "string",
+      "description": "Feature that triggered the suggestion (e.g., 'new_payment_system', 'chat_feature')"
+    },
+    "trigger_reason": {
+      "type": "string",
+      "description": "Why this change is suggested"
+    },
+    "section_affected": {
+      "type": "string",
+      "description": "Which section of the document is affected"
+    },
+    "current_text": {
+      "type": "string",
+      "description": "Current text in the document"
+    },
+    "suggested_text": {
+      "type": "string",
+      "description": "LLM-generated suggested replacement text"
+    },
+    "explanation": {
+      "type": "string",
+      "description": "Why this change is needed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "published"
+      ],
+      "default": "pending"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Admin's notes when approving/rejecting"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "GDPR compliance level"
+    }
+  },
+  "required": [
+    "document_type",
+    "trigger_feature",
+    "suggested_text",
+    "status"
+  ]
+}
