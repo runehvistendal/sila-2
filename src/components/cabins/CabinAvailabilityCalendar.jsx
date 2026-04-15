@@ -41,21 +41,27 @@ export default function CabinAvailabilityCalendar({ cabinId }) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-foreground">Tilgængelighed</h2>
         <div className="flex items-center gap-2">
-          <button
+          <div
+            role="button"
+            tabIndex={0}
             onClick={() => setCurrentMonth(m => subMonths(m, 1))}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+            onKeyDown={e => e.key === 'Enter' && setCurrentMonth(m => subMonths(m, 1))}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors cursor-pointer"
           >
             <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-          </button>
+          </div>
           <span className="text-sm font-semibold text-foreground w-28 text-center capitalize">
             {format(currentMonth, 'MMMM yyyy', { locale: da })}
           </span>
-          <button
+          <div
+            role="button"
+            tabIndex={0}
             onClick={() => setCurrentMonth(m => addMonths(m, 1))}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+            onKeyDown={e => e.key === 'Enter' && setCurrentMonth(m => addMonths(m, 1))}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors cursor-pointer"
           >
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </button>
+          </div>
         </div>
       </div>
 
