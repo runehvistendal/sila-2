@@ -23,13 +23,15 @@ export default function Cabins() {
   const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, search: urlParams.get('q') || '' });
   const [view, setView] = useState('grid'); // 'grid' | 'map'
 
-  const { data: cabins = [], isLoading } = useQuery({
+  const { data: rawCabins = [], isLoading } = useQuery({
     queryKey: ['cabins'],
     queryFn: () => base44.entities.Cabin.filter({ status: 'active' }, '-created_date', 60),
   });
 
+  const cabins = useMemo(() => (rawCabins || []).filter(c => c && typeof c === 'object' && c.id), [rawCabins]);
+
   const filtered = useMemo(() => {
-    let result = (cabins || []).filter((c) => c && typeof c === 'object' && c.id).filter((c) => {
+    let result = cabins.filter((c) => {
       const q = filters.search.toLowerCase();
       const matchSearch = !q || c.title?.toLowerCase().includes(q) || c.location?.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q) || c.amenities?.some(a => a.toLowerCase().includes(q));
       const matchLoc = filters.location === 'all' || c.location === filters.location;
@@ -80,7 +82,7 @@ export default function Cabins() {
           <>
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} hytte{filtered.length !== 1 ? 'r' : ''} fundet</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.filter(c => c?.id).map((cabin) => (
+              {filtered.map((cabin) => (
                 <CabinCard key={cabin.id} cabin={cabin} />
               ))}
             </div>
