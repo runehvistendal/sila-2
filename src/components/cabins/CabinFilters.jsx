@@ -38,7 +38,15 @@ export default function CabinFilters({ filters, onChange }) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Alle steder</SelectItem>
-            {LOCATIONS.map((loc) => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+            <SelectItem value="Nuuk">Nuuk</SelectItem>
+            <SelectItem value="Ilulissat">Ilulissat</SelectItem>
+            <SelectItem value="Sisimiut">Sisimiut</SelectItem>
+            <SelectItem value="Disko Bay">Disko Bay</SelectItem>
+            <SelectItem value="Kangerlussuaq">Kangerlussuaq</SelectItem>
+            <SelectItem value="Tasiilaq">Tasiilaq</SelectItem>
+            <SelectItem value="Upernavik">Upernavik</SelectItem>
+            <SelectItem value="Qaqortoq">Qaqortoq</SelectItem>
+            <SelectItem value="Narsaq">Narsaq</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filters.sort} onValueChange={(v) => set('sort', v)}>
