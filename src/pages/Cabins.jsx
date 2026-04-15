@@ -5,7 +5,6 @@ import CabinCard from '@/components/cabins/CabinCard';
 import CabinFilters from '@/components/cabins/CabinFilters';
 import GreenlandMap from '@/components/shared/GreenlandMap';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
 import { Home, Map, Grid } from 'lucide-react';
 
 const DEFAULT_FILTERS = {
