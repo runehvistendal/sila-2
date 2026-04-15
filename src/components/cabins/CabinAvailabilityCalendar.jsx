@@ -1,22 +1,39 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, format, isToday, isBefore, startOfDay } from 'date-fns';
+import { ChevronLeft, ChevronRight, Waves } from 'lucide-react';
+import { addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, format, isToday, isBefore, startOfDay, isAfter } from 'date-fns';
 import { da } from 'date-fns/locale';
 
-function CalendarDay({ day, isBooked, isPending, isPast, isCurrentDay }) {
-  let cls = 'w-full aspect-square rounded-lg flex items-center justify-center text-xs font-medium ';
-  if (isBooked) cls += 'bg-red-100 text-red-600';
-  else if (isPending) cls += 'bg-amber-100 text-amber-600';
-  else if (isPast) cls += 'text-muted-foreground/40';
-  else if (isCurrentDay) cls += 'bg-primary text-white font-bold';
-  else cls += 'bg-green-50 text-green-700';
-  return <div className={cls}>{day}</div>;
+function CalendarDay({ label, isBooked, isPending, isPast, isCurrentDay, isSelected, isInRange, isStart, isEnd, onClick }) {
+  let cls = 'w-full aspect-square flex items-center justify-center text-xs font-medium transition-colors select-none ';
+
+  if (isBooked || isPending) {
+    cls += isBooked ? 'bg-red-100 text-red-500 cursor-not-allowed rounded-lg' : 'bg-amber-100 text-amber-600 cursor-not-allowed rounded-lg';
+  } else if (isPast) {
+    cls += 'text-muted-foreground/30 cursor-default rounded-lg';
+  } else if (isStart || isEnd) {
+    cls += 'bg-primary text-white font-bold rounded-lg cursor-pointer z-10';
+  } else if (isInRange) {
+    cls += 'bg-primary/15 text-primary cursor-pointer rounded-none';
+  } else if (isCurrentDay) {
+    cls += 'border border-primary text-primary font-bold rounded-lg cursor-pointer hover:bg-primary/10';
+  } else {
+    cls += 'text-foreground cursor-pointer rounded-lg hover:bg-primary/10';
+  }
+
+  return (
+    <div className={cls} onClick={(!isBooked && !isPending && !isPast) ? onClick : undefined}>
+      {label}
+    </div>
+  );
 }
 
-export default function CabinAvailabilityCalendar({ cabinId }) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+export default function CabinAvailabilityCalendar({ cabinId, checkIn, checkOut, onCheckInChange, onCheckOutChange }) {
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    return checkIn ? new Date(checkIn) : new Date();
+  });
+  const [selecting, setSelecting] = useState('checkin'); // 'checkin' | 'checkout'
 
   const { data: bookings = [] } = useQuery({
     queryKey: ['cabin-bookings-calendar', cabinId],
@@ -43,6 +60,27 @@ export default function CabinAvailabilityCalendar({ cabinId }) {
   const startPad = (monthStart.getDay() + 6) % 7;
   const today = startOfDay(new Date());
 
+  const checkInDate = checkIn ? new Date(checkIn) : null;
+  const checkOutDate = checkOut ? new Date(checkOut) : null;
+
+  const handleDayClick = (day) => {
+    const key = format(day, 'yyyy-MM-dd');
+    if (selecting === 'checkin') {
+      onCheckInChange(key);
+      onCheckOutChange('');
+      setSelecting('checkout');
+    } else {
+      if (checkInDate && isBefore(day, checkInDate)) {
+        onCheckInChange(key);
+        onCheckOutChange('');
+        setSelecting('checkout');
+      } else {
+        onCheckOutChange(key);
+        setSelecting('checkin');
+      }
+    }
+  };
+
   const cells = [];
   for (let i = 0; i < startPad; i++) {
     cells.push(<div key={`pad-${i}`} />);
@@ -50,65 +88,98 @@ export default function CabinAvailabilityCalendar({ cabinId }) {
   for (let i = 0; i < days.length; i++) {
     const day = days[i];
     const key = format(day, 'yyyy-MM-dd');
+    const isPast = isBefore(day, today);
+    const isStart = checkIn === key;
+    const isEnd = checkOut === key;
+    const isInRange = checkInDate && checkOutDate && isAfter(day, checkInDate) && isBefore(day, checkOutDate);
+
     cells.push(
       <CalendarDay
         key={key}
-        day={format(day, 'd')}
+        label={format(day, 'd')}
         isBooked={bookedDates.has(key)}
         isPending={pendingDates.has(key)}
-        isPast={isBefore(day, today)}
+        isPast={isPast}
         isCurrentDay={isToday(day)}
+        isSelected={isStart || isEnd}
+        isStart={isStart}
+        isEnd={isEnd}
+        isInRange={isInRange}
+        onClick={() => handleDayClick(day)}
       />
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-foreground">Tilgængelighed</h2>
-        <div className="flex items-center gap-2">
+    <div className="text-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h2 className="text-base font-bold text-foreground">Tilgængelighed</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {selecting === 'checkin' ? 'Vælg check-in dato' : 'Vælg check-out dato'}
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5">
           <div
             role="button"
             tabIndex={0}
             onClick={() => setCurrentMonth(m => subMonths(m, 1))}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors cursor-pointer"
           >
-            <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+            <ChevronLeft className="w-3.5 h-3.5 text-muted-foreground" />
           </div>
-          <span className="text-sm font-semibold text-foreground w-28 text-center capitalize">
+          <span className="text-xs font-semibold text-foreground w-24 text-center capitalize">
             {format(currentMonth, 'MMMM yyyy', { locale: da })}
           </span>
           <div
             role="button"
             tabIndex={0}
             onClick={() => setCurrentMonth(m => addMonths(m, 1))}
-            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-muted transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors cursor-pointer"
           >
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 mb-1">
+      {/* Weekday headers */}
+      <div className="grid grid-cols-7 mb-0.5">
         {['Ma', 'Ti', 'On', 'To', 'Fr', 'Lø', 'Sø'].map(d => (
-          <div key={d} className="text-center text-xs font-semibold text-muted-foreground py-1">{d}</div>
+          <div key={d} className="text-center text-[10px] font-semibold text-muted-foreground py-1">{d}</div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-0.5">
+      {/* Day grid */}
+      <div className="grid grid-cols-7">
         {cells}
       </div>
 
-      <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-green-100 inline-block"></span> Ledig
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-amber-100 inline-block"></span> Afventer bekræftelse
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-red-100 inline-block"></span> Optaget
-        </span>
+      {/* Selected range summary */}
+      {(checkIn || checkOut) && (
+        <div className="flex gap-3 mt-2 text-xs">
+          <span className={`px-2 py-1 rounded-md font-medium ${checkIn ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
+            Inn: {checkIn || '—'}
+          </span>
+          <span className={`px-2 py-1 rounded-md font-medium ${checkOut ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}>
+            Ud: {checkOut || '—'}
+          </span>
+          {checkIn && (
+            <button
+              className="text-muted-foreground hover:text-destructive ml-auto"
+              onClick={() => { onCheckInChange(''); onCheckOutChange(''); setSelecting('checkin'); }}
+            >
+              Nulstil
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-muted-foreground">
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-primary/15 inline-block"></span> Valgt</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-amber-100 inline-block"></span> Afventer</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-red-100 inline-block"></span> Optaget</span>
       </div>
     </div>
   );

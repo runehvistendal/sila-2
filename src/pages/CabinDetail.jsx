@@ -26,6 +26,7 @@ export default function CabinDetail() {
   const [guests, setGuests] = useState(1);
   const [message, setMessage] = useState('');
   const [activeImage, setActiveImage] = useState(0);
+  const [wantHostTransport, setWantHostTransport] = useState(false);
 
   const { data: cabin, isLoading } = useQuery({
     queryKey: ['cabin', id],
@@ -71,7 +72,10 @@ export default function CabinDetail() {
     );
   }
 
-  const images = cabin.images?.length ? cabin.images : ['https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=900&h=600&fit=crop'];
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=900&h=600&fit=crop';
+  const images = (cabin.images?.filter(img => img && img.startsWith('http'))?.length)
+    ? cabin.images.filter(img => img && img.startsWith('http'))
+    : [FALLBACK_IMAGE];
 
   const nights =
     checkIn && checkOut
@@ -167,11 +171,20 @@ export default function CabinDetail() {
                     <Anchor className="w-5 h-5 text-primary" />
                     <span className="font-semibold text-foreground">Host-provided transport</span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground mb-3">
                     {cabin.host_name || 'Your host'} offers transport from{' '}
                     <strong>{cabin.transport_route_from || 'the mainland'}</strong> to the cabin.
                     {cabin.transport_price_per_seat && ` Price: ${cabin.transport_price_per_seat} DKK/seat.`}
                   </p>
+                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={wantHostTransport}
+                      onChange={e => setWantHostTransport(e.target.checked)}
+                      className="w-4 h-4 rounded border-border accent-primary cursor-pointer"
+                    />
+                    <span className="text-sm font-medium text-foreground">Jeg ønsker transport fra hosten</span>
+                  </label>
                 </div>
               ) : null}
 
@@ -192,7 +205,13 @@ export default function CabinDetail() {
             </div>
 
             {/* Availability Calendar */}
-            <CabinAvailabilityCalendar cabinId={id} />
+            <CabinAvailabilityCalendar
+              cabinId={id}
+              checkIn={checkIn}
+              checkOut={checkOut}
+              onCheckInChange={setCheckIn}
+              onCheckOutChange={setCheckOut}
+            />
 
             {/* Reviews */}
             <CabinReviews

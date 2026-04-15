@@ -131,7 +131,12 @@ export default function Navbar() {
             className={`md:hidden p-2 rounded-lg transition-colors ${transparent ? 'text-white' : 'text-foreground'}`}
             onClick={() => setMobileOpen(!mobileOpen)}
           >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen
+              ? <X className="w-5 h-5" />
+              : <div className="w-7 h-7 bg-primary rounded-xl flex items-center justify-center">
+                  <Waves className="w-4 h-4 text-white" />
+                </div>
+            }
           </button>
         </div>
       </div>
