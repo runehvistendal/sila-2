@@ -6,10 +6,8 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { RoleProvider } from '@/lib/RoleContext';
 import { LanguageProvider } from '@/lib/LanguageContext';
-import { NetworkProvider } from '@/lib/NetworkContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from '@/components/layout/Layout';
-import NetworkStatus from '@/components/ui/NetworkStatus';
 
 // Pages
 import Home from '@/pages/Home';
@@ -88,21 +86,18 @@ const AuthenticatedApp = () => {
 
 function App() {
   return (
-    <NetworkProvider>
-      <LanguageProvider>
-        <AuthProvider>
-          <RoleProvider>
-            <QueryClientProvider client={queryClientInstance}>
-              <NetworkStatus />
-              <Router>
-                <AuthenticatedApp />
-              </Router>
-              <Toaster />
-            </QueryClientProvider>
-          </RoleProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </NetworkProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <RoleProvider>
+          <QueryClientProvider client={queryClientInstance}>
+            <Router>
+              <AuthenticatedApp />
+            </Router>
+            <Toaster />
+          </QueryClientProvider>
+        </RoleProvider>
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 
