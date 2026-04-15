@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 
 const LOCATIONS = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Disko Bay', 'Kangerlussuaq', 'Tasiilaq', 'Upernavik', 'Qaqortoq', 'Narsaq'];
@@ -59,10 +58,14 @@ export default function CabinFilters({ filters, onChange }) {
             <SelectItem value="price_desc">Pris: høj til lav</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" className="rounded-xl h-10 gap-1.5" onClick={() => setShowAdvanced(!showAdvanced)}>
+        <button
+          className="rounded-xl h-10 px-3 text-sm font-medium border border-input bg-transparent shadow-sm hover:bg-muted flex items-center gap-1.5 whitespace-nowrap"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+        >
           <SlidersHorizontal className="w-3.5 h-3.5" />
-          Avanceret {hasActive && <span className="w-2 h-2 rounded-full bg-primary inline-block" />}
-        </Button>
+          Avanceret
+          {hasActive && <span className="w-2 h-2 rounded-full bg-primary inline-block" />}
+        </button>
       </div>
 
       {showAdvanced && (
@@ -100,9 +103,9 @@ export default function CabinFilters({ filters, onChange }) {
             </div>
           </div>
           {hasActive && (
-            <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground gap-1 h-8">
+            <button onClick={reset} className="text-muted-foreground text-sm flex items-center gap-1 h-8 px-2 rounded-lg hover:bg-muted">
               <X className="w-3.5 h-3.5" /> Nulstil filtre
-            </Button>
+            </button>
           )}
         </div>
       )}
