@@ -51,6 +51,7 @@ export default function Navbar() {
               { to: '/cabins', label: 'Hytter' },
               { to: '/transport', label: 'Transport' },
               { to: '/request-transport', label: 'Anmod om transport' },
+              { to: '/request-cabin', label: 'Anmod om hytte' },
             ].map((link) => (
               <Link
                 key={link.to}
@@ -138,6 +139,7 @@ export default function Navbar() {
               <Link to="/cabins" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Hytter</Link>
               <Link to="/transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Transport</Link>
               <Link to="/request-transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Anmod om transport</Link>
+              <Link to="/request-cabin" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Anmod om hytte</Link>
               {user ? (
                 <>
                   <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Dashboard</Link>

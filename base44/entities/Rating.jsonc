@@ -1,0 +1,41 @@
+{
+  "name": "Rating",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "transport",
+        "cabin"
+      ]
+    },
+    "from_email": {
+      "type": "string"
+    },
+    "to_email": {
+      "type": "string"
+    },
+    "stars": {
+      "type": "number",
+      "description": "1-5"
+    },
+    "comment": {
+      "type": "string"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": true,
+      "description": "Ratings are locked once submitted"
+    }
+  },
+  "required": [
+    "request_id",
+    "request_type",
+    "from_email",
+    "to_email",
+    "stars"
+  ]
+}

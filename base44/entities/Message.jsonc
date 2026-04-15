@@ -1,0 +1,46 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "description": "ID of the TransportRequest or CabinRequest"
+    },
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "transport",
+        "cabin"
+      ],
+      "description": "Type of request this message belongs to"
+    },
+    "sender_email": {
+      "type": "string"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "offer"
+      ],
+      "default": "text",
+      "description": "text = normal chat, offer = structured offer card"
+    },
+    "offer_data": {
+      "type": "object",
+      "description": "Structured offer: {price_dkk, seats, note}"
+    }
+  },
+  "required": [
+    "request_id",
+    "request_type",
+    "sender_email",
+    "content"
+  ]
+}

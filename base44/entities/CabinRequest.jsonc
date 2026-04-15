@@ -1,0 +1,69 @@
+{
+  "name": "CabinRequest",
+  "type": "object",
+  "properties": {
+    "location": {
+      "type": "string",
+      "description": "Desired location/region"
+    },
+    "check_in": {
+      "type": "string",
+      "format": "date"
+    },
+    "check_out": {
+      "type": "string",
+      "format": "date"
+    },
+    "guests": {
+      "type": "number"
+    },
+    "note": {
+      "type": "string",
+      "description": "Guest description of the trip"
+    },
+    "guest_name": {
+      "type": "string"
+    },
+    "guest_email": {
+      "type": "string"
+    },
+    "host_email": {
+      "type": "string",
+      "description": "Set if directed at a specific host"
+    },
+    "host_name": {
+      "type": "string"
+    },
+    "quoted_price_dkk": {
+      "type": "number"
+    },
+    "host_message": {
+      "type": "string"
+    },
+    "cabin_id": {
+      "type": "string",
+      "description": "Cabin offered by the host"
+    },
+    "cabin_title": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "quoted",
+        "accepted",
+        "declined",
+        "cancelled"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "location",
+    "check_in",
+    "check_out",
+    "guests",
+    "guest_email"
+  ]
+}
