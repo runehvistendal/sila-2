@@ -9,14 +9,45 @@ import {
 import { Globe } from 'lucide-react';
 
 const languages = [
-  { code: 'da', flag: '🇩🇰', name: 'Dansk' },
-  { code: 'en', flag: '🇬🇧', name: 'English' },
-  { code: 'kl', flag: '🇬🇱', name: 'Kalaallisut' },
+  { code: 'da', flag: '🇩🇰', name: 'Dansk', abbr: 'DA' },
+  { code: 'en', flag: '🇬🇧', name: 'English', abbr: 'EN' },
+  { code: 'kl', flag: '🇬🇱', name: 'Kalaallisut', abbr: 'KL' },
 ];
 
-export default function LanguageSwitcher({ transparent = false }) {
+export default function LanguageSwitcher({ transparent = false, mobileCompact = false }) {
   const { lang, setLang } = useLanguage();
   const currentLang = languages.find(l => l.code === lang);
+
+  if (mobileCompact) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className={`flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg text-xs font-bold transition-colors ${
+            transparent
+              ? 'text-white/80 hover:text-white hover:bg-white/10'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+          }`}>
+            <span>{currentLang?.abbr}</span>
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40">
+          {languages.map((language) => (
+            <DropdownMenuItem
+              key={language.code}
+              onClick={() => setLang(language.code)}
+              className={`flex items-center gap-2 cursor-pointer ${lang === language.code ? 'bg-muted' : ''}`}
+            >
+              <span className="text-lg">{language.flag}</span>
+              <span className="text-sm">{language.abbr}</span>
+              {lang === language.code && (
+                <span className="ml-auto text-primary font-bold">✓</span>
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
     <DropdownMenu>

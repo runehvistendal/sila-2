@@ -79,6 +79,11 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* Mobile language switcher */}
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageSwitcher transparent={transparent} mobileCompact={true} />
+          </div>
+
           {/* Right side */}
           <div className="hidden md:flex items-center gap-2">
             <LanguageSwitcher transparent={transparent} />
