@@ -20,7 +20,10 @@ export default function CabinAvailabilityCalendar({ cabinId }) {
 
   for (const booking of bookings) {
     if (!booking.check_in || !booking.check_out) continue;
-    const days = eachDayOfInterval({ start: new Date(booking.check_in), end: new Date(booking.check_out) });
+    const start = new Date(booking.check_in);
+    const end = new Date(booking.check_out);
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) continue;
+    const days = eachDayOfInterval({ start, end });
     const set = booking.status === 'confirmed' ? bookedDates : pendingDates;
     days.forEach(d => set.add(format(d, 'yyyy-MM-dd')));
   }
