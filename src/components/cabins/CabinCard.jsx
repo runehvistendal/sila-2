@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { Star, MapPin, Users, Anchor } from 'lucide-react';
+import { MapPin, Users, Anchor } from 'lucide-react';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default function CabinCard({ cabin }) {
@@ -28,9 +27,9 @@ export default function CabinCard({ cabin }) {
         </div>
         {cabin.host_provides_transport && (
           <div className="absolute top-3 left-3">
-            <Badge className="bg-white text-primary border-0 shadow-sm text-xs font-semibold gap-1">
+            <span className="inline-flex items-center gap-1 bg-white text-primary shadow-sm text-xs font-semibold px-2.5 py-0.5 rounded-md">
               <Anchor className="w-3 h-3" /> Transport included
-            </Badge>
+            </span>
           </div>
         )}
       </div>
