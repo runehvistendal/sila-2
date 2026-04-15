@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Eye, EyeOff, Anchor, Home as HomeIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCurrency } from '@/lib/CurrencyContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -43,6 +44,7 @@ const createTransportIcon = () => new L.Icon({
 
 const CabinPopup = ({ cabin }) => {
   const [imageError, setImageError] = React.useState(false);
+  const { formatPrice } = useCurrency();
   const image = cabin.images?.[0];
 
   return (
@@ -57,7 +59,7 @@ const CabinPopup = ({ cabin }) => {
       )}
       <p className="font-bold text-foreground">{cabin.title}</p>
       <p className="text-muted-foreground text-xs mb-2">{cabin.location}</p>
-      <p className="font-semibold text-primary">{cabin.price_per_night} DKK/nat</p>
+      <p className="font-semibold text-primary">{formatPrice(cabin.price_per_night)}/nat</p>
       <a href={`/cabins/${cabin.id}`} className="text-primary text-xs mt-2 font-semibold hover:underline block">
         Se detaljer →
       </a>
@@ -66,6 +68,7 @@ const CabinPopup = ({ cabin }) => {
 };
 
 const TransportHubPopup = ({ location, transports }) => {
+  const { formatPrice } = useCurrency();
   const count = transports.length;
   const avgPrice = transports.length > 0
     ? Math.round(transports.reduce((s, t) => s + (t.round_trip_price || 0), 0) / count)
@@ -78,7 +81,7 @@ const TransportHubPopup = ({ location, transports }) => {
       </p>
       <p className="text-muted-foreground text-xs mb-2">{count} sejltur tilgængelig</p>
       {avgPrice > 0 && (
-        <p className="text-primary font-semibold text-xs">Gennemsnit: {avgPrice} DKK</p>
+        <p className="text-primary font-semibold text-xs">Gennemsnit: {formatPrice(avgPrice)}</p>
       )}
       <a href={`/transport?from=${encodeURIComponent(location)}`} className="text-primary text-xs mt-2 font-semibold hover:underline block">
         Se alle ruter →

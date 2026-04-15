@@ -1,0 +1,77 @@
+{
+  "name": "Content",
+  "type": "object",
+  "properties": {
+    "page_type": {
+      "type": "string",
+      "enum": [
+        "home_hero",
+        "home_how_it_works",
+        "cabins_intro",
+        "transport_intro",
+        "article"
+      ],
+      "description": "Type af indhold"
+    },
+    "title": {
+      "type": "string"
+    },
+    "title_da": {
+      "type": "string"
+    },
+    "title_kl": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "HTML eller markdown indhold"
+    },
+    "content_da": {
+      "type": "string"
+    },
+    "content_kl": {
+      "type": "string"
+    },
+    "excerpt": {
+      "type": "string"
+    },
+    "excerpt_da": {
+      "type": "string"
+    },
+    "excerpt_kl": {
+      "type": "string"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "image_alt_text": {
+      "type": "string"
+    },
+    "publish_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft",
+      "description": "Udkast eller live"
+    },
+    "author_email": {
+      "type": "string"
+    },
+    "seo_slug": {
+      "type": "string",
+      "description": "URL-venlig slug"
+    }
+  },
+  "required": [
+    "page_type",
+    "title",
+    "content",
+    "status"
+  ]
+}

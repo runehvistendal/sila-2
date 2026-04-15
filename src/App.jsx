@@ -6,6 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { RoleProvider } from '@/lib/RoleContext';
 import { LanguageProvider } from '@/lib/LanguageContext';
+import { CurrencyProvider } from '@/lib/CurrencyContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from '@/components/layout/Layout';
 
@@ -34,6 +35,8 @@ import LegalAdmin from '@/pages/LegalAdmin';
 import GrowthInsights from '@/pages/GrowthInsights';
 import Support from '@/pages/Support';
 import AdminSupport from '@/pages/AdminSupport';
+import AdminContent from '@/pages/AdminContent';
+import AdminUsers from '@/pages/AdminUsers';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -79,6 +82,8 @@ const AuthenticatedApp = () => {
         <Route path="/admin/legal" element={<LegalAdmin />} />
         <Route path="/admin/growth" element={<GrowthInsights />} />
         <Route path="/admin/support" element={<AdminSupport />} />
+        <Route path="/admin/content" element={<AdminContent />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/support" element={<Support />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
@@ -89,16 +94,18 @@ const AuthenticatedApp = () => {
 function App() {
   return (
     <LanguageProvider>
-      <AuthProvider>
-        <RoleProvider>
-          <QueryClientProvider client={queryClientInstance}>
-            <Router>
-              <AuthenticatedApp />
-            </Router>
-            <Toaster />
-          </QueryClientProvider>
-        </RoleProvider>
-      </AuthProvider>
+      <CurrencyProvider>
+        <AuthProvider>
+          <RoleProvider>
+            <QueryClientProvider client={queryClientInstance}>
+              <Router>
+                <AuthenticatedApp />
+              </Router>
+              <Toaster />
+            </QueryClientProvider>
+          </RoleProvider>
+        </AuthProvider>
+      </CurrencyProvider>
     </LanguageProvider>
   )
 }

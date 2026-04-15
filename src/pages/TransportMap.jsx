@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { useCurrency } from '@/lib/CurrencyContext';
 import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ const LOCATIONS = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Disko Bay', 'Kangerlussuaq'
 
 export default function TransportMap() {
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const [searchParams, setSearchParams] = useSearchParams();
   const [fromFilter, setFromFilter] = useState(searchParams.get('from') || 'all');
   const [toFilter, setToFilter] = useState(searchParams.get('to') || 'all');
@@ -124,9 +126,8 @@ export default function TransportMap() {
                 <p className="text-xs text-muted-foreground font-semibold mb-1">GENNEMSNITSPRIS</p>
                 <p className="text-2xl font-bold text-primary">
                   {filtered.length > 0
-                    ? Math.round(filtered.reduce((s, t) => s + (t.round_trip_price || 0), 0) / filtered.length)
+                    ? formatPrice(Math.round(filtered.reduce((s, t) => s + (t.round_trip_price || 0), 0) / filtered.length), false)
                     : '-'}
-                  {filtered.length > 0 && ' DKK'}
                 </p>
               </div>
             </div>

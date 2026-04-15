@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Users, Anchor } from 'lucide-react';
+import { useCurrency } from '@/lib/CurrencyContext';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default function CabinCard({ cabin }) {
   const [imageError, setImageError] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
+  const { formatPrice } = useCurrency();
   const coverImage = cabin.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=600&h=400&fit=crop&q=80';
   const fallbackImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80';
 
@@ -55,7 +57,7 @@ export default function CabinCard({ cabin }) {
             {cabin.title}
           </h3>
           <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-            {cabin.price_per_night} <span className="font-normal text-muted-foreground text-xs">DKK/night</span>
+            {formatPrice(cabin.price_per_night)} <span className="font-normal text-muted-foreground text-xs">/nat</span>
           </span>
         </div>
         <div className="flex items-center gap-1 text-muted-foreground text-xs mb-2">

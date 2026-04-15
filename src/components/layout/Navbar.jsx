@@ -15,6 +15,7 @@ import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, 
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
 import RoleSwitcherDropdown from '@/components/shared/RoleSwitcherDropdown';
+import CurrencySelector from '@/components/shared/CurrencySelector';
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -86,6 +87,7 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="hidden md:flex items-center gap-2">
+            <CurrencySelector />
             <LanguageSwitcher transparent={transparent} />
             {user ? (
               <>
@@ -135,6 +137,16 @@ export default function Navbar() {
                        </div>
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
+                     {user?.role === 'admin' && (
+                       <>
+                         <DropdownMenuItem asChild>
+                           <Link to="/admin/content" className="flex items-center gap-2 cursor-pointer text-primary">
+                             <PlusCircle className="w-4 h-4" /> Admin indhold
+                           </Link>
+                         </DropdownMenuItem>
+                         <DropdownMenuSeparator />
+                       </>
+                     )}
                      <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive flex items-center gap-2 cursor-pointer">
                        <LogOut className="w-4 h-4" /> {t('nav_sign_out')}
                      </DropdownMenuItem>
