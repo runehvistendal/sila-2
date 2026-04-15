@@ -1,0 +1,38 @@
+{
+  "name": "SafetyFeedback",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string"
+    },
+    "guest_email": {
+      "type": "string"
+    },
+    "provider_email": {
+      "type": "string"
+    },
+    "life_vests_offered": {
+      "type": "boolean",
+      "description": "Blev der tilbudt redningsveste til alle passagerer?"
+    },
+    "equipment_visible": {
+      "type": "boolean",
+      "description": "Var sikkerhedsudstyret synligt og tilg\u00e6ngeligt?"
+    },
+    "felt_safe": {
+      "type": "boolean",
+      "description": "F\u00f8lte du dig sikker under turen?"
+    },
+    "additional_comments": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "booking_id",
+    "guest_email",
+    "provider_email",
+    "life_vests_offered",
+    "equipment_visible",
+    "felt_safe"
+  ]
+}

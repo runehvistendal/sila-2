@@ -3,42 +3,25 @@
   "type": "object",
   "properties": {
     "provider_email": {
-      "type": "string",
-      "description": "Unique identifier for the provider"
+      "type": "string"
+    },
+    "safety_violation_count": {
+      "type": "number",
+      "default": 0
     },
     "trust_score": {
       "type": "number",
-      "description": "Trust score 0-100 (100 = fully trusted)",
       "default": 100
-    },
-    "total_confirmations": {
-      "type": "number",
-      "description": "Total number of safety confirmations",
-      "default": 0
-    },
-    "total_violations": {
-      "type": "number",
-      "description": "Total number of compliance violations",
-      "default": 0
     },
     "status": {
       "type": "string",
       "enum": [
         "active",
         "warning",
-        "suspended",
-        "banned"
+        "suspended_temp",
+        "suspended_perm"
       ],
-      "default": "active",
-      "description": "Current provider status"
-    },
-    "last_violation_at": {
-      "type": "string",
-      "description": "ISO timestamp of last violation"
-    },
-    "notes": {
-      "type": "string",
-      "description": "Admin notes"
+      "default": "active"
     }
   },
   "required": [
