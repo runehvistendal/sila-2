@@ -1,0 +1,73 @@
+{
+  "name": "Booking",
+  "type": "object",
+  "properties": {
+    "booking_type": {
+      "type": "string",
+      "enum": [
+        "experience",
+        "cabin",
+        "boat_transport"
+      ]
+    },
+    "listing_id": {
+      "type": "string",
+      "description": "ID of the experience/cabin/boat"
+    },
+    "listing_title": {
+      "type": "string"
+    },
+    "guest_name": {
+      "type": "string"
+    },
+    "guest_email": {
+      "type": "string"
+    },
+    "guest_count": {
+      "type": "number"
+    },
+    "booking_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "check_in": {
+      "type": "string",
+      "format": "date"
+    },
+    "check_out": {
+      "type": "string",
+      "format": "date"
+    },
+    "total_dkk": {
+      "type": "number"
+    },
+    "commission_dkk": {
+      "type": "number"
+    },
+    "provider_payout_dkk": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "provider_email": {
+      "type": "string"
+    },
+    "special_requests": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "booking_type",
+    "listing_id",
+    "guest_email",
+    "total_dkk"
+  ]
+}

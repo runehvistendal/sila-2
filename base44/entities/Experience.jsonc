@@ -1,0 +1,143 @@
+{
+  "name": "Experience",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Experience title"
+    },
+    "title_da": {
+      "type": "string",
+      "description": "Danish title"
+    },
+    "title_kl": {
+      "type": "string",
+      "description": "Kalaallisut title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Full description"
+    },
+    "description_da": {
+      "type": "string",
+      "description": "Danish description"
+    },
+    "description_kl": {
+      "type": "string",
+      "description": "Kalaallisut description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "boat_tour",
+        "dog_sledding",
+        "kayaking",
+        "northern_lights",
+        "hiking",
+        "fishing",
+        "cultural",
+        "wildlife",
+        "ice_cap"
+      ],
+      "description": "Type of experience"
+    },
+    "location": {
+      "type": "string",
+      "description": "Town or settlement name"
+    },
+    "price_dkk": {
+      "type": "number",
+      "description": "Price in DKK"
+    },
+    "duration_hours": {
+      "type": "number",
+      "description": "Duration in hours"
+    },
+    "max_guests": {
+      "type": "number",
+      "description": "Maximum number of guests"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Image URLs"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "Main cover image URL"
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Guide/provider name"
+    },
+    "provider_email": {
+      "type": "string",
+      "description": "Provider email"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Languages the guide speaks"
+    },
+    "included": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What's included"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "easy",
+        "moderate",
+        "challenging"
+      ],
+      "description": "Difficulty level"
+    },
+    "season": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "spring",
+          "summer",
+          "autumn",
+          "winter"
+        ]
+      },
+      "description": "Available seasons"
+    },
+    "rating": {
+      "type": "number",
+      "description": "Average rating"
+    },
+    "review_count": {
+      "type": "number",
+      "description": "Number of reviews"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "description": "Featured on homepage"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "draft"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "title",
+    "category",
+    "location",
+    "price_dkk"
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "name": "Cabin",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Cabin name"
+    },
+    "title_da": {
+      "type": "string"
+    },
+    "title_kl": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "description_da": {
+      "type": "string"
+    },
+    "description_kl": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location name"
+    },
+    "coordinates": {
+      "type": "string",
+      "description": "Lat,Lng"
+    },
+    "price_per_night_dkk": {
+      "type": "number"
+    },
+    "max_guests": {
+      "type": "number"
+    },
+    "bedrooms": {
+      "type": "number"
+    },
+    "amenities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Available amenities"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "cover_image": {
+      "type": "string"
+    },
+    "provider_name": {
+      "type": "string"
+    },
+    "provider_email": {
+      "type": "string"
+    },
+    "is_remote": {
+      "type": "boolean",
+      "description": "Truly remote cabin"
+    },
+    "access_info": {
+      "type": "string",
+      "description": "How to reach the cabin"
+    },
+    "rating": {
+      "type": "number"
+    },
+    "review_count": {
+      "type": "number"
+    },
+    "is_featured": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "draft"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "title",
+    "location",
+    "price_per_night_dkk"
+  ]
+}

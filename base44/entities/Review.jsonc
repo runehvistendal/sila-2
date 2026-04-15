@@ -1,0 +1,39 @@
+{
+  "name": "Review",
+  "type": "object",
+  "properties": {
+    "listing_type": {
+      "type": "string",
+      "enum": [
+        "experience",
+        "cabin",
+        "boat_transport"
+      ]
+    },
+    "listing_id": {
+      "type": "string"
+    },
+    "listing_title": {
+      "type": "string"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "reviewer_email": {
+      "type": "string"
+    },
+    "rating": {
+      "type": "number"
+    },
+    "comment": {
+      "type": "string"
+    },
+    "provider_email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "listing_id",
+    "rating"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "name": "BoatTransport",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Route description"
+    },
+    "from_location": {
+      "type": "string"
+    },
+    "to_location": {
+      "type": "string"
+    },
+    "departure_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "departure_time": {
+      "type": "string",
+      "description": "HH:MM format"
+    },
+    "available_seats": {
+      "type": "number"
+    },
+    "price_per_seat_dkk": {
+      "type": "number"
+    },
+    "provider_name": {
+      "type": "string"
+    },
+    "provider_email": {
+      "type": "string"
+    },
+    "boat_type": {
+      "type": "string"
+    },
+    "duration_hours": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Any extra info"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "full",
+        "departed",
+        "cancelled"
+      ],
+      "default": "scheduled"
+    }
+  },
+  "required": [
+    "from_location",
+    "to_location",
+    "departure_date",
+    "available_seats",
+    "price_per_seat_dkk"
+  ]
+}
