@@ -12,6 +12,7 @@ import { toast } from '@/components/ui/use-toast';
 import { IncomingRequestsTab, MyTransportRequestsTab } from '@/components/dashboard/TransportRequestsTab';
 import { IncomingCabinRequestsTab, MyCabinRequestsTab } from '@/components/dashboard/CabinRequestsTab';
 import HostCalendarTab from '@/components/dashboard/HostCalendarTab';
+import BookingReviewButton from '@/components/bookings/BookingReviewButton';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -321,6 +322,8 @@ function BookingRow({ booking, isHost, onConfirm, onDecline }) {
       {booking.message && (
         <p className="mt-3 text-xs text-muted-foreground bg-muted rounded-lg p-2.5 italic">"{booking.message}"</p>
       )}
+
+      {!isHost && <div className="mt-3"><BookingReviewButton booking={booking} /></div>}
 
       {isHost && booking.status === 'pending' && (
         <div className="flex gap-2 mt-4">

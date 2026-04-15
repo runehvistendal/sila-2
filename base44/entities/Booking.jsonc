@@ -44,13 +44,19 @@
     "host_email": {
       "type": "string"
     },
+    "stripe_session_id": {
+      "type": "string",
+      "description": "Stripe Checkout session ID"
+    },
     "status": {
       "type": "string",
       "enum": [
+        "on_hold",
         "pending",
         "confirmed",
         "declined",
-        "cancelled"
+        "cancelled",
+        "completed"
       ],
       "default": "pending"
     }

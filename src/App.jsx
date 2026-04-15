@@ -18,6 +18,8 @@ import CreateListing from '@/pages/CreateListing';
 import RequestTransport from '@/pages/RequestTransport';
 import RequestCabin from '@/pages/RequestCabin';
 import Profile from '@/pages/Profile';
+import BookingSuccess from '@/pages/BookingSuccess';
+import BookingCancelled from '@/pages/BookingCancelled';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -52,6 +54,8 @@ const AuthenticatedApp = () => {
         <Route path="/request-transport" element={<RequestTransport />} />
         <Route path="/request-cabin" element={<RequestCabin />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/booking-success" element={<BookingSuccess />} />
+        <Route path="/booking-cancelled" element={<BookingCancelled />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

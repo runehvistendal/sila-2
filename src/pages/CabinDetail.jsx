@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import TransportCard from '@/components/transport/TransportCard';
 import CabinReviews from '@/components/cabins/CabinReviews';
 import CabinAvailabilityCalendar from '@/components/cabins/CabinAvailabilityCalendar';
+import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import { MapPin, Users, Anchor, ChevronLeft, Star, Check } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
@@ -44,14 +45,12 @@ export default function CabinDetail() {
       ),
   });
 
+  // Keep legacy mutation for non-Stripe fallback if needed
   const bookMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
     onSuccess: () => {
-      toast({ title: 'Booking request sent!', description: 'The host will respond shortly.' });
       qc.invalidateQueries(['bookings']);
-      setCheckIn('');
-      setCheckOut('');
-      setMessage('');
+      setCheckIn(''); setCheckOut(''); setMessage('');
     },
   });
 
@@ -80,27 +79,17 @@ export default function CabinDetail() {
       : 0;
   const total = nights * cabin.price_per_night;
 
-  const handleBook = () => {
-    if (!user) return base44.auth.redirectToLogin();
-    if (!checkIn || !checkOut || nights <= 0) {
-      toast({ title: 'Select valid dates', variant: 'destructive' });
-      return;
-    }
-    bookMutation.mutate({
-      type: 'cabin',
-      listing_id: cabin.id,
-      listing_title: cabin.title,
-      guest_name: user.full_name || '',
-      guest_email: user.email,
-      check_in: checkIn,
-      check_out: checkOut,
-      guests,
-      total_price: total,
-      message,
-      host_email: cabin.host_email || '',
-      status: 'pending',
-    });
-  };
+  const stripePayload = nights > 0 ? {
+    bookingType: 'cabin',
+    listingId: cabin?.id,
+    listingTitle: cabin?.title,
+    checkIn,
+    checkOut,
+    guests,
+    totalPrice: total,
+    hostEmail: cabin?.host_email || '',
+    message,
+  } : null;
 
   return (
     <div className="min-h-screen pt-16 bg-background">
@@ -260,14 +249,18 @@ export default function CabinDetail() {
                 </div>
               )}
 
-              <Button
-                onClick={handleBook}
-                disabled={bookMutation.isPending}
-                className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold text-base"
-              >
-                {bookMutation.isPending ? 'Sending...' : user ? 'Request to book' : 'Sign in to book'}
-              </Button>
-              <p className="text-xs text-muted-foreground text-center mt-3">No charge until the host confirms</p>
+              {!user ? (
+                <Button onClick={() => base44.auth.redirectToLogin()} className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold text-base">
+                  Log ind for at booke
+                </Button>
+              ) : (
+                <StripeCheckoutButton
+                  payload={stripePayload}
+                  disabled={!stripePayload}
+                  label={nights > 0 ? `Betal ${total} DKK` : 'Vælg datoer for at booke'}
+                />
+              )}
+              <p className="text-xs text-muted-foreground text-center mt-3">Sikker betaling via Stripe</p>
             </div>
           </div>
         </div>

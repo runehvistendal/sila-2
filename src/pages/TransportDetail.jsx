@@ -1,36 +1,26 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor } from 'lucide-react';
 import { format } from 'date-fns';
-import { toast } from '@/components/ui/use-toast';
+import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
+import TransportReviews from '@/components/transport/TransportReviews';
 
 export default function TransportDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const qc = useQueryClient();
   const [seats, setSeats] = useState(1);
   const [message, setMessage] = useState('');
 
   const { data: transport, isLoading } = useQuery({
     queryKey: ['transport', id],
     queryFn: () => base44.entities.Transport.filter({ id }, null, 1).then((r) => r[0]),
-  });
-
-  const bookMutation = useMutation({
-    mutationFn: (data) => base44.entities.Booking.create(data),
-    onSuccess: () => {
-      toast({ title: 'Booking request sent!', description: 'The provider will respond shortly.' });
-      qc.invalidateQueries(['bookings']);
-      setMessage('');
-    },
   });
 
   if (isLoading) return (
@@ -48,25 +38,15 @@ export default function TransportDetail() {
 
   const total = seats * transport.price_per_seat;
 
-  const handleBook = () => {
-    if (!user) return base44.auth.redirectToLogin();
-    if (seats < 1 || seats > transport.seats_available) {
-      toast({ title: 'Invalid seat count', variant: 'destructive' });
-      return;
-    }
-    bookMutation.mutate({
-      type: 'transport',
-      listing_id: transport.id,
-      listing_title: `${transport.from_location} → ${transport.to_location}`,
-      guest_name: user.full_name || '',
-      guest_email: user.email,
-      check_in: transport.departure_date,
-      seats,
-      total_price: total,
-      message,
-      host_email: transport.provider_email || '',
-      status: 'pending',
-    });
+  const stripePayload = {
+    bookingType: 'transport',
+    listingId: transport.id,
+    listingTitle: `${transport.from_location} → ${transport.to_location}`,
+    checkIn: transport.departure_date,
+    seats,
+    totalPrice: total,
+    hostEmail: transport.provider_email || '',
+    message,
   };
 
   return (
@@ -122,7 +102,7 @@ export default function TransportDetail() {
         </div>
 
         {/* Booking card */}
-        <div className="bg-white rounded-2xl border border-border shadow-card p-6">
+        <div className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6">
           <h2 className="text-lg font-bold text-foreground mb-5">Book a seat</h2>
           <div className="space-y-4 mb-5">
             <div>
@@ -153,14 +133,24 @@ export default function TransportDetail() {
             </div>
           </div>
 
-          <Button
-            onClick={handleBook}
-            disabled={bookMutation.isPending || transport.seats_available === 0}
-            className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold"
-          >
-            {transport.seats_available === 0 ? 'Fully booked' : bookMutation.isPending ? 'Sending...' : user ? 'Request to book' : 'Sign in to book'}
-          </Button>
+          {transport.seats_available === 0 ? (
+            <Button disabled className="w-full h-12 rounded-xl font-semibold">Fully booked</Button>
+          ) : !user ? (
+            <Button onClick={() => base44.auth.redirectToLogin()} className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold">
+              Log ind for at booke
+            </Button>
+          ) : (
+            <StripeCheckoutButton
+              payload={stripePayload}
+              disabled={seats < 1 || seats > transport.seats_available}
+              label={`Betal ${total} DKK`}
+            />
+          )}
+          <p className="text-xs text-muted-foreground text-center mt-3">Sikker betaling via Stripe</p>
         </div>
+
+        {/* Reviews */}
+        <TransportReviews transportId={transport.id} providerEmail={transport.provider_email} providerName={transport.provider_name} />
       </div>
     </div>
   );
