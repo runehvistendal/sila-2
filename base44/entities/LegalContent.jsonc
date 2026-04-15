@@ -1,0 +1,50 @@
+{
+  "name": "LegalContent",
+  "type": "object",
+  "properties": {
+    "page_type": {
+      "type": "string",
+      "enum": [
+        "privacy_policy",
+        "terms_of_service",
+        "cookies_consent",
+        "community_guidelines"
+      ],
+      "description": "Type of legal page"
+    },
+    "title": {
+      "type": "string",
+      "description": "Page title"
+    },
+    "title_da": {
+      "type": "string"
+    },
+    "title_kl": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string",
+      "description": "Page content (HTML or markdown)"
+    },
+    "content_da": {
+      "type": "string"
+    },
+    "content_kl": {
+      "type": "string"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last update date"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version number"
+    }
+  },
+  "required": [
+    "page_type",
+    "title",
+    "content"
+  ]
+}

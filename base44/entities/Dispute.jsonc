@@ -1,0 +1,65 @@
+{
+  "name": "Dispute",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "Related booking ID"
+    },
+    "claimant_email": {
+      "type": "string",
+      "description": "Email of person filing dispute"
+    },
+    "respondent_email": {
+      "type": "string",
+      "description": "Email of other party"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "service_not_provided",
+        "cancellation_dispute",
+        "quality_issue",
+        "payment_issue",
+        "other"
+      ],
+      "description": "Reason for dispute"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed explanation"
+    },
+    "amount_dkk": {
+      "type": "number",
+      "description": "Amount in dispute"
+    },
+    "evidence_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supporting documentation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_mediation",
+        "resolved",
+        "escalated"
+      ],
+      "default": "open",
+      "description": "Dispute status"
+    },
+    "resolution": {
+      "type": "string",
+      "description": "How the dispute was resolved"
+    }
+  },
+  "required": [
+    "booking_id",
+    "claimant_email",
+    "respondent_email",
+    "reason"
+  ]
+}

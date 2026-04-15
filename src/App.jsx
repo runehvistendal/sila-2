@@ -23,6 +23,12 @@ import Profile from '@/pages/Profile';
 import BookingSuccess from '@/pages/BookingSuccess';
 import BookingCancelled from '@/pages/BookingCancelled';
 import Favourites from '@/pages/Favourites';
+import PrivacyCenter from '@/pages/PrivacyCenter';
+import LegalPage from '@/pages/LegalPage';
+import TrustScore from '@/pages/TrustScore';
+import VerifiedSafety from '@/pages/VerifiedSafety';
+import CommunityGuidelines from '@/pages/CommunityGuidelines';
+import ReportIncident from '@/pages/ReportIncident';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -60,6 +66,12 @@ const AuthenticatedApp = () => {
         <Route path="/booking-success" element={<BookingSuccess />} />
         <Route path="/booking-cancelled" element={<BookingCancelled />} />
         <Route path="/favourites" element={<Favourites />} />
+        <Route path="/privacy-center" element={<PrivacyCenter />} />
+        <Route path="/legal/:pageType" element={<LegalPage />} />
+        <Route path="/trust-score" element={<TrustScore />} />
+        <Route path="/verified-safety" element={<VerifiedSafety />} />
+        <Route path="/community-guidelines" element={<CommunityGuidelines />} />
+        <Route path="/report-incident" element={<ReportIncident />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

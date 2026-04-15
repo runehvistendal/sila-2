@@ -1,0 +1,40 @@
+{
+  "name": "DataDeleteRequest",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of user requesting deletion"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for deletion request"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "processing",
+        "completed"
+      ],
+      "default": "pending",
+      "description": "Deletion status"
+    },
+    "confirmation_token": {
+      "type": "string",
+      "description": "Token for confirming deletion via email"
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

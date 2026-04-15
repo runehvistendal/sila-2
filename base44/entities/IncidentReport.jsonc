@@ -1,0 +1,63 @@
+{
+  "name": "IncidentReport",
+  "type": "object",
+  "properties": {
+    "reporter_email": {
+      "type": "string",
+      "description": "Email of person reporting the incident"
+    },
+    "incident_type": {
+      "type": "string",
+      "enum": [
+        "safety_concern",
+        "harassment",
+        "fraud",
+        "property_damage",
+        "other"
+      ],
+      "description": "Category of incident"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the incident"
+    },
+    "involved_parties": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of people involved"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "Related booking ID if applicable"
+    },
+    "evidence_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs to photos or documents"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "under_review",
+        "resolved",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Status of the report"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Internal notes from admin"
+    }
+  },
+  "required": [
+    "reporter_email",
+    "incident_type",
+    "description"
+  ]
+}
