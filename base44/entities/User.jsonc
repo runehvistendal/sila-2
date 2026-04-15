@@ -10,6 +10,16 @@
       ],
       "description": "App role"
     },
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "guest",
+        "private_host",
+        "business_host"
+      ],
+      "default": "guest",
+      "description": "User type in the marketplace"
+    },
     "bio": {
       "type": "string",
       "description": "Short personal description"
@@ -51,6 +61,55 @@
       ],
       "default": "email",
       "description": "How the user wants to receive notifications"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Business name (for business_host users)"
+    },
+    "cvr_number": {
+      "type": "string",
+      "description": "CVR registration number (for business verification)"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "not_submitted",
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "not_submitted",
+      "description": "Business verification status - admin only"
+    },
+    "verification_docs_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs to uploaded verification documents - admin only"
+    },
+    "social_media_link": {
+      "type": "string",
+      "description": "Social media or website link for business verification"
+    },
+    "is_verified_business": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if business is verified - admin only"
+    },
+    "is_top_host": {
+      "type": "boolean",
+      "default": false,
+      "description": "Top host badge status"
+    },
+    "is_top_skipper": {
+      "type": "boolean",
+      "default": false,
+      "description": "Top skipper badge status"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Internal notes from admins regarding verification - admin only"
     }
   },
   "required": [
