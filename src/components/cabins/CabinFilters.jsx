@@ -36,7 +36,7 @@ export default function CabinFilters({ filters, onChange }) {
           <SelectTrigger className="w-[180px] h-10 rounded-xl">
             <SelectValue placeholder="Alle steder" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper">
             <SelectItem value="all">Alle steder</SelectItem>
             <SelectItem value="Nuuk">Nuuk</SelectItem>
             <SelectItem value="Ilulissat">Ilulissat</SelectItem>
@@ -53,7 +53,7 @@ export default function CabinFilters({ filters, onChange }) {
           <SelectTrigger className="w-[160px] h-10 rounded-xl">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper">
             <SelectItem value="newest">Nyeste først</SelectItem>
             <SelectItem value="price_asc">Pris: lav til høj</SelectItem>
             <SelectItem value="price_desc">Pris: høj til lav</SelectItem>
