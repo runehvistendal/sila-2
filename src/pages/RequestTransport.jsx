@@ -67,7 +67,7 @@ export default function RequestTransport() {
     };
 
     if (returnTrip) {
-      const returnMessage = `[RETURTUR] Dato: ${returnForm.return_date}, Passagerer: ${returnForm.return_passengers}`;
+      const returnMessage = `[HJEMREJSE] Dato: ${returnForm.return_date}, Passagerer: ${returnForm.return_passengers}`;
       baseData.message = baseData.message
         ? `${baseData.message}\n\n${returnMessage}`
         : returnMessage;
@@ -187,14 +187,14 @@ export default function RequestTransport() {
                 {returnTrip && <div className="w-2 h-2 rounded-sm bg-white" />}
               </div>
               <ArrowLeftRight className="w-4 h-4" />
-              Tilføj returtur
+              Tilføj hjemrejse
             </button>
 
             {returnTrip && (
               <div className="mt-3 p-4 bg-primary/5 border border-primary/20 rounded-xl space-y-4">
                 <p className="text-xs font-semibold text-primary flex items-center gap-1.5">
                   <RefreshCw className="w-3.5 h-3.5" />
-                  Returtur: {form.to_location || '…'} → {form.from_location || '…'}
+                  Hjemrejse: {form.to_location || '…'} → {form.from_location || '…'}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
