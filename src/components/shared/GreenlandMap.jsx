@@ -49,35 +49,42 @@ const MapPopupContent = ({ cabin }) => {
         />
       )}
       {!image && (
-        <div className="w-full h-24 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg mb-2" />
-      )}}
-      <p className="font-semibold text-foreground">{cabin.title}</p>
-      <p className="text-muted-foreground text-xs mb-2">{cabin.location}</p>
-      <p className="font-bold text-primary text-sm">{cabin.price_per_night} DKK/nat</p>
-      <a href={`/cabins/${cabin.id}`} className="block mt-2 text-xs text-primary font-medium hover:underline">Se detaljer →</a>
-    </div>
-  );
-};
+         <div className="w-full h-24 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg mb-2" />
+       )}
+       <p className="font-semibold text-foreground">{cabin.title}</p>
+       <p className="text-muted-foreground text-xs mb-2">{cabin.location}</p>
+       <p className="font-bold text-primary text-sm">{cabin.price_per_night} DKK/nat</p>
+       <a href={`/cabins/${cabin.id}`} className="block mt-2 text-xs text-primary font-medium hover:underline">Se detaljer →</a>
+      </div>
+      );
+      };
 
-export default function GreenlandMap({ cabins = [], height = '400px' }) {
-  const pins = (cabins || [])
-    .filter(c => c && c.id)
-    .map(c => ({ ...c, coords: getCoords(c.location) }))
-    .filter(c => c.coords);
+      export default function GreenlandMap({ cabins = [], height = '400px' }) {
+      const pins = (cabins || [])
+      .filter(c => c && c.id)
+      .map(c => ({ ...c, coords: getCoords(c.location) }))
+      .filter(c => c.coords);
 
-  return (
-    <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card">
-      <MapContainer
-        center={[68, -50]}
-        zoom={5}
-        style={{ height: '100%', width: '100%' }}
-        scrollWheelZoom={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {pins.map(cabin => (
-          <Marker key={cabin.id} position={cabin.coords}>
-            <Popup>
-              <MapPopupContent cabin={cabin} />
+      return (
+      <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card">
+       <MapContainer
+         center={[68, -50]}
+         zoom={5}
+         style={{ height: '100%', width: '100%' }}
+         scrollWheelZoom={false}
+       >
+         <TileLayer
+           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+         />
+         {pins.map(cabin => (
+           <Marker key={cabin.id} position={cabin.coords}>
+             <Popup>
+               <MapPopupContent cabin={cabin} />
+             </Popup>
+           </Marker>
+         ))}
+       </MapContainer>
+      </div>
+      );
+      }
