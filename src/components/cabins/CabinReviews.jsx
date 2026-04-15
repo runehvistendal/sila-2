@@ -4,9 +4,10 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, User } from 'lucide-react';
+import { Star, User, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
+import { useReviewTranslation } from '@/hooks/useReviewTranslation';
 
 function StarPicker({ value, onChange }) {
   const [hovered, setHovered] = useState(0);
@@ -35,6 +36,64 @@ function StarBar({ stars, count }) {
         <Star key={n} className={`w-4 h-4 ${n <= Math.round(stars) ? 'fill-amber-400 text-amber-400' : 'text-muted'}`} />
       ))}
       {count !== undefined && <span className="text-xs text-muted-foreground ml-1">({count})</span>}
+    </div>
+  );
+}
+
+function ReviewItem({ review }) {
+  const { translatedText, isTranslating } = useReviewTranslation(review.comment || '', 'da');
+
+  return (
+    <div className="bg-white rounded-xl border border-border p-4">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+          <User className="w-4 h-4 text-primary" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <p className="text-sm font-semibold text-foreground">{review.reviewer_name || 'Anonym'}</p>
+            <p className="text-xs text-muted-foreground">{format(new Date(review.created_date), 'MMM d, yyyy')}</p>
+          </div>
+          <StarBar stars={review.rating} />
+          {review.comment && (
+            <div className="mt-2">
+              <p className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2">
+                {isTranslating && <Loader2 className="w-3 h-3 mt-1 animate-spin flex-shrink-0" />}
+                <span>{translatedText}</span>
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RatingItem({ rating }) {
+  const { translatedText, isTranslating } = useReviewTranslation(rating.comment || '', 'da');
+
+  return (
+    <div className="bg-white rounded-xl border border-border p-4">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+          <User className="w-4 h-4 text-accent" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <p className="text-sm font-semibold text-foreground">{rating.from_email?.split('@')[0]}</p>
+            <p className="text-xs text-muted-foreground">{format(new Date(rating.created_date), 'MMM d, yyyy')}</p>
+          </div>
+          <StarBar stars={rating.stars} />
+          {rating.comment && (
+            <div className="mt-2">
+              <p className="text-sm text-muted-foreground leading-relaxed flex items-start gap-2">
+                {isTranslating && <Loader2 className="w-3 h-3 mt-1 animate-spin flex-shrink-0" />}
+                <span>{translatedText}</span>
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -154,39 +213,11 @@ export default function CabinReviews({ cabinId, hostEmail, hostName, currentUser
       ) : (
         <div className="space-y-4">
           {reviews.map((r) => (
-            <div key={r.id} className="bg-white rounded-xl border border-border p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <User className="w-4 h-4 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <p className="text-sm font-semibold text-foreground">{r.reviewer_name || 'Anonym'}</p>
-                    <p className="text-xs text-muted-foreground">{format(new Date(r.created_date), 'MMM d, yyyy')}</p>
-                  </div>
-                  <StarBar stars={r.rating} />
-                  {r.comment && <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{r.comment}</p>}
-                </div>
-              </div>
-            </div>
+            <ReviewItem key={r.id} review={r} />
           ))}
           {/* Show host ratings from booking flow too */}
           {hostRatings.map((r) => (
-            <div key={r.id} className="bg-white rounded-xl border border-border p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                  <User className="w-4 h-4 text-accent" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <p className="text-sm font-semibold text-foreground">{r.from_email?.split('@')[0]}</p>
-                    <p className="text-xs text-muted-foreground">{format(new Date(r.created_date), 'MMM d, yyyy')}</p>
-                  </div>
-                  <StarBar stars={r.stars} />
-                  {r.comment && <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{r.comment}</p>}
-                </div>
-              </div>
-            </div>
+            <RatingItem key={r.id} rating={r} />
           ))}
         </div>
       )}

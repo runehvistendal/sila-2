@@ -1,0 +1,32 @@
+{
+  "name": "ReviewTranslation",
+  "type": "object",
+  "properties": {
+    "review_id": {
+      "type": "string",
+      "description": "ID of the original review"
+    },
+    "original_language": {
+      "type": "string",
+      "description": "Language code of original review (da, kl)"
+    },
+    "original_text": {
+      "type": "string",
+      "description": "Original review text"
+    },
+    "translated_text": {
+      "type": "string",
+      "description": "Translated review text in English"
+    },
+    "translated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "review_id",
+    "original_language",
+    "original_text",
+    "translated_text"
+  ]
+}
