@@ -1,23 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Users, Anchor } from 'lucide-react';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default function CabinCard({ cabin }) {
   const [imageError, setImageError] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
   const coverImage = cabin.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=600&h=400&fit=crop&q=80';
   const fallbackImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80';
+
+  React.useEffect(() => {
+    if (imageError) {
+      setImageUrl(fallbackImage);
+    } else {
+      setImageUrl(coverImage);
+    }
+  }, [coverImage, fallbackImage, imageError]);
 
   return (
     <Link to={`/cabins/${cabin.id}`} className="group block">
        {/* Image */}
        <div className="relative overflow-hidden rounded-2xl aspect-[4/3] mb-3 bg-gradient-to-br from-primary/30 to-accent/30">
-         <img
-           src={imageError ? fallbackImage : coverImage}
-           alt={cabin.title}
-           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-           onError={() => setImageError(true)}
-         />
+         {imageUrl && (
+           <img
+             src={imageUrl}
+             alt={cabin.title}
+             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+             onError={() => setImageError(true)}
+           />
+         )}
         <div className="absolute top-3 right-3" onClick={e => e.preventDefault()}>
           <FavouriteButton
             listingType="cabin"

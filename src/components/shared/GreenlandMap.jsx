@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Link } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
@@ -35,14 +35,23 @@ function getCoords(location) {
 
 const MapPopupContent = ({ cabin }) => {
   const [imageError, setImageError] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
   const image = cabin.images?.[0];
   const fallback = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&h=150&fit=crop&q=80';
 
+  React.useEffect(() => {
+    if (imageError || !image) {
+      setImageUrl(image ? fallback : null);
+    } else {
+      setImageUrl(image);
+    }
+  }, [image, fallback, imageError]);
+
   return (
     <div className="text-sm min-w-[150px]">
-      {image && (
+      {imageUrl && (
         <img 
-          src={imageError ? fallback : image} 
+          src={imageUrl} 
           alt="" 
           className="w-full h-24 object-cover rounded-lg mb-2" 
           onError={() => setImageError(true)}
