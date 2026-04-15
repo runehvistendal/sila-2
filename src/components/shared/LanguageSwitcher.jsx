@@ -27,6 +27,7 @@ export default function LanguageSwitcher({ transparent = false, mobileCompact = 
               ? 'text-white/80 hover:text-white hover:bg-white/10'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted'
           }`}>
+            <Globe className="w-4 h-4" />
             <span>{currentLang?.abbr}</span>
           </button>
         </DropdownMenuTrigger>
