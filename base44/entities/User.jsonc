@@ -40,6 +40,17 @@
     "phone": {
       "type": "string",
       "description": "Contact phone number"
+    },
+    "notification_prefs": {
+      "type": "string",
+      "enum": [
+        "email",
+        "sms",
+        "both",
+        "none"
+      ],
+      "default": "email",
+      "description": "How the user wants to receive notifications"
     }
   },
   "required": [

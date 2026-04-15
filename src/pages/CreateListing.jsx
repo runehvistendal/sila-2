@@ -33,8 +33,10 @@ export default function CreateListing() {
   const [transportForm, setTransportForm] = useState({
     from_location: '', to_location: '', departure_date: '',
     departure_time: '', seats_available: '', price_per_seat: '',
-    boat_type: '', notes: '',
+    boat_type: '', notes: '', equipment: [], images: [],
   });
+  const [newEquipment, setNewEquipment] = useState('');
+  const [boatImageUrls, setBoatImageUrls] = useState(['', '', '']);
 
   const [uploading, setUploading] = useState(false);
 
@@ -77,6 +79,7 @@ export default function CreateListing() {
 
   const handleTransportSubmit = (e) => {
     e.preventDefault();
+    const validBoatImages = boatImageUrls.filter(u => u.trim().length > 0);
     transportMutation.mutate({
       ...transportForm,
       seats_available: Number(transportForm.seats_available),
@@ -84,8 +87,18 @@ export default function CreateListing() {
       provider_name: user.full_name || '',
       provider_email: user.email,
       status: 'scheduled',
+      images: validBoatImages,
     });
   };
+
+  const addEquipment = () => {
+    const items = newEquipment.split(',').map(s => s.trim()).filter(Boolean);
+    if (items.length) {
+      setTransportForm(p => ({ ...p, equipment: [...(p.equipment || []), ...items] }));
+      setNewEquipment('');
+    }
+  };
+  const removeEquipment = (i) => setTransportForm(p => ({ ...p, equipment: p.equipment.filter((_, idx) => idx !== i) }));
 
   const addAmenity = () => {
     if (newAmenity.trim()) {
@@ -153,10 +166,27 @@ export default function CreateListing() {
             </div>
 
             {/* Amenities */}
-            <Field label="Amenities">
+            <Field label="What's included">
+              <p className="text-xs text-muted-foreground mb-2">Tilføj faciliteter én ad gangen, eller adskil flere med komma (f.eks. <span className="font-medium text-foreground">Brændeovn, Kajak, Generator</span>) og tryk Enter eller klik +.</p>
               <div className="flex gap-2 mb-2">
-                <Input placeholder="e.g. Fireplace, Kayak, Generator" value={newAmenity} onChange={(e) => setNewAmenity(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAmenity(); }}} className="rounded-xl" />
-                <Button type="button" variant="outline" onClick={addAmenity} className="rounded-xl px-3 shrink-0"><Plus className="w-4 h-4" /></Button>
+                <Input placeholder="f.eks. Brændeovn, Kayak, Solpanel" value={newAmenity} onChange={(e) => setNewAmenity(e.target.value)} onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // Support comma-separated
+                    const items = newAmenity.split(',').map(s => s.trim()).filter(Boolean);
+                    if (items.length) {
+                      setCabinForm((p) => ({ ...p, amenities: [...(p.amenities || []), ...items] }));
+                      setNewAmenity('');
+                    }
+                  }
+                }} className="rounded-xl" />
+                <Button type="button" variant="outline" onClick={() => {
+                  const items = newAmenity.split(',').map(s => s.trim()).filter(Boolean);
+                  if (items.length) {
+                    setCabinForm((p) => ({ ...p, amenities: [...(p.amenities || []), ...items] }));
+                    setNewAmenity('');
+                  }
+                }} className="rounded-xl px-3 shrink-0"><Plus className="w-4 h-4" /></Button>
               </div>
               {cabinForm.amenities?.length > 0 && (
                 <div className="flex flex-wrap gap-2">
@@ -253,6 +283,37 @@ export default function CreateListing() {
             </Field>
             <Field label="Notes">
               <Textarea placeholder="Any info for passengers — gear, meeting point, etc." value={transportForm.notes} onChange={(e) => setTransportForm((p) => ({ ...p, notes: e.target.value }))} rows={3} className="rounded-xl resize-none" />
+            </Field>
+
+            {/* Equipment */}
+            <Field label="Udstyr om bord">
+              <p className="text-xs text-muted-foreground mb-2">Tilføj udstyr som redningsveste, VHF-radio, GPS – adskil med komma eller tryk Enter.</p>
+              <div className="flex gap-2 mb-2">
+                <Input placeholder="f.eks. Redningsveste, VHF-radio, Søkort" value={newEquipment} onChange={e => setNewEquipment(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addEquipment(); }}} className="rounded-xl" />
+                <Button type="button" variant="outline" onClick={addEquipment} className="rounded-xl px-3 shrink-0"><Plus className="w-4 h-4" /></Button>
+              </div>
+              {transportForm.equipment?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {transportForm.equipment.map((eq, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 bg-accent/10 text-accent text-xs px-3 py-1 rounded-full">
+                      {eq}
+                      <button type="button" onClick={() => removeEquipment(i)}><X className="w-3 h-3" /></button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Field>
+
+            {/* Boat photos (max 3) */}
+            <Field label="Billeder af båden (op til 3)">
+              <div className="space-y-2">
+                {boatImageUrls.map((url, i) => (
+                  <div key={i} className="flex gap-2 items-center">
+                    <span className="text-xs text-muted-foreground w-16 shrink-0">Billede {i + 1}</span>
+                    <Input placeholder="https://..." value={url} onChange={e => { const n = [...boatImageUrls]; n[i] = e.target.value; setBoatImageUrls(n); }} className="rounded-xl" />
+                  </div>
+                ))}
+              </div>
             </Field>
 
             <Button type="submit" disabled={transportMutation.isPending} className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold text-base">

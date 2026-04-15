@@ -42,6 +42,20 @@
       "type": "string",
       "description": "Any extra info"
     },
+    "equipment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Safety and onboard equipment, e.g. life jackets, VHF radio"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Up to 3 photo URLs of the boat"
+    },
     "status": {
       "type": "string",
       "enum": [

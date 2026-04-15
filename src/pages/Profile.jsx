@@ -30,6 +30,7 @@ export default function Profile() {
         role_type: data.role_type || 'traveler',
         avatar_url: data.avatar_url || '',
         phone: data.phone || '',
+        notification_prefs: data.notification_prefs || 'email',
       });
     },
   });
@@ -194,6 +195,19 @@ export default function Profile() {
                     <SelectItem value="both">Begge – host og transportudbyder</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Notifikationer</label>
+                <Select value={currentForm.notification_prefs} onValueChange={v => setForm(f => ({ ...f, notification_prefs: v }))}>
+                  <SelectTrigger className="h-10 rounded-xl text-sm"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="email">Kun e-mail</SelectItem>
+                    <SelectItem value="sms">Kun SMS</SelectItem>
+                    <SelectItem value="both">Både e-mail og SMS</SelectItem>
+                    <SelectItem value="none">Ingen notifikationer</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">Bruges til påmindelser om f.eks. kommende sejladser.</p>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Om mig</label>
