@@ -1,7 +1,6 @@
 import React from 'react';
 import { useCurrency, CURRENCIES } from '@/lib/CurrencyContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DollarSign } from 'lucide-react';
 
 export default function CurrencySelector() {
   const { currency, setCurrency } = useCurrency();
@@ -10,7 +9,6 @@ export default function CurrencySelector() {
     <div className="w-24">
       <Select value={currency} onValueChange={setCurrency}>
         <SelectTrigger className="h-9 border-0 bg-muted rounded-lg text-xs font-medium">
-          <DollarSign className="w-3 h-3 mr-1" />
           <SelectValue />
         </SelectTrigger>
         <SelectContent align="end">
