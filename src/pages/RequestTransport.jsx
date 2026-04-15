@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Anchor, MapPin, Calendar, Users, Send, ArrowRight } from 'lucide-react';
+import { Anchor, MapPin, Calendar, Users, Send, ArrowRight, ArrowLeftRight, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 const LOCATIONS = [
@@ -29,7 +29,20 @@ export default function RequestTransport() {
     message: '',
   });
 
-  const set = (field, value) => setForm((prev) => ({ ...prev, [field]: value }));
+  const [returnTrip, setReturnTrip] = useState(false);
+  const [returnForm, setReturnForm] = useState({
+    return_date: '',
+    return_passengers: 1,
+  });
+
+  const set = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    // Sync return passengers when outbound passengers change (if user hasn't manually changed it)
+    if (field === 'passengers') {
+      setReturnForm((prev) => ({ ...prev, return_passengers: value }));
+    }
+  };
+  const setReturn = (field, value) => setReturnForm((prev) => ({ ...prev, [field]: value }));
 
   const mutation = useMutation({
     mutationFn: (data) => base44.entities.TransportRequest.create(data),
@@ -45,13 +58,22 @@ export default function RequestTransport() {
       base44.auth.redirectToLogin(window.location.pathname);
       return;
     }
-    mutation.mutate({
+    const baseData = {
       ...form,
       passengers: Number(form.passengers),
       guest_name: user.full_name || '',
       guest_email: user.email,
       status: 'pending',
-    });
+    };
+
+    if (returnTrip) {
+      const returnMessage = `[RETURTUR] Dato: ${returnForm.return_date}, Passagerer: ${returnForm.return_passengers}`;
+      baseData.message = baseData.message
+        ? `${baseData.message}\n\n${returnMessage}`
+        : returnMessage;
+    }
+
+    mutation.mutate(baseData);
   };
 
   return (
@@ -148,6 +170,65 @@ export default function RequestTransport() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Return trip toggle */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setReturnTrip(!returnTrip)}
+              className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl border transition-colors text-sm font-medium ${
+                returnTrip
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-border bg-transparent text-muted-foreground hover:bg-muted'
+              }`}
+            >
+              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${returnTrip ? 'border-primary bg-primary' : 'border-muted-foreground/40'}`}>
+                {returnTrip && <div className="w-2 h-2 rounded-sm bg-white" />}
+              </div>
+              <ArrowLeftRight className="w-4 h-4" />
+              Tilføj returtur
+            </button>
+
+            {returnTrip && (
+              <div className="mt-3 p-4 bg-primary/5 border border-primary/20 rounded-xl space-y-4">
+                <p className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Returtur: {form.to_location || '…'} → {form.from_location || '…'}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Returdato</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        type="date"
+                        required={returnTrip}
+                        value={returnForm.return_date}
+                        onChange={(e) => setReturn('return_date', e.target.value)}
+                        className="pl-9 bg-white"
+                        min={form.travel_date || new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Antal passagerer (retur)</Label>
+                    <div className="relative">
+                      <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        type="number"
+                        min={1}
+                        max={20}
+                        required={returnTrip}
+                        value={returnForm.return_passengers}
+                        onChange={(e) => setReturn('return_passengers', e.target.value)}
+                        className="pl-9 bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Message */}
