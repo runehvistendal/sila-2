@@ -16,12 +16,8 @@ export default function Home() {
   const { data: featuredCabins = [] } = useQuery({
     queryKey: ['featured-cabins'],
     queryFn: async () => {
-      try {
-        return await base44.entities.Cabin.filter({ status: 'active' }, '-created_date', 6);
-      } catch (error) {
-        console.error('Error fetching featured cabins:', error);
-        return [];
-      }
+      const res = await base44.functions.invoke('listCabins', { sort: '-created_date', limit: 6 });
+      return res.data.cabins || [];
     },
   });
 

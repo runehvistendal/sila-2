@@ -24,17 +24,12 @@ export default function Cabins() {
   const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, search: urlParams.get('q') || '' });
   const [view, setView] = useState('grid'); // 'grid' | 'map'
 
-  const { data: rawCabins, isLoading } = useQuery({
+  const { data: rawCabins = [], isLoading } = useQuery({
     queryKey: ['cabins'],
     queryFn: async () => {
-      try {
-        return await base44.entities.Cabin.filter({ status: 'active' }, '-created_date', 60);
-      } catch (error) {
-        console.error('Error fetching cabins:', error);
-        return [];
-      }
+      const res = await base44.functions.invoke('listCabins', { sort: '-created_date', limit: 60 });
+      return res.data.cabins || [];
     },
-    initialData: [],
   });
 
   const cabins = useMemo(() => {
