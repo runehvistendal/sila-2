@@ -11,7 +11,7 @@ export default function CurrencySelectorV2() {
     <div className="w-32">
       <Select value={currency} onValueChange={setCurrency}>
         <SelectTrigger className="h-9 border-0 bg-muted rounded-lg text-xs font-medium">
-          <SelectValue />
+          <SelectValue placeholder={currency} />
         </SelectTrigger>
         <SelectContent align="end">
           {Object.entries(CURRENCIES).map(([code, data]) => (
