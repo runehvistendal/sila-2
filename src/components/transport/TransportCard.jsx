@@ -1,11 +1,36 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, Clock, Users, Anchor, Home } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, Users, Anchor, Home, Shield, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function TransportCard({ transport, compact = false }) {
+  const { data: providerTrust } = useQuery({
+    queryKey: ['provider-trust', transport.provider_email],
+    queryFn: () => base44.entities.ProviderTrust.filter({ provider_email: transport.provider_email }, null, 1).then(r => r[0]),
+    enabled: !!transport.provider_email,
+  });
+
+  const getTrustBadgeColor = (status) => {
+    if (!status) return 'bg-muted text-muted-foreground';
+    if (status === 'active') return 'bg-green-100 text-green-700';
+    if (status === 'warning') return 'bg-amber-100 text-amber-700';
+    if (status === 'suspended_temp' || status === 'suspended_perm') return 'bg-red-100 text-red-700';
+    return 'bg-muted text-muted-foreground';
+  };
+
+  const getTrustLabel = (status, score) => {
+    if (!status) return `${score || 0}/100`;
+    if (status === 'active') return `${score || 0}/100 - Verificeret`;
+    if (status === 'warning') return `${score || 0}/100 - Advarsel`;
+    if (status === 'suspended_temp') return 'Midlertidigt suspenderet';
+    if (status === 'suspended_perm') return 'Permanent suspenderet';
+    return `${score || 0}/100`;
+  };
+
   const content = (
     <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 ${compact ? '' : 'hover:border-primary/30'}`}>
       {/* Route */}
@@ -25,6 +50,22 @@ export default function TransportCard({ transport, compact = false }) {
           <p className="text-xs text-muted-foreground">tur/retur</p>
         </div>
       </div>
+
+      {/* Provider Trust Score */}
+      {providerTrust && (
+        <div className="mb-3 flex items-center gap-2">
+          <Shield className="w-4 h-4 text-muted-foreground" />
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getTrustBadgeColor(providerTrust.status)}`}>
+            {getTrustLabel(providerTrust.status, providerTrust.trust_score)}
+          </span>
+          {providerTrust.status === 'suspended_perm' && (
+            <span className="inline-flex items-center gap-1 text-xs text-destructive font-medium">
+              <AlertTriangle className="w-3 h-3" />
+              Booking ikke tilgængelig
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Details row */}
       <div className="flex flex-wrap gap-2 mb-4">
