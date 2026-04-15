@@ -33,6 +33,32 @@ function getCoords(location) {
   return null;
 }
 
+const MapPopupContent = ({ cabin }) => {
+  const [imageError, setImageError] = useState(false);
+  const image = cabin.images?.[0];
+  const fallback = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&h=150&fit=crop&q=80';
+
+  return (
+    <div className="text-sm min-w-[150px]">
+      {image && (
+        <img 
+          src={imageError ? fallback : image} 
+          alt="" 
+          className="w-full h-24 object-cover rounded-lg mb-2" 
+          onError={() => setImageError(true)}
+        />
+      )}
+      {!image && (
+        <div className="w-full h-24 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg mb-2" />
+      )}}
+      <p className="font-semibold text-foreground">{cabin.title}</p>
+      <p className="text-muted-foreground text-xs mb-2">{cabin.location}</p>
+      <p className="font-bold text-primary text-sm">{cabin.price_per_night} DKK/nat</p>
+      <a href={`/cabins/${cabin.id}`} className="block mt-2 text-xs text-primary font-medium hover:underline">Se detaljer →</a>
+    </div>
+  );
+};
+
 export default function GreenlandMap({ cabins = [], height = '400px' }) {
   const pins = (cabins || [])
     .filter(c => c && c.id)
@@ -54,17 +80,4 @@ export default function GreenlandMap({ cabins = [], height = '400px' }) {
         {pins.map(cabin => (
           <Marker key={cabin.id} position={cabin.coords}>
             <Popup>
-              <div className="text-sm min-w-[150px]">
-                {cabin.images?.[0] && <img src={cabin.images[0]} alt="" className="w-full h-24 object-cover rounded-lg mb-2" />}
-                <p className="font-semibold text-foreground">{cabin.title}</p>
-                <p className="text-muted-foreground text-xs mb-2">{cabin.location}</p>
-                <p className="font-bold text-primary text-sm">{cabin.price_per_night} DKK/nat</p>
-                <a href={`/cabins/${cabin.id}`} className="block mt-2 text-xs text-primary font-medium hover:underline">Se detaljer →</a>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-    </div>
-  );
-}
+              <MapPopupContent cabin={cabin} />

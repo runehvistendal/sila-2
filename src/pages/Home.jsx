@@ -26,12 +26,13 @@ export default function Home() {
   return (
     <div>
       {/* HERO */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-r from-primary/80 to-accent/80">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&h=1080&fit=crop&q=85"
             alt="Greenland"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-70"
+            onError={(e) => e.target.style.display = 'none'}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
