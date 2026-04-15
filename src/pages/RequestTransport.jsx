@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,6 +20,7 @@ const LOCATIONS = [
 
 export default function RequestTransport() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -46,7 +48,7 @@ export default function RequestTransport() {
   const mutation = useMutation({
     mutationFn: (data) => base44.entities.TransportRequest.create(data),
     onSuccess: () => {
-      toast({ title: 'Forespørgsel sendt!', description: 'Lokale aktører vil snart svare med et tilbud.' });
+      toast({ title: t('request_sent'), description: t('request_sent_desc') });
       navigate('/dashboard?tab=transport-requests');
     },
   });
@@ -91,10 +93,9 @@ export default function RequestTransport() {
           <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
             <Anchor className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Anmod om transport</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">{t('request_transport_title')}</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Beskriv din tur — lokale sejlere og bådejere vil svare med et pristilbud.
-            Ingen fast pris, ingen skjulte gebyrer.
+            {t('request_transport_desc')}
           </p>
         </div>
 
@@ -103,7 +104,7 @@ export default function RequestTransport() {
           {/* Route */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Fra</Label>
+              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('from')}</Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <select
@@ -112,14 +113,14 @@ export default function RequestTransport() {
                   onChange={(e) => set('from_location', e.target.value)}
                   className="w-full pl-9 pr-3 h-9 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="">Vælg afgangssted</option>
+                  <option value="">{t('select_departure')}</option>
                   {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                  <option value="Andet">Andet (beskriv nedenfor)</option>
+                  <option value="Andet">{t('other_describe')}</option>
                 </select>
               </div>
             </div>
             <div>
-              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Til</Label>
+              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('to')}</Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <select
@@ -128,9 +129,9 @@ export default function RequestTransport() {
                   onChange={(e) => set('to_location', e.target.value)}
                   className="w-full pl-9 pr-3 h-9 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="">Vælg destination</option>
+                  <option value="">{t('select_destination')}</option>
                   {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                  <option value="Andet">Andet (beskriv nedenfor)</option>
+                  <option value="Andet">{t('other_describe')}</option>
                 </select>
               </div>
             </div>
@@ -148,7 +149,7 @@ export default function RequestTransport() {
           {/* Date & Passengers */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Dato</Label>
+              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('date')}</Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -162,7 +163,7 @@ export default function RequestTransport() {
               </div>
             </div>
             <div>
-              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Antal passagerer</Label>
+              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('passengers')}</Label>
               <div className="relative">
                 <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -180,12 +181,12 @@ export default function RequestTransport() {
 
           {/* Trip type selector */}
           <div>
-            <Label className="text-xs font-semibold text-foreground/70 mb-3 block">Rejsetype</Label>
+            <Label className="text-xs font-semibold text-foreground/70 mb-3 block">{t('trip_type')}</Label>
             <div className="grid grid-cols-3 gap-2 mb-4">
               {[
-                { key: 'outbound', label: 'Afgang', icon: ArrowRight, desc: 'Enkelt vej' },
-                { key: 'return', label: 'Retur', icon: ArrowLeftRight, desc: 'Enkelt vej' },
-                { key: 'round-trip', label: 'Tur/retur', icon: RefreshCw, desc: 'Begge veje' },
+                { key: 'outbound', label: t('outbound'), icon: ArrowRight, desc: t('single_way') },
+                { key: 'return', label: t('return_trip'), icon: ArrowLeftRight, desc: t('single_way') },
+                { key: 'round-trip', label: t('round_trip'), icon: RefreshCw, desc: t('both_ways') },
               ].map((opt) => {
                 const Icon = opt.icon;
                 return (
@@ -212,11 +213,11 @@ export default function RequestTransport() {
               <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-xl space-y-4">
                 <p className="text-xs font-semibold text-primary flex items-center gap-1.5">
                   <RefreshCw className="w-3.5 h-3.5" />
-                  {form.trip_type === 'round-trip' ? 'Hjemrejse' : 'Returtur'}: {form.to_location || '…'} → {form.from_location || '…'}
+                  {form.trip_type === 'round-trip' ? t('home_return') : t('return_trip')}: {form.to_location || '…'} → {form.from_location || '…'}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Returdato</Label>
+                    <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('return_date')}</Label>
                     <div className="relative">
                       <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
@@ -230,7 +231,7 @@ export default function RequestTransport() {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Antal passagerer (retur)</Label>
+                    <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('return_passengers')}</Label>
                     <div className="relative">
                       <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
@@ -252,10 +253,10 @@ export default function RequestTransport() {
           {/* Message */}
           <div>
             <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">
-              Beskriv din tur <span className="text-muted-foreground font-normal">(valgfrit, men hjælper aktøren)</span>
+              {t('describe_trip')} <span className="text-muted-foreground font-normal">{t('describe_trip_optional')}</span>
             </Label>
             <Textarea
-              placeholder="F.eks. vi er 2 voksne og 1 barn. Vi skal hente kajak-udstyr. Returtur samme dag om muligt."
+              placeholder={t('describe_placeholder')}
               value={form.message}
               onChange={(e) => set('message', e.target.value)}
               className="resize-none h-24"
@@ -264,10 +265,10 @@ export default function RequestTransport() {
 
           {/* Info box */}
           <div className="bg-muted rounded-xl p-4 text-xs text-muted-foreground space-y-1">
-            <p className="font-semibold text-foreground">Sådan fungerer det:</p>
-            <p>1. Du sender din forespørgsel — det er gratis og uforpligtende.</p>
-            <p>2. Lokale aktører ser din forespørgsel og svarer med et pristilbud.</p>
-            <p>3. Du vælger det tilbud, der passer bedst, og bekræfter.</p>
+            <p className="font-semibold text-foreground">{t('how_it_works')}</p>
+            <p>{t('step1')}</p>
+            <p>{t('step2')}</p>
+            <p>{t('step3')}</p>
           </div>
 
           <Button
@@ -275,8 +276,8 @@ export default function RequestTransport() {
             disabled={mutation.isPending}
             className="w-full bg-primary text-white hover:bg-primary/90 rounded-xl h-11 gap-2 font-semibold"
           >
-            {mutation.isPending ? 'Sender...' : (
-              <><Send className="w-4 h-4" /> Send forespørgsel</>
+            {mutation.isPending ? t('sending') : (
+              <><Send className="w-4 h-4" /> {t('send_request')}</>
             )}
           </Button>
         </form>
