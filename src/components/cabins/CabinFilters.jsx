@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
+import SearchSuggestions from './SearchSuggestions';
 
 const AMENITIES = ['Wi-Fi', 'Sauna', 'Toilet', 'Electricity', 'Running water', 'Fireplace', 'Boat access', 'Fishing'];
 
 const selectClass = "h-10 rounded-xl border border-input bg-transparent px-3 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring text-foreground cursor-pointer";
 
-export default function CabinFilters({ filters, onChange }) {
+export default function CabinFilters({ filters, onChange, cabins = [] }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const set = (key, val) => onChange({ ...filters, [key]: val });
@@ -29,6 +30,11 @@ export default function CabinFilters({ filters, onChange }) {
             value={filters.search}
             onChange={(e) => set('search', e.target.value)}
             className="pl-10 h-10 rounded-xl"
+          />
+          <SearchSuggestions
+            value={filters.search}
+            onSelect={(suggestion) => set('search', suggestion)}
+            cabins={cabins}
           />
         </div>
 

@@ -65,7 +65,7 @@ export default function Cabins() {
               </button>
             </div>
           </div>
-          <CabinFilters filters={filters} onChange={setFilters} />
+          <CabinFilters filters={filters} onChange={setFilters} cabins={cabins} />
         </div>
       </div>
 
