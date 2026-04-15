@@ -15,15 +15,6 @@ export default function AdminSupport() {
   const [expandedId, setExpandedId] = useState(null);
   const [responses, setResponses] = useState({});
 
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen pt-16 flex items-center justify-center">
-        <AlertCircle className="w-12 h-12 text-destructive" />
-        <p className="text-muted-foreground">Admin access required</p>
-      </div>
-    );
-  }
-
   const { data: tickets = [] } = useQuery({
     queryKey: ['support-tickets'],
     queryFn: () =>
@@ -51,6 +42,15 @@ export default function AdminSupport() {
     }
     respondMutation.mutate({ ticketId, response });
   };
+
+  if (user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen pt-16 flex items-center justify-center">
+        <AlertCircle className="w-12 h-12 text-destructive" />
+        <p className="text-muted-foreground">Admin access required</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-16 bg-background">
