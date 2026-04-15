@@ -35,15 +35,23 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-18">
 
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary rounded-xl items-center justify-center md:hidden flex">
+          {/* Logo — on mobile, wave icon toggles the menu */}
+          <div className="flex items-center gap-2">
+            <button
+              className="md:hidden w-8 h-8 bg-primary rounded-xl items-center justify-center flex"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
               <Waves className="w-4 h-4 text-white" />
-            </div>
-            <span className={`text-lg font-bold tracking-tight transition-colors ${transparent ? 'text-white' : 'text-foreground'}`}>
-              Sila
-            </span>
-          </Link>
+            </button>
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="hidden md:flex w-8 h-8 bg-primary rounded-xl items-center justify-center">
+                <Waves className="w-4 h-4 text-white" />
+              </div>
+              <span className={`text-lg font-bold tracking-tight transition-colors ${transparent ? 'text-white' : 'text-foreground'}`}>
+                Sila
+              </span>
+            </Link>
+          </div>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
@@ -126,18 +134,15 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile toggle */}
-          <button
-            className={`md:hidden p-2 rounded-lg transition-colors ${transparent ? 'text-white' : 'text-foreground'}`}
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen
-              ? <X className="w-5 h-5" />
-              : <div className="w-7 h-7 bg-primary rounded-xl flex items-center justify-center">
-                  <Waves className="w-4 h-4 text-white" />
-                </div>
-            }
-          </button>
+          {/* Mobile close button — only shown when menu is open */}
+          {mobileOpen && (
+            <button
+              className={`md:hidden p-2 rounded-lg transition-colors ${transparent ? 'text-white' : 'text-foreground'}`}
+              onClick={() => setMobileOpen(false)}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 
