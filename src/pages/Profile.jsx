@@ -7,15 +7,18 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2 } from 'lucide-react';
+import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Copy } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
+import { useRole } from '@/lib/RoleContext';
 
 export default function Profile() {
   const { user } = useAuth();
+  const { currentRole } = useRole();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(null);
+  const [providerForm, setProviderForm] = useState(null);
 
   const { data: userData } = useQuery({
     queryKey: ['user-profile', user?.email],
@@ -32,6 +35,16 @@ export default function Profile() {
         phone: data.phone || '',
         notification_prefs: data.notification_prefs || 'email',
       });
+      // Initialize provider form from user data
+      if (!providerForm && data.provider_name) {
+        setProviderForm({
+          provider_name: data.provider_name || '',
+          provider_bio: data.provider_bio || '',
+          provider_location: data.provider_location || '',
+          provider_phone: data.provider_phone || '',
+          provider_avatar: data.provider_avatar || '',
+        });
+      }
     },
   });
 
@@ -54,13 +67,37 @@ export default function Profile() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: () => base44.auth.updateMe(form),
+    mutationFn: () => {
+      const data = { ...form };
+      // If editing provider profile, include provider fields
+      if (currentRole === 'provider' && providerForm) {
+        data.provider_name = providerForm.provider_name;
+        data.provider_bio = providerForm.provider_bio;
+        data.provider_location = providerForm.provider_location;
+        data.provider_phone = providerForm.provider_phone;
+        data.provider_avatar = providerForm.provider_avatar;
+      }
+      return base44.auth.updateMe(data);
+    },
     onSuccess: () => {
       qc.invalidateQueries(['user-profile']);
       setEditing(false);
       toast({ title: 'Profil opdateret' });
     },
   });
+
+  const syncProviderDataToUser = () => {
+    if (providerForm) {
+      setForm(f => ({
+        ...f,
+        full_name: providerForm.provider_name || f.full_name,
+        phone: providerForm.provider_phone || f.phone,
+        location: providerForm.provider_location || f.location,
+        avatar_url: providerForm.provider_avatar || f.avatar_url,
+      }));
+      toast({ title: 'Udbyder-data synkroniseret til bruger-profil' });
+    }
+  };
 
   if (!user) {
     return (
@@ -222,16 +259,78 @@ export default function Profile() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Profilbillede URL (valgfri)</label>
                 <Input value={currentForm.avatar_url} onChange={e => setForm(f => ({ ...f, avatar_url: e.target.value }))} placeholder="https://..." className="h-10 rounded-xl text-sm" />
               </div>
+
+              {/* Provider sync button for user role */}
+              {currentRole === 'user' && providerForm && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
+                  <p className="text-xs text-blue-900 mb-3">Har du udbyder-data? Synkroniser det til din brugerprofil:</p>
+                  <Button type="button" onClick={syncProviderDataToUser} variant="outline" className="w-full rounded-lg text-sm gap-2">
+                    <Copy className="w-4 h-4" /> Synkroniser udbyder-data
+                  </Button>
+                </div>
+              )}
+
               <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-primary text-white rounded-xl gap-2">
                 <Check className="w-4 h-4" />
                 {saveMutation.isPending ? 'Gemmer...' : 'Gem profil'}
               </Button>
-            </div>
-          )}
+              </div>
+              )}
         </div>
 
+        {/* Provider profile (when in provider role) */}
+         {currentRole === 'provider' && (
+           <div className="bg-white rounded-2xl border border-border p-6 mb-6">
+             <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
+               <Anchor className="w-4 h-4 text-primary" /> Udbyder-profil
+             </h2>
+             {!editing ? (
+               <div className="space-y-3">
+                 <p className="text-sm text-muted-foreground">
+                   {providerForm?.provider_name || 'Intet navn indstillet'}
+                 </p>
+                 <Button variant="outline" size="sm" onClick={() => { setEditing(true); setForm({ ...currentForm }); }} className="rounded-xl">
+                   Rediger udbyder-profil
+                 </Button>
+               </div>
+             ) : (
+               <div className="space-y-4 border-t border-border pt-6">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <div>
+                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Udbyder navn</label>
+                     <Input
+                       value={providerForm?.provider_name || ''}
+                       onChange={e => setProviderForm(f => ({ ...f, provider_name: e.target.value }))}
+                       placeholder="f.eks. Arctic Explorer"
+                       className="h-10 rounded-xl text-sm"
+                     />
+                   </div>
+                   <div>
+                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">By / Sted</label>
+                     <Input
+                       value={providerForm?.provider_location || ''}
+                       onChange={e => setProviderForm(f => ({ ...f, provider_location: e.target.value }))}
+                       placeholder="f.eks. Nuuk, Grønland"
+                       className="h-10 rounded-xl text-sm"
+                     />
+                   </div>
+                   <div>
+                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Telefon</label>
+                     <Input
+                       value={providerForm?.provider_phone || ''}
+                       onChange={e => setProviderForm(f => ({ ...f, provider_phone: e.target.value }))}
+                       placeholder="+299 ..."
+                       className="h-10 rounded-xl text-sm"
+                     />
+                   </div>
+                 </div>
+               </div>
+             )}
+           </div>
+         )}
+
         {/* My cabins */}
-        {myCabins.length > 0 && (
+         {myCabins.length > 0 && (
           <div className="bg-white rounded-2xl border border-border p-6 mb-6">
             <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
               <Home className="w-4 h-4 text-primary" /> Mine hytter

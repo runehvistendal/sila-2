@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import RoleSwitcher from '@/components/shared/RoleSwitcher';
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -79,6 +80,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <>
+                <RoleSwitcher />
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm" className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
                     Dashboard
