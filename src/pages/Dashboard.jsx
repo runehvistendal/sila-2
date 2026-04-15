@@ -109,6 +109,11 @@ export default function Dashboard() {
             <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
               <PlusCircle className="w-4 h-4" /> Nyt opslag
             </Button>
+            {user?.role === 'admin' && (
+              <Button variant="outline" onClick={() => navigate('/admin/legal')} className="rounded-xl gap-2 text-sm">
+                Juridisk center
+              </Button>
+            )}
           </div>
         </div>
 
