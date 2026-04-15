@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CabinCard from '@/components/cabins/CabinCard';
-import GreenlandMap from '@/components/shared/GreenlandMap';
+import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
 import { Search, ArrowRight, Anchor, Home as HomeIcon, Users, Map } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -166,7 +166,7 @@ export default function Home() {
               <p className="text-muted-foreground">Se alle hytter geografisk placeret i Grønland</p>
             </div>
           </div>
-          <GreenlandMap cabins={featuredCabins} height="450px" />
+          <ImprovedGreenlandMap cabins={featuredCabins} height="450px" />
         </div>
       </section>
 

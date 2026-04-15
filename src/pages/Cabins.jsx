@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import CabinCard from '@/components/cabins/CabinCard';
 import CabinFilters from '@/components/cabins/CabinFilters';
-import GreenlandMap from '@/components/shared/GreenlandMap';
+import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Home, Map, Grid } from 'lucide-react';
 
@@ -85,7 +85,7 @@ export default function Cabins() {
             ))}
           </div>
         ) : view === 'map' ? (
-          <GreenlandMap cabins={filtered.filter(c => c && c.id)} height="600px" />
+          <ImprovedGreenlandMap cabins={filtered.filter(c => c && c.id)} height="600px" />
         ) : filtered.length > 0 ? (
           <>
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} hytte{filtered.length !== 1 ? 'r' : ''} fundet</p>

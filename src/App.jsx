@@ -14,6 +14,7 @@ import Home from '@/pages/Home';
 import Cabins from '@/pages/Cabins';
 import CabinDetail from '@/pages/CabinDetail';
 import Transport from '@/pages/Transport';
+import TransportMap from '@/pages/TransportMap';
 import TransportDetail from '@/pages/TransportDetail';
 import Dashboard from '@/pages/Dashboard';
 import CreateListing from '@/pages/CreateListing';
@@ -59,6 +60,7 @@ const AuthenticatedApp = () => {
         <Route path="/cabins" element={<Cabins />} />
         <Route path="/cabins/:id" element={<CabinDetail />} />
         <Route path="/transport" element={<Transport />} />
+        <Route path="/transport-map" element={<TransportMap />} />
         <Route path="/transport/:id" element={<TransportDetail />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/create-listing" element={<CreateListing />} />
