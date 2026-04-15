@@ -43,7 +43,6 @@ export default function CabinFilters({ filters, onChange }) {
         </Select>
         <Select value={filters.sort} onValueChange={(v) => set('sort', v)}>
           <SelectTrigger className="w-[160px] h-10 rounded-xl">
-            <SlidersHorizontal className="w-4 h-4 mr-2 text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
