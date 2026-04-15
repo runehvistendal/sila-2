@@ -7,9 +7,11 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { RoleProvider } from '@/lib/RoleContext';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { NetworkProvider } from '@/lib/NetworkContext';
+import { AnalyticsProvider } from '@/lib/AnalyticsContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from '@/components/layout/Layout';
 import NetworkStatus from '@/components/ui/NetworkStatus';
+import CookieConsent from '@/components/ui/CookieConsent';
 
 // Pages
 import Home from '@/pages/Home';
@@ -86,17 +88,20 @@ function App() {
   return (
     <NetworkProvider>
       <LanguageProvider>
-        <AuthProvider>
-          <RoleProvider>
-            <QueryClientProvider client={queryClientInstance}>
-              <NetworkStatus />
-              <Router>
-                <AuthenticatedApp />
-              </Router>
-              <Toaster />
-            </QueryClientProvider>
-          </RoleProvider>
-        </AuthProvider>
+        <AnalyticsProvider>
+          <AuthProvider>
+            <RoleProvider>
+              <QueryClientProvider client={queryClientInstance}>
+                <NetworkStatus />
+                <CookieConsent />
+                <Router>
+                  <AuthenticatedApp />
+                </Router>
+                <Toaster />
+              </QueryClientProvider>
+            </RoleProvider>
+          </AuthProvider>
+        </AnalyticsProvider>
       </LanguageProvider>
     </NetworkProvider>
   )

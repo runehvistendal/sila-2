@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -14,6 +14,7 @@ import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import { MapPin, Users, Anchor, ChevronLeft, Star, Check, ChevronDown } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { listingEvents, bookingEvents } from '@/lib/ga4';
 
 export default function CabinDetail() {
   const { id } = useParams();
@@ -27,6 +28,13 @@ export default function CabinDetail() {
   const [message, setMessage] = useState('');
   const [activeImage, setActiveImage] = useState(0);
   const [wantHostTransport, setWantHostTransport] = useState(false);
+
+  // Track listing viewed
+  useEffect(() => {
+    if (id) {
+      listingEvents.detailsOpened(id, 'cabin');
+    }
+  }, [id]);
 
   const { data: cabin, isLoading } = useQuery({
     queryKey: ['cabin', id],
@@ -309,6 +317,11 @@ export default function CabinDetail() {
               ) : (
                 <StripeCheckoutButton
                   payload={stripePayload}
+                  onCheckout={() => {
+                    if (stripePayload) {
+                      bookingEvents.started(id, 'cabin', total);
+                    }
+                  }}
                   disabled={!stripePayload}
                   label={nights > 0 ? `Betal ${total} DKK` : 'Vælg datoer for at booke'}
                 />

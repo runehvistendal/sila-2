@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
+import { requestEvents } from '@/lib/ga4';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -80,6 +81,15 @@ export default function RequestTransport() {
       guest_email: user.email,
       status: 'pending',
     };
+
+    // Track request creation
+    requestEvents.created(
+      'transport',
+      form.from_location,
+      form.to_location,
+      form.travel_date,
+      Number(form.passengers)
+    );
 
     mutation.mutate(baseData);
   };
