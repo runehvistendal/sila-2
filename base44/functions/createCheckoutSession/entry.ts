@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
         },
       ],
       mode: 'payment',
-      success_url: successUrl || `${origin}/booking-success?session_id={CHECKOUT_SESSION_ID}&booking_id=${bookingId}`,
+      success_url: successUrl || `${origin}/booking-confirmation?session_id={CHECKOUT_SESSION_ID}&booking_id=${bookingId}`,
       cancel_url: cancelUrl || `${origin}/booking-cancelled?booking_id=${bookingId}`,
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
