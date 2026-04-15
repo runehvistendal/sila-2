@@ -15,6 +15,7 @@ import Transport from '@/pages/Transport';
 import TransportDetail from '@/pages/TransportDetail';
 import Dashboard from '@/pages/Dashboard';
 import CreateListing from '@/pages/CreateListing';
+import RequestTransport from '@/pages/RequestTransport';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -46,6 +47,7 @@ const AuthenticatedApp = () => {
         <Route path="/transport/:id" element={<TransportDetail />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/create-listing" element={<CreateListing />} />
+        <Route path="/request-transport" element={<RequestTransport />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

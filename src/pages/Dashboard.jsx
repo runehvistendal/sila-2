@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PlusCircle, Home, Anchor, Calendar, MapPin, Users, Check, X, ArrowRight, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
+import { IncomingRequestsTab, MyTransportRequestsTab } from '@/components/dashboard/TransportRequestsTab';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -72,23 +73,25 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="bookings">
-          <TabsList className="mb-8 bg-muted rounded-xl p-1 h-auto">
-            <TabsTrigger value="bookings" className="rounded-lg px-5 py-2 text-sm">My Bookings</TabsTrigger>
-            <TabsTrigger value="requests" className="rounded-lg px-5 py-2 text-sm">
-              Booking Requests
+          <TabsList className="mb-8 bg-muted rounded-xl p-1 h-auto flex-wrap gap-1">
+            <TabsTrigger value="bookings" className="rounded-lg px-4 py-2 text-sm">Mine bookinger</TabsTrigger>
+            <TabsTrigger value="requests" className="rounded-lg px-4 py-2 text-sm">
+              Bookingforespørgsler
               {hostBookings.filter((b) => b.status === 'pending').length > 0 && (
                 <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {hostBookings.filter((b) => b.status === 'pending').length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="listings" className="rounded-lg px-5 py-2 text-sm">My Listings</TabsTrigger>
+            <TabsTrigger value="transport-requests" className="rounded-lg px-4 py-2 text-sm">Mine transportforespørgsler</TabsTrigger>
+            <TabsTrigger value="incoming-transport" className="rounded-lg px-4 py-2 text-sm">Tilbud (aktør)</TabsTrigger>
+            <TabsTrigger value="listings" className="rounded-lg px-4 py-2 text-sm">Mine opslag</TabsTrigger>
           </TabsList>
 
           {/* MY BOOKINGS */}
           <TabsContent value="bookings">
             {myBookings.length === 0 ? (
-              <EmptyState icon={Calendar} message="You haven't made any bookings yet" cta="Explore cabins" ctaHref="/cabins" />
+              <EmptyState icon={Calendar} message="Du har ingen bookinger endnu" cta="Udforsk hytter" ctaHref="/cabins" />
             ) : (
               <div className="space-y-3">
                 {myBookings.map((b) => (
@@ -98,10 +101,20 @@ export default function Dashboard() {
             )}
           </TabsContent>
 
+          {/* TRANSPORT REQUESTS (guest) */}
+          <TabsContent value="transport-requests">
+            <MyTransportRequestsTab />
+          </TabsContent>
+
+          {/* INCOMING TRANSPORT REQUESTS (provider) */}
+          <TabsContent value="incoming-transport">
+            <IncomingRequestsTab />
+          </TabsContent>
+
           {/* HOST BOOKING REQUESTS */}
           <TabsContent value="requests">
             {hostBookings.length === 0 ? (
-              <EmptyState icon={Users} message="No booking requests yet" cta="Create a listing" ctaHref="/create-listing" />
+              <EmptyState icon={Users} message="Ingen bookingforespørgsler endnu" cta="Opret et opslag" ctaHref="/create-listing" />
             ) : (
               <div className="space-y-3">
                 {hostBookings.map((b) => (

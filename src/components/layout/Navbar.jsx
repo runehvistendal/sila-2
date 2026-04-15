@@ -48,8 +48,9 @@ export default function Navbar() {
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
             {[
-              { to: '/cabins', label: 'Cabins' },
+              { to: '/cabins', label: 'Hytter' },
               { to: '/transport', label: 'Transport' },
+              { to: '/request-transport', label: 'Anmod om transport' },
             ].map((link) => (
               <Link
                 key={link.to}
@@ -134,8 +135,9 @@ export default function Navbar() {
             className="md:hidden bg-white border-b border-border overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
-              <Link to="/cabins" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Cabins</Link>
+              <Link to="/cabins" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Hytter</Link>
               <Link to="/transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Transport</Link>
+              <Link to="/request-transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Anmod om transport</Link>
               {user ? (
                 <>
                   <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Dashboard</Link>

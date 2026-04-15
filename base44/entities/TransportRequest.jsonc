@@ -1,0 +1,64 @@
+{
+  "name": "TransportRequest",
+  "type": "object",
+  "properties": {
+    "from_location": {
+      "type": "string",
+      "description": "Departure location"
+    },
+    "to_location": {
+      "type": "string",
+      "description": "Destination"
+    },
+    "travel_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "passengers": {
+      "type": "number"
+    },
+    "message": {
+      "type": "string",
+      "description": "Guest description of the trip"
+    },
+    "guest_name": {
+      "type": "string"
+    },
+    "guest_email": {
+      "type": "string"
+    },
+    "provider_email": {
+      "type": "string",
+      "description": "Set if directed at a specific provider"
+    },
+    "provider_name": {
+      "type": "string"
+    },
+    "quoted_price_dkk": {
+      "type": "number",
+      "description": "Price offered by provider"
+    },
+    "provider_message": {
+      "type": "string",
+      "description": "Provider's reply/note"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "quoted",
+        "accepted",
+        "declined",
+        "cancelled"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "from_location",
+    "to_location",
+    "travel_date",
+    "passengers",
+    "guest_email"
+  ]
+}
