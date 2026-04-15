@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Home, Anchor, X, Plus } from 'lucide-react';
 import ImageUploader from '@/components/shared/ImageUploader';
+import AddOnServicesEditor from '@/components/shared/AddOnServicesEditor';
 import { toast } from '@/components/ui/use-toast';
 
 const LOCATIONS = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Disko Bay', 'Kangerlussuaq', 'Tasiilaq', 'Upernavik', 'Qaqortoq', 'Narsaq', 'Other'];
@@ -25,7 +26,7 @@ export default function CreateListing() {
     title: '', description: '', location: '', price_per_night: '',
     max_guests: '', host_provides_transport: false,
     transport_route_from: '', transport_price_per_seat: '', amenities: [],
-    images: [],
+    add_on_services: [], images: [],
   });
   const [newAmenity, setNewAmenity] = useState('');
 
@@ -33,7 +34,7 @@ export default function CreateListing() {
   const [transportForm, setTransportForm] = useState({
     from_location: '', to_location: '', departure_date: '',
     departure_time: '', seats_available: '', round_trip_price: '',
-    boat_type: '', has_cabin: false, notes: '', equipment: [], images: [],
+    boat_type: '', has_cabin: false, notes: '', equipment: [], add_on_services: [], images: [],
   });
   const [newEquipment, setNewEquipment] = useState('');
 
@@ -202,6 +203,16 @@ export default function CreateListing() {
               )}
             </Field>
 
+            {/* Add-on Services */}
+            <Field label="Tilvalgsydelser">
+              <p className="text-xs text-muted-foreground mb-3">Tilbyd ekstra services som sengelinned, rengøring, brænde mv. mod ekstra betaling.</p>
+              <AddOnServicesEditor
+                services={cabinForm.add_on_services || []}
+                onChange={(svc) => setCabinForm((p) => ({ ...p, add_on_services: svc }))}
+                type="cabin"
+              />
+            </Field>
+
             {/* Images */}
             <Field label="Billeder af hytten">
               <ImageUploader
@@ -314,6 +325,16 @@ export default function CreateListing() {
                   ))}
                 </div>
               )}
+            </Field>
+
+            {/* Add-on Services */}
+            <Field label="Tilvalgsydelser">
+              <p className="text-xs text-muted-foreground mb-3">Tilbyd ekstra services som fiskestænger, måltider, kikkertudlejning mv. mod ekstra betaling.</p>
+              <AddOnServicesEditor
+                services={transportForm.add_on_services || []}
+                onChange={(svc) => setTransportForm((p) => ({ ...p, add_on_services: svc }))}
+                type="transport"
+              />
             </Field>
 
             {/* Boat photos (max 5) */}

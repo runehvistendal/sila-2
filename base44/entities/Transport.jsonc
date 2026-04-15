@@ -47,6 +47,31 @@
       "minItems": 1,
       "description": "At least one photo of the entire boat from outside. Required for listing publication."
     },
+    "add_on_services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Service name (e.g. 'Fishing rods', 'Meal', 'Binoculars')"
+          },
+          "description": {
+            "type": "string",
+            "description": "Short description of the service"
+          },
+          "price_dkk": {
+            "type": "number",
+            "description": "Price in DKK"
+          }
+        },
+        "required": [
+          "name",
+          "price_dkk"
+        ]
+      },
+      "description": "Optional add-on services available during the trip"
+    },
     "status": {
       "type": "string",
       "enum": [

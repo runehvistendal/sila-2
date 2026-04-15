@@ -29,6 +29,31 @@
         "type": "string"
       }
     },
+    "add_on_services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Service name (e.g. 'Bedding', 'Final cleaning', 'Firewood')"
+          },
+          "description": {
+            "type": "string",
+            "description": "Short description of the service"
+          },
+          "price_dkk": {
+            "type": "number",
+            "description": "Price in DKK"
+          }
+        },
+        "required": [
+          "name",
+          "price_dkk"
+        ]
+      },
+      "description": "Optional add-on services available during the stay"
+    },
     "host_name": {
       "type": "string"
     },
