@@ -23,12 +23,16 @@ export default function Cabins() {
   const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, search: urlParams.get('q') || '' });
   const [view, setView] = useState('grid'); // 'grid' | 'map'
 
-  const { data: rawCabins = [], isLoading } = useQuery({
+  const { data: rawCabins, isLoading } = useQuery({
     queryKey: ['cabins'],
     queryFn: () => base44.entities.Cabin.filter({ status: 'active' }, '-created_date', 60),
+    initialData: [],
   });
 
-  const cabins = useMemo(() => (rawCabins || []).filter(c => c && typeof c === 'object' && c.id), [rawCabins]);
+  const cabins = useMemo(() => {
+    if (!Array.isArray(rawCabins)) return [];
+    return rawCabins.filter(c => c && typeof c === 'object' && c.id);
+  }, [rawCabins]);
 
   const filtered = useMemo(() => {
     let result = cabins.filter((c) => {
