@@ -35,6 +35,8 @@ import CommunityGuidelines from '@/pages/CommunityGuidelines';
 import ReportIncident from '@/pages/ReportIncident';
 import LegalAdmin from '@/pages/LegalAdmin';
 import GrowthInsights from '@/pages/GrowthInsights';
+import Support from '@/pages/Support';
+import AdminSupport from '@/pages/AdminSupport';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -80,6 +82,8 @@ const AuthenticatedApp = () => {
         <Route path="/report-incident" element={<ReportIncident />} />
         <Route path="/admin/legal" element={<LegalAdmin />} />
         <Route path="/admin/growth" element={<GrowthInsights />} />
+        <Route path="/admin/support" element={<AdminSupport />} />
+        <Route path="/support" element={<Support />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

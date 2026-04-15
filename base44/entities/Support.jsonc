@@ -1,0 +1,71 @@
+{
+  "name": "Support",
+  "type": "object",
+  "properties": {
+    "inquiry_type": {
+      "type": "string",
+      "enum": [
+        "faq",
+        "booking_status",
+        "complaint",
+        "other"
+      ],
+      "description": "Type of inquiry"
+    },
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email address"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Inquiry subject"
+    },
+    "message": {
+      "type": "string",
+      "description": "Original customer message"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "If related to a booking"
+    },
+    "ai_response": {
+      "type": "string",
+      "description": "AI-generated response to FAQ"
+    },
+    "escalated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether issue needs admin review"
+    },
+    "escalation_reason": {
+      "type": "string",
+      "description": "Why this was escalated"
+    },
+    "admin_response": {
+      "type": "string",
+      "description": "Admin's response to complex issues"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "ai_answered",
+        "escalated",
+        "resolved"
+      ],
+      "default": "open"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "customer_email",
+    "subject",
+    "message"
+  ]
+}
