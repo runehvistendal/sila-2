@@ -36,7 +36,7 @@ export default function Cabins() {
       const matchMin = !filters.minPrice || c.price_per_night >= Number(filters.minPrice);
       const matchMax = !filters.maxPrice || c.price_per_night <= Number(filters.maxPrice);
       const matchGuests = !filters.minGuests || (c.max_guests || 0) >= Number(filters.minGuests);
-      const matchAmenities = !filters.amenities?.length || filters.amenities.every(a => c.amenities?.includes(a));
+      const matchAmenities = !(filters.amenities || []).length || (filters.amenities || []).every(a => c.amenities?.includes(a));
       return matchSearch && matchLoc && matchMin && matchMax && matchGuests && matchAmenities;
     });
     if (filters.sort === 'price_asc') result = [...result].sort((a, b) => a.price_per_night - b.price_per_night);
