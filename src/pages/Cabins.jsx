@@ -38,6 +38,7 @@ export default function Cabins() {
   }, [rawCabins]);
 
   const filtered = useMemo(() => {
+    if (!Array.isArray(cabins) || cabins.length === 0) return [];
     let result = cabins.filter((c) => {
       const q = filters.search.toLowerCase();
       const matchSearch = !q || c.title?.toLowerCase().includes(q) || c.location?.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q) || c.amenities?.some(a => a.toLowerCase().includes(q));
