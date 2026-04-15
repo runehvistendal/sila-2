@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
 import { IncomingRequestsTab, MyTransportRequestsTab } from '@/components/dashboard/TransportRequestsTab';
 import { IncomingCabinRequestsTab, MyCabinRequestsTab } from '@/components/dashboard/CabinRequestsTab';
+import HostCalendarTab from '@/components/dashboard/HostCalendarTab';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -127,9 +128,10 @@ export default function Dashboard() {
             <TabsTrigger value="incoming-cabin" className="rounded-lg px-4 py-2 text-sm">Hytteforsp. (host)</TabsTrigger>
             {/* Provider tab */}
             <TabsTrigger value="incoming-transport" className="rounded-lg px-4 py-2 text-sm">Transportforsp. (aktør)</TabsTrigger>
-            {/* Listings + ratings */}
+            {/* Listings + ratings + calendar */}
             <TabsTrigger value="listings" className="rounded-lg px-4 py-2 text-sm">Mine opslag</TabsTrigger>
             <TabsTrigger value="ratings" className="rounded-lg px-4 py-2 text-sm">Bedømmelser</TabsTrigger>
+            <TabsTrigger value="kalender" className="rounded-lg px-4 py-2 text-sm">Kalender (host)</TabsTrigger>
           </TabsList>
 
           {/* MY BOOKINGS (Traveler) */}
@@ -244,6 +246,11 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          {/* HOST CALENDAR */}
+          <TabsContent value="kalender">
+            <HostCalendarTab />
           </TabsContent>
 
           {/* RATINGS */}
