@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 
-const LOCATIONS = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Disko Bay', 'Kangerlussuaq', 'Tasiilaq', 'Upernavik', 'Qaqortoq', 'Narsaq'];
 const AMENITIES = ['Wi-Fi', 'Sauna', 'Toilet', 'Electricity', 'Running water', 'Fireplace', 'Boat access', 'Fishing'];
+
+const selectClass = "h-10 rounded-xl border border-input bg-transparent px-3 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring text-foreground cursor-pointer";
 
 export default function CabinFilters({ filters, onChange }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -21,9 +21,9 @@ export default function CabinFilters({ filters, onChange }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-[180px] max-w-xs">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
             placeholder="Søg på navn, sted eller facilitet..."
             value={filters.search}
@@ -31,33 +31,34 @@ export default function CabinFilters({ filters, onChange }) {
             className="pl-10 h-10 rounded-xl"
           />
         </div>
-        <Select value={filters.location} onValueChange={(v) => set('location', v)}>
-          <SelectTrigger className="w-[180px] h-10 rounded-xl">
-            <SelectValue placeholder="Alle steder" />
-          </SelectTrigger>
-          <SelectContent position="popper">
-            <SelectItem value="all">Alle steder</SelectItem>
-            <SelectItem value="Nuuk">Nuuk</SelectItem>
-            <SelectItem value="Ilulissat">Ilulissat</SelectItem>
-            <SelectItem value="Sisimiut">Sisimiut</SelectItem>
-            <SelectItem value="Disko Bay">Disko Bay</SelectItem>
-            <SelectItem value="Kangerlussuaq">Kangerlussuaq</SelectItem>
-            <SelectItem value="Tasiilaq">Tasiilaq</SelectItem>
-            <SelectItem value="Upernavik">Upernavik</SelectItem>
-            <SelectItem value="Qaqortoq">Qaqortoq</SelectItem>
-            <SelectItem value="Narsaq">Narsaq</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={filters.sort} onValueChange={(v) => set('sort', v)}>
-          <SelectTrigger className="w-[160px] h-10 rounded-xl">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent position="popper">
-            <SelectItem value="newest">Nyeste først</SelectItem>
-            <SelectItem value="price_asc">Pris: lav til høj</SelectItem>
-            <SelectItem value="price_desc">Pris: høj til lav</SelectItem>
-          </SelectContent>
-        </Select>
+
+        <select
+          value={filters.location}
+          onChange={(e) => set('location', e.target.value)}
+          className={`${selectClass} w-[180px]`}
+        >
+          <option value="all">Alle steder</option>
+          <option value="Nuuk">Nuuk</option>
+          <option value="Ilulissat">Ilulissat</option>
+          <option value="Sisimiut">Sisimiut</option>
+          <option value="Disko Bay">Disko Bay</option>
+          <option value="Kangerlussuaq">Kangerlussuaq</option>
+          <option value="Tasiilaq">Tasiilaq</option>
+          <option value="Upernavik">Upernavik</option>
+          <option value="Qaqortoq">Qaqortoq</option>
+          <option value="Narsaq">Narsaq</option>
+        </select>
+
+        <select
+          value={filters.sort}
+          onChange={(e) => set('sort', e.target.value)}
+          className={`${selectClass} w-[160px]`}
+        >
+          <option value="newest">Nyeste først</option>
+          <option value="price_asc">Pris: lav til høj</option>
+          <option value="price_desc">Pris: høj til lav</option>
+        </select>
+
         <button
           className="rounded-xl h-10 px-3 text-sm font-medium border border-input bg-transparent shadow-sm hover:bg-muted flex items-center gap-1.5 whitespace-nowrap"
           onClick={() => setShowAdvanced(!showAdvanced)}
