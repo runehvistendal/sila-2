@@ -90,7 +90,7 @@ export default function Cabins() {
           <>
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} hytte{filtered.length !== 1 ? 'r' : ''} fundet</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((cabin) => (
+              {filtered.filter(c => c && c.id).map((cabin) => (
                 <CabinCard key={cabin.id} cabin={cabin} />
               ))}
             </div>
