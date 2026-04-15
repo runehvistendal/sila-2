@@ -81,7 +81,9 @@ export default function CabinDetail() {
     checkIn && checkOut
       ? Math.max(0, Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000))
       : 0;
-  const total = nights * cabin.price_per_night;
+  const cabinTotal = nights * cabin.price_per_night;
+  const transportCost = wantHostTransport && cabin.transport_price_per_seat ? cabin.transport_price_per_seat * guests : 0;
+  const total = cabinTotal + transportCost;
 
   const stripePayload = nights > 0 ? {
     bookingType: 'cabin',
@@ -218,6 +220,7 @@ export default function CabinDetail() {
               cabinId={cabin.id}
               hostEmail={cabin.host_email}
               hostName={cabin.host_name}
+              currentUserEmail={user?.email}
             />
           </div>
 
@@ -258,9 +261,15 @@ export default function CabinDetail() {
               {nights > 0 && (
                 <div className="bg-muted rounded-xl p-4 mb-4 text-sm space-y-1.5">
                   <div className="flex justify-between text-muted-foreground">
-                    <span>{cabin.price_per_night} DKK × {nights} night{nights !== 1 ? 's' : ''}</span>
-                    <span>{total} DKK</span>
+                    <span>{cabin.price_per_night} DKK × {nights} nat</span>
+                    <span>{cabinTotal} DKK</span>
                   </div>
+                  {transportCost > 0 && (
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Transport ({cabin.transport_price_per_seat} DKK × {guests} gæst{guests !== 1 ? 'er' : ''})</span>
+                      <span>{transportCost} DKK</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-foreground pt-1 border-t border-border">
                     <span>Total</span>
                     <span>{total} DKK</span>

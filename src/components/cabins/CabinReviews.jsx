@@ -39,10 +39,11 @@ function StarBar({ stars, count }) {
   );
 }
 
-export default function CabinReviews({ cabinId, hostEmail, hostName }) {
+export default function CabinReviews({ cabinId, hostEmail, hostName, currentUserEmail }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [stars, setStars] = useState(0);
+  const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState('');
   const [showForm, setShowForm] = useState(false);
 
@@ -51,11 +52,17 @@ export default function CabinReviews({ cabinId, hostEmail, hostName }) {
     queryFn: () => base44.entities.Review.filter({ listing_id: cabinId, listing_type: 'cabin' }, '-created_date', 50),
   });
 
-  // Also pull host ratings from the Rating entity (cross-booking ratings)
   const { data: hostRatings = [] } = useQuery({
     queryKey: ['host-ratings', hostEmail],
     queryFn: () => base44.entities.Rating.filter({ to_email: hostEmail, request_type: 'cabin' }, '-created_date', 50),
     enabled: !!hostEmail,
+  });
+
+  // Check if user has a completed booking for this cabin
+  const { data: userBookings = [] } = useQuery({
+    queryKey: ['user-cabin-bookings', cabinId, currentUserEmail],
+    queryFn: () => base44.entities.Booking.filter({ listing_id: cabinId, guest_email: currentUserEmail, status: 'completed' }, null, 1),
+    enabled: !!currentUserEmail,
   });
 
   const submitMutation = useMutation({
@@ -80,6 +87,8 @@ export default function CabinReviews({ cabinId, hostEmail, hostName }) {
   const allRatings = [...reviews.map(r => r.rating), ...hostRatings.map(r => r.stars)];
   const avgRating = allRatings.length > 0 ? (allRatings.reduce((s, r) => s + r, 0) / allRatings.length).toFixed(1) : null;
   const alreadyReviewed = reviews.some(r => r.reviewer_email === user?.email);
+  const hasCompletedBooking = userBookings.length > 0;
+  const canReview = user && hasCompletedBooking && !alreadyReviewed;
 
   return (
     <div>
@@ -98,20 +107,32 @@ export default function CabinReviews({ cabinId, hostEmail, hostName }) {
             </div>
           )}
         </div>
-        {user && !alreadyReviewed && !showForm && (
-          <Button variant="outline" onClick={() => setShowForm(true)} className="rounded-xl text-sm gap-1">
-            <Star className="w-3.5 h-3.5" /> Skriv anmeldelse
-          </Button>
+        {/* Inline star picker — only if user has a completed booking */}
+        {canReview && !showForm && (
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map(n => (
+              <button
+                key={n}
+                type="button"
+                onMouseEnter={() => setHovered(n)}
+                onMouseLeave={() => setHovered(0)}
+                onClick={() => { setStars(n); setShowForm(true); }}
+                className="transition-transform hover:scale-110"
+              >
+                <Star className={`w-6 h-6 transition-colors ${n <= (hovered || stars) ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/40'}`} />
+              </button>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Write review form */}
-      {showForm && (
+      {/* Write review form (opens after clicking a star) */}
+      {showForm && canReview && (
         <div className="bg-muted/50 rounded-2xl p-5 mb-6 border border-border space-y-4">
           <p className="text-sm font-semibold text-foreground">Din anmeldelse</p>
           <StarPicker value={stars} onChange={setStars} />
           <Textarea
-            placeholder="Del din oplevelse med hytten og udlejeren..."
+            placeholder="Del din oplevelse med hytten og udlejeren... (valgfrit)"
             value={comment}
             onChange={e => setComment(e.target.value)}
             className="h-24 resize-none text-sm rounded-xl"

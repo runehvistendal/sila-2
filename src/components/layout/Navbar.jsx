@@ -37,7 +37,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 bg-primary rounded-xl items-center justify-center md:hidden flex">
               <Waves className="w-4 h-4 text-white" />
             </div>
             <span className={`text-lg font-bold tracking-tight transition-colors ${transparent ? 'text-white' : 'text-foreground'}`}>

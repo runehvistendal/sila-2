@@ -19,7 +19,7 @@ function CalendarDay({ label, isBooked, isPending, isPast, isCurrentDay, isSelec
   } else if (isCurrentDay) {
     cls += 'border border-primary text-primary font-bold rounded-lg cursor-pointer hover:bg-primary/10';
   } else {
-    cls += 'text-foreground cursor-pointer rounded-lg hover:bg-primary/10';
+    cls += 'bg-green-50 text-green-700 cursor-pointer rounded-lg hover:bg-green-100';
   }
 
   return (
