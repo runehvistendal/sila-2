@@ -1,0 +1,225 @@
+{
+  "name": "Growth",
+  "type": "object",
+  "properties": {
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "monthly",
+        "analysis"
+      ],
+      "description": "Type of growth report"
+    },
+    "kpi_summary": {
+      "type": "object",
+      "description": "Key performance indicators snapshot",
+      "properties": {
+        "total_requests": {
+          "type": "number"
+        },
+        "total_bookings": {
+          "type": "number"
+        },
+        "conversion_rate": {
+          "type": "number"
+        },
+        "active_users": {
+          "type": "number"
+        },
+        "avg_booking_value_dkk": {
+          "type": "number"
+        },
+        "top_locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "type": "string"
+              },
+              "requests": {
+                "type": "number"
+              },
+              "bookings": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "highlights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "metric": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "success",
+              "trend",
+              "opportunity"
+            ]
+          }
+        }
+      },
+      "description": "What's working well"
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "metric": {
+            "type": "number"
+          },
+          "funnel_stage": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Friction points and issues"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "expected_impact": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "action_type": {
+            "type": "string",
+            "enum": [
+              "content",
+              "feature",
+              "notification",
+              "highlight",
+              "other"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "declined",
+              "executed"
+            ],
+            "default": "pending"
+          },
+          "admin_notes": {
+            "type": "string"
+          },
+          "reason_declined": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Concrete actionable recommendations"
+    },
+    "traffic_sources": {
+      "type": "object",
+      "description": "Traffic channel analysis",
+      "properties": {
+        "direct": {
+          "type": "number"
+        },
+        "organic": {
+          "type": "number"
+        },
+        "social": {
+          "type": "number"
+        },
+        "referral": {
+          "type": "number"
+        },
+        "other": {
+          "type": "number"
+        }
+      }
+    },
+    "social_insights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string"
+          },
+          "engagement": {
+            "type": "number"
+          },
+          "conversions": {
+            "type": "number"
+          },
+          "top_content": {
+            "type": "string"
+          },
+          "recommendation": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Social media performance insights"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "generated_by_ai": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "report_type",
+    "kpi_summary",
+    "recommendations"
+  ]
+}

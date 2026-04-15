@@ -34,6 +34,7 @@ import VerifiedSafety from '@/pages/VerifiedSafety';
 import CommunityGuidelines from '@/pages/CommunityGuidelines';
 import ReportIncident from '@/pages/ReportIncident';
 import LegalAdmin from '@/pages/LegalAdmin';
+import GrowthInsights from '@/pages/GrowthInsights';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -78,6 +79,7 @@ const AuthenticatedApp = () => {
         <Route path="/community-guidelines" element={<CommunityGuidelines />} />
         <Route path="/report-incident" element={<ReportIncident />} />
         <Route path="/admin/legal" element={<LegalAdmin />} />
+        <Route path="/admin/growth" element={<GrowthInsights />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
