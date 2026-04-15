@@ -34,7 +34,8 @@ function getCoords(location) {
 }
 
 export default function GreenlandMap({ cabins = [], height = '400px' }) {
-  const pins = cabins
+  const pins = (cabins || [])
+    .filter(c => c && c.id)
     .map(c => ({ ...c, coords: getCoords(c.location) }))
     .filter(c => c.coords);
 

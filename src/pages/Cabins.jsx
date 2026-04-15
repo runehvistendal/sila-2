@@ -30,7 +30,7 @@ export default function Cabins() {
   });
 
   const filtered = useMemo(() => {
-    let result = cabins.filter((c) => {
+    let result = cabins.filter((c) => c && c.id).filter((c) => {
       const q = filters.search.toLowerCase();
       const matchSearch = !q || c.title?.toLowerCase().includes(q) || c.location?.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q) || c.amenities?.some(a => a.toLowerCase().includes(q));
       const matchLoc = filters.location === 'all' || c.location === filters.location;
