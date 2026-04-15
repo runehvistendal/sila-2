@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Home, Anchor, Upload, X, Plus } from 'lucide-react';
+import { Home, Anchor, X, Plus } from 'lucide-react';
+import ImageUploader from '@/components/shared/ImageUploader';
 import { toast } from '@/components/ui/use-toast';
 
 const LOCATIONS = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Disko Bay', 'Kangerlussuaq', 'Tasiilaq', 'Upernavik', 'Qaqortoq', 'Narsaq', 'Other'];
@@ -27,18 +28,16 @@ export default function CreateListing() {
     images: [],
   });
   const [newAmenity, setNewAmenity] = useState('');
-  const [imageUrls, setImageUrls] = useState(['']);
 
   // Transport form state
   const [transportForm, setTransportForm] = useState({
     from_location: '', to_location: '', departure_date: '',
     departure_time: '', seats_available: '', round_trip_price: '',
-    boat_type: '', notes: '', equipment: [], images: [],
+    boat_type: '', has_cabin: false, notes: '', equipment: [], images: [],
   });
   const [newEquipment, setNewEquipment] = useState('');
-  const [boatImageUrls, setBoatImageUrls] = useState(['', '', '']);
 
-  const [uploading, setUploading] = useState(false);
+
 
   const cabinMutation = useMutation({
     mutationFn: (data) => base44.entities.Cabin.create(data),
@@ -64,13 +63,11 @@ export default function CreateListing() {
 
   const handleCabinSubmit = (e) => {
     e.preventDefault();
-    const validImages = imageUrls.filter((u) => u.trim().length > 0);
     cabinMutation.mutate({
       ...cabinForm,
       price_per_night: Number(cabinForm.price_per_night),
       max_guests: Number(cabinForm.max_guests) || undefined,
       transport_price_per_seat: Number(cabinForm.transport_price_per_seat) || undefined,
-      images: validImages,
       host_name: user.full_name || '',
       host_email: user.email,
       status: 'active',
@@ -79,7 +76,6 @@ export default function CreateListing() {
 
   const handleTransportSubmit = (e) => {
     e.preventDefault();
-    const validBoatImages = boatImageUrls.filter(u => u.trim().length > 0);
     transportMutation.mutate({
       ...transportForm,
       seats_available: Number(transportForm.seats_available),
@@ -87,7 +83,6 @@ export default function CreateListing() {
       provider_name: user.full_name || '',
       provider_email: user.email,
       status: 'scheduled',
-      images: validBoatImages,
     });
   };
 
@@ -201,22 +196,12 @@ export default function CreateListing() {
             </Field>
 
             {/* Images */}
-            <Field label="Photo URLs">
-              <div className="space-y-2">
-                {imageUrls.map((url, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Input placeholder="https://..." value={url} onChange={(e) => { const n = [...imageUrls]; n[i] = e.target.value; setImageUrls(n); }} className="rounded-xl" />
-                    {imageUrls.length > 1 && (
-                      <Button type="button" variant="ghost" size="sm" onClick={() => setImageUrls((p) => p.filter((_, idx) => idx !== i))} className="shrink-0 text-muted-foreground hover:text-destructive">
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-                <Button type="button" variant="outline" size="sm" onClick={() => setImageUrls((p) => [...p, ''])} className="rounded-xl gap-1.5">
-                  <Plus className="w-3.5 h-3.5" /> Add image URL
-                </Button>
-              </div>
+            <Field label="Billeder af hytten">
+              <ImageUploader
+                images={cabinForm.images || []}
+                onChange={(urls) => setCabinForm((p) => ({ ...p, images: urls }))}
+                maxImages={10}
+              />
             </Field>
 
             {/* Host transport */}
@@ -281,9 +266,26 @@ export default function CreateListing() {
                 <p className="text-xs text-muted-foreground mt-1">One-way price will be auto-calculated as 60% (480 DKK if you enter 800)</p>
               </div>
             </div>
-            <Field label="Boat type">
-              <Input placeholder="e.g. Speedboat, Fishing boat" value={transportForm.boat_type} onChange={(e) => setTransportForm((p) => ({ ...p, boat_type: e.target.value }))} className="rounded-xl" />
-            </Field>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Boat type">
+                <Input placeholder="e.g. Speedboat, Fishing boat" value={transportForm.boat_type} onChange={(e) => setTransportForm((p) => ({ ...p, boat_type: e.target.value }))} className="rounded-xl" />
+              </Field>
+              <Field label="Kabine om bord?">
+                <div className="flex items-center gap-3 mt-1.5">
+                  {[{ val: false, label: 'Uden kabine' }, { val: true, label: 'Med kabine' }].map((opt) => (
+                    <label key={String(opt.val)} className="flex items-center gap-2 cursor-pointer text-sm">
+                      <input
+                        type="radio"
+                        checked={transportForm.has_cabin === opt.val}
+                        onChange={() => setTransportForm((p) => ({ ...p, has_cabin: opt.val }))}
+                        className="accent-primary w-4 h-4"
+                      />
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
+              </Field>
+            </div>
             <Field label="Notes">
               <Textarea placeholder="Any info for passengers — gear, meeting point, etc." value={transportForm.notes} onChange={(e) => setTransportForm((p) => ({ ...p, notes: e.target.value }))} rows={3} className="rounded-xl resize-none" />
             </Field>
@@ -307,16 +309,13 @@ export default function CreateListing() {
               )}
             </Field>
 
-            {/* Boat photos (max 3) */}
-            <Field label="Billeder af båden (op til 3)">
-              <div className="space-y-2">
-                {boatImageUrls.map((url, i) => (
-                  <div key={i} className="flex gap-2 items-center">
-                    <span className="text-xs text-muted-foreground w-16 shrink-0">Billede {i + 1}</span>
-                    <Input placeholder="https://..." value={url} onChange={e => { const n = [...boatImageUrls]; n[i] = e.target.value; setBoatImageUrls(n); }} className="rounded-xl" />
-                  </div>
-                ))}
-              </div>
+            {/* Boat photos (max 5) */}
+            <Field label="Billeder af båden">
+              <ImageUploader
+                images={transportForm.images || []}
+                onChange={(urls) => setTransportForm((p) => ({ ...p, images: urls }))}
+                maxImages={5}
+              />
             </Field>
 
             <Button type="submit" disabled={transportMutation.isPending} className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold text-base">

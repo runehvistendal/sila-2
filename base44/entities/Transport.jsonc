@@ -31,8 +31,19 @@
     "boat_type": {
       "type": "string"
     },
+    "has_cabin": {
+      "type": "boolean",
+      "description": "Whether the boat has an enclosed cabin",
+      "default": false
+    },
     "notes": {
       "type": "string"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "status": {
       "type": "string",

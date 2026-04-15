@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, Clock, Users, Anchor } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, Users, Anchor, Home } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function TransportCard({ transport, compact = false }) {
@@ -50,6 +50,12 @@ export default function TransportCard({ transport, compact = false }) {
             {transport.boat_type}
           </span>
         )}
+        <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full ${
+          transport.has_cabin ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+        }`}>
+          <Home className="w-3 h-3" />
+          {transport.has_cabin ? 'Med kabine' : 'Uden kabine'}
+        </span>
       </div>
 
       {!compact && (
