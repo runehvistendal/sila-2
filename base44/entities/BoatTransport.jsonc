@@ -56,6 +56,31 @@
       },
       "description": "Up to 3 photo URLs of the boat"
     },
+    "add_on_services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Service name (e.g. 'Meal', 'Beverages', 'Fishing rods', 'Sightseeing tour')"
+          },
+          "description": {
+            "type": "string",
+            "description": "Short description of the service"
+          },
+          "price_dkk": {
+            "type": "number",
+            "description": "Price in DKK (platform takes 15% commission)"
+          }
+        },
+        "required": [
+          "name",
+          "price_dkk"
+        ]
+      },
+      "description": "Optional services available during the trip"
+    },
     "status": {
       "type": "string",
       "enum": [
