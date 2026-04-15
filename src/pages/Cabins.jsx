@@ -77,7 +77,7 @@ export default function Cabins() {
             ))}
           </div>
         ) : view === 'map' ? (
-          <GreenlandMap cabins={filtered} height="600px" />
+          <GreenlandMap cabins={filtered.filter(c => c && c.id)} height="600px" />
         ) : filtered.length > 0 ? (
           <>
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} hytte{filtered.length !== 1 ? 'r' : ''} fundet</p>
