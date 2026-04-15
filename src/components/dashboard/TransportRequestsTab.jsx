@@ -12,6 +12,7 @@ import RequestChat from '@/components/chat/RequestChat';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import RatingModal from '@/components/ratings/RatingModal';
 import LifeJacketConfirmation from '@/components/transport/LifeJacketConfirmation';
+import SafetyFeedbackForm from '@/components/ratings/SafetyFeedbackForm';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -114,6 +115,15 @@ export function MyTransportRequestsTab() {
     enabled: !!user,
   });
 
+  // Check which requests already have safety feedback
+  const { data: existingFeedback = [] } = useQuery({
+    queryKey: ['my-safety-feedback', user?.email],
+    queryFn: () => base44.entities.SafetyFeedback.filter({ guest_email: user.email }, null, 100),
+    enabled: !!user,
+  });
+
+  const feedbackBookingIds = new Set(existingFeedback.map(f => f.booking_id));
+
   const respondMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.TransportRequest.update(id, { status }),
     onSuccess: () => qc.invalidateQueries(['my-transport-requests']),
@@ -176,7 +186,18 @@ export function MyTransportRequestsTab() {
                 onOfferAccepted={(od) => respondMutation.mutate({ id: r.id, status: 'accepted' })}
               />
               {r.status === 'accepted' && (
-                <Button size="sm" variant="outline" onClick={() => setRatingFor(r)} className="rounded-xl text-xs">★ Bedøm udbyderen</Button>
+                <>
+                  {/* Safety feedback form - only show if not already submitted */}
+                  {!feedbackBookingIds.has(r.id) && (
+                    <SafetyFeedbackForm
+                      bookingId={r.id}
+                      guestEmail={user.email}
+                      providerEmail={r.provider_email}
+                      onSubmitted={() => qc.invalidateQueries(['my-safety-feedback'])}
+                    />
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => setRatingFor(r)} className="rounded-xl text-xs">★ Bedøm udbyderen</Button>
+                </>
               )}
             </div>
           )}
