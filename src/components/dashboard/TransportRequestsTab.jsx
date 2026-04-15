@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import RequestChat from '@/components/chat/RequestChat';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import RatingModal from '@/components/ratings/RatingModal';
+import LifeJacketConfirmation from '@/components/transport/LifeJacketConfirmation';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -196,6 +197,18 @@ export function MyTransportRequestsTab() {
 
 // ---- SHARED REQUEST CARD (provider side) ----
 function RequestCard({ request: r, isProvider, expanded, onToggle, quoting, onQuote, onCancelQuote, quote, setQuote, onSubmitQuote, quotePending, providerEmail, onRate }) {
+  const [safetyConfirmed, setSafetyConfirmed] = useState(false);
+
+  // Check if compliance already exists for this request
+  const { data: existingCompliance } = useQuery({
+    queryKey: ['safety-compliance', r.id],
+    queryFn: () => base44.entities.SafetyCompliance.filter({ booking_id: r.id, provider_email: providerEmail }, null, 1),
+    enabled: isProvider && !!r.id,
+    select: (data) => data?.length > 0,
+  });
+
+  const isConfirmed = safetyConfirmed || existingCompliance;
+
   return (
     <div className="bg-white rounded-xl border border-border p-4">
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -219,27 +232,40 @@ function RequestCard({ request: r, isProvider, expanded, onToggle, quoting, onQu
       </div>
 
       {isProvider && r.status === 'pending' && (
-        quoting ? (
-          <div className="mt-3 bg-muted/50 rounded-xl p-3 space-y-2 border border-border">
-            <p className="text-xs font-semibold">Send tilbud</p>
-            <div className="flex gap-2">
-              <Input placeholder="Pris (DKK)" type="number" value={quote.price} onChange={e => setQuote(q => ({ ...q, price: e.target.value }))} className="h-9 text-sm" />
-              <Input placeholder="Pladser" type="number" value={quote.seats} onChange={e => setQuote(q => ({ ...q, seats: e.target.value }))} className="h-9 text-sm w-24" />
-            </div>
-            <Textarea placeholder="Besked til gæsten..." value={quote.message} onChange={e => setQuote(q => ({ ...q, message: e.target.value }))} className="h-16 text-sm resize-none" />
-            <div className="flex gap-2">
-              <Button size="sm" onClick={onSubmitQuote} disabled={!quote.price || quotePending} className="bg-primary text-white rounded-lg h-8 text-xs">Send tilbud</Button>
-              <Button size="sm" variant="ghost" onClick={onCancelQuote} className="h-8 text-xs">Annuller</Button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex gap-2 mt-3">
-            <Button size="sm" onClick={onQuote} className="bg-primary text-white rounded-lg h-8 text-xs">Send tilbud</Button>
-            <Button size="sm" variant="outline" onClick={onToggle} className="rounded-lg h-8 text-xs gap-1">
-              <MessageSquare className="w-3.5 h-3.5" /> Chat
-            </Button>
-          </div>
-        )
+        <div className="mt-3 space-y-3">
+          {/* Safety compliance gate — must confirm before sending quote */}
+          <LifeJacketConfirmation
+            requestId={r.id}
+            providerEmail={providerEmail}
+            passengerCount={r.passengers}
+            alreadyConfirmed={isConfirmed}
+            onConfirmed={() => setSafetyConfirmed(true)}
+          />
+
+          {isConfirmed && (
+            quoting ? (
+              <div className="bg-muted/50 rounded-xl p-3 space-y-2 border border-border">
+                <p className="text-xs font-semibold">Send tilbud</p>
+                <div className="flex gap-2">
+                  <Input placeholder="Pris (DKK)" type="number" value={quote.price} onChange={e => setQuote(q => ({ ...q, price: e.target.value }))} className="h-9 text-sm" />
+                  <Input placeholder="Pladser" type="number" value={quote.seats} onChange={e => setQuote(q => ({ ...q, seats: e.target.value }))} className="h-9 text-sm w-24" />
+                </div>
+                <Textarea placeholder="Besked til gæsten..." value={quote.message} onChange={e => setQuote(q => ({ ...q, message: e.target.value }))} className="h-16 text-sm resize-none" />
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={onSubmitQuote} disabled={!quote.price || quotePending} className="bg-primary text-white rounded-lg h-8 text-xs">Send tilbud</Button>
+                  <Button size="sm" variant="ghost" onClick={onCancelQuote} className="h-8 text-xs">Annuller</Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Button size="sm" onClick={onQuote} className="bg-primary text-white rounded-lg h-8 text-xs">Send tilbud</Button>
+                <Button size="sm" variant="outline" onClick={onToggle} className="rounded-lg h-8 text-xs gap-1">
+                  <MessageSquare className="w-3.5 h-3.5" /> Chat
+                </Button>
+              </div>
+            )
+          )}
+        </div>
       )}
 
       {expanded && (

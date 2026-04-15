@@ -1,0 +1,42 @@
+{
+  "name": "SafetyCompliance",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "ID of the TransportRequest this compliance record is tied to"
+    },
+    "provider_email": {
+      "type": "string",
+      "description": "Email of the provider who confirmed"
+    },
+    "life_jackets_confirmed": {
+      "type": "boolean",
+      "description": "Provider confirmed life jackets for all passengers",
+      "default": false
+    },
+    "passenger_count": {
+      "type": "number",
+      "description": "Number of passengers at time of confirmation"
+    },
+    "confirmed_at": {
+      "type": "string",
+      "description": "ISO timestamp of confirmation"
+    },
+    "compliance_status": {
+      "type": "string",
+      "enum": [
+        "confirmed",
+        "skipped",
+        "violation"
+      ],
+      "default": "confirmed",
+      "description": "Outcome of this compliance check"
+    }
+  },
+  "required": [
+    "booking_id",
+    "provider_email",
+    "life_jackets_confirmed"
+  ]
+}
