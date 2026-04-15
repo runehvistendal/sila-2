@@ -125,6 +125,7 @@ export default function Profile() {
     role_type: 'traveler',
     avatar_url: '',
     phone: '',
+    notification_prefs: 'email',
   };
 
   const roleLabels = {
