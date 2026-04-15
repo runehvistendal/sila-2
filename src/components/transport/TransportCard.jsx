@@ -17,7 +17,7 @@ export default function TransportCard({ transport, compact = false }) {
   const getTrustBadgeColor = (status) => {
     if (!status) return 'bg-muted text-muted-foreground';
     if (status === 'active') return 'bg-green-100 text-green-700';
-    if (status === 'warning') return 'bg-amber-100 text-amber-700';
+    if (status === 'warning') return 'bg-muted text-muted-foreground';
     if (status === 'suspended_temp' || status === 'suspended_perm') return 'bg-red-100 text-red-700';
     return 'bg-muted text-muted-foreground';
   };
@@ -25,7 +25,7 @@ export default function TransportCard({ transport, compact = false }) {
   const getTrustLabel = (status, score) => {
     if (!status) return `${score || 0}/100`;
     if (status === 'active') return `${score || 0}/100 - Verificeret`;
-    if (status === 'warning') return `${score || 0}/100 - Advarsel`;
+    if (status === 'warning') return `${score || 0}/100`;
     if (status === 'suspended_temp') return 'Midlertidigt suspenderet';
     if (status === 'suspended_perm') return 'Permanent suspenderet';
     return `${score || 0}/100`;
