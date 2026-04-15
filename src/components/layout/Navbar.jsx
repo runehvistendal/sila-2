@@ -35,7 +35,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-18">
 
-          {/* Logo — desktop only */}
+          {/* Logo — desktop only, mobile has hamburger */}
           <Link to="/" className="hidden md:flex items-center gap-2 group">
             <div className="w-8 h-8 bg-primary rounded-xl items-center justify-center flex">
               <Waves className="w-4 h-4 text-white" />
@@ -44,6 +44,14 @@ export default function Navbar() {
               Sila
             </span>
           </Link>
+
+          {/* Mobile/tablet menu button as logo */}
+          <button
+            className="md:hidden w-8 h-8 bg-primary rounded-xl items-center justify-center flex"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            <Waves className="w-4 h-4 text-white" />
+          </button>
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
@@ -68,73 +76,62 @@ export default function Navbar() {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
-            {/* Mobile/tablet menu button */}
-            <button
-              className="md:hidden w-8 h-8 bg-primary rounded-xl items-center justify-center flex"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              <Waves className="w-4 h-4 text-white" />
-            </button>
-
-            {/* Desktop buttons */}
-            <div className="hidden md:flex items-center gap-3">
-              {user ? (
-                <>
-                  <Link to="/dashboard">
-                    <Button variant="ghost" size="sm" className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
-                      Dashboard
-                    </Button>
-                  </Link>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                        transparent ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-muted hover:bg-secondary text-foreground'
-                      }`}>
-                        <User className="w-4 h-4" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <div className="px-3 py-2 text-sm font-medium text-foreground truncate">{user.full_name || user.email}</div>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
-                          <LayoutDashboard className="w-4 h-4" /> Dashboard
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
-                          <UserCircle className="w-4 h-4" /> Min profil
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/favourites" className="flex items-center gap-2 cursor-pointer">
-                          <Heart className="w-4 h-4" /> Favoritter
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
-                          <PlusCircle className="w-4 h-4" /> Create listing
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive flex items-center gap-2 cursor-pointer">
-                        <LogOut className="w-4 h-4" /> Sign out
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : (
-                <>
-                  <Button variant="ghost" size="sm" onClick={() => base44.auth.redirectToLogin()} className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
-                    Sign in
+          <div className="hidden md:flex items-center gap-3">
+            {user ? (
+              <>
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm" className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
+                    Dashboard
                   </Button>
-                  <Button size="sm" onClick={() => base44.auth.redirectToLogin()} className="bg-primary text-white hover:bg-primary/90 rounded-full px-5">
-                    Get started
-                  </Button>
-                </>
-              )}
-            </div>
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                      transparent ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-muted hover:bg-secondary text-foreground'
+                    }`}>
+                      <User className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <div className="px-3 py-2 text-sm font-medium text-foreground truncate">{user.full_name || user.email}</div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
+                        <LayoutDashboard className="w-4 h-4" /> Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                        <UserCircle className="w-4 h-4" /> Min profil
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/favourites" className="flex items-center gap-2 cursor-pointer">
+                        <Heart className="w-4 h-4" /> Favoritter
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
+                        <PlusCircle className="w-4 h-4" /> Create listing
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive flex items-center gap-2 cursor-pointer">
+                      <LogOut className="w-4 h-4" /> Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => base44.auth.redirectToLogin()} className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
+                  Sign in
+                </Button>
+                <Button size="sm" onClick={() => base44.auth.redirectToLogin()} className="bg-primary text-white hover:bg-primary/90 rounded-full px-5">
+                  Get started
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu close button */}
