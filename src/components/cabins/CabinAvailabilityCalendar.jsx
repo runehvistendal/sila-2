@@ -37,7 +37,7 @@ export default function CabinAvailabilityCalendar({ cabinId }) {
   const today = startOfDay(new Date());
 
   return (
-    <div>
+    <div onPointerDown={e => e.stopPropagation()}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-foreground">Tilgængelighed</h2>
         <div className="flex items-center gap-2">
@@ -108,9 +108,9 @@ export default function CabinAvailabilityCalendar({ cabinId }) {
 
       {/* Legend */}
       <div className="flex flex-wrap gap-4 mt-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-green-100 inline-block" /> Ledig</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber-100 inline-block" /> Afventer bekræftelse</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-100 inline-block" /> Optaget</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-green-100 inline-block"></span> Ledig</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-amber-100 inline-block"></span> Afventer bekræftelse</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-100 inline-block"></span> Optaget</span>
       </div>
     </div>
   );
