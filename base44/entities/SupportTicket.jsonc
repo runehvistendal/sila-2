@@ -1,0 +1,56 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "name": {
+      "type": "string",
+      "description": "Customer name"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Ticket subject"
+    },
+    "message": {
+      "type": "string",
+      "description": "Customer message"
+    },
+    "booking_id": {
+      "type": "string",
+      "description": "Related booking ID if applicable"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Ticket status"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "Ticket priority"
+    },
+    "admin_response": {
+      "type": "string",
+      "description": "Admin's response to ticket"
+    }
+  },
+  "required": [
+    "email",
+    "subject",
+    "message"
+  ]
+}

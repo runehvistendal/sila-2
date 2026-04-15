@@ -56,7 +56,7 @@ export default function Footer() {
               <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Support</h4>
               <div className="space-y-2.5">
                 <Link to="/privacy-center" className="block text-sm text-white/60 hover:text-white transition-colors">Privacy Center</Link>
-                <a href="mailto:support@sila.gl" className="block text-sm text-white/60 hover:text-white transition-colors">Contact Support</a>
+                <Link to="/support" className="block text-sm text-white/60 hover:text-white transition-colors">Contact Support</Link>
               </div>
             </div>
           </div>

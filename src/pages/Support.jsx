@@ -23,13 +23,13 @@ export default function Support() {
 
   const mutation = useMutation({
     mutationFn: (data) =>
-      base44.functions.invoke('processSupportInquiry', {
-        customer_email: user?.email || 'guest@example.com',
-        customer_name: user?.full_name || 'Guest',
+      base44.functions.invoke('submitSupportTicket', {
+        email: user?.email || '',
+        name: user?.full_name || '',
         ...data,
       }),
     onSuccess: (res) => {
-      setResult(res.data);
+      setResult({ success: true, message: res.data.message });
       setForm({ subject: '', message: '', booking_id: '' });
     },
     onError: () => {
@@ -124,51 +124,28 @@ export default function Support() {
                   exit={{ opacity: 0, y: -10 }}
                   className="mt-6"
                 >
-                  <div
-                    className={`rounded-2xl border p-6 ${
-                      result.escalated
-                        ? 'bg-yellow-50 border-yellow-200'
-                        : 'bg-accent/10 border-accent/30'
-                    }`}
-                  >
-                    <div className="flex items-start gap-3 mb-4">
-                      {result.escalated ? (
-                        <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-1" />
-                      ) : (
-                        <CheckCircle className="w-5 h-5 text-accent shrink-0 mt-1" />
-                      )}
-                      <div>
-                        <h3 className="font-semibold text-foreground">
-                          {result.escalated ? 'Escalated to Admin' : 'AI Response'}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {result.escalated
-                            ? 'Your inquiry has been sent to our support team. You will receive a response soon.'
-                            : 'Your inquiry has been answered below.'}
-                        </p>
-                      </div>
-                    </div>
+                  <div className="rounded-2xl border border-accent/30 bg-accent/10 p-6">
+                   <div className="flex items-start gap-3 mb-4">
+                     <CheckCircle className="w-5 h-5 text-accent shrink-0 mt-1" />
+                     <div>
+                       <h3 className="font-semibold text-foreground">Inquiry Received</h3>
+                       <p className="text-sm text-muted-foreground mt-1">
+                         Your message has been received and saved. Our support team will respond to your inquiry at support@sila.gl within 24 hours.
+                       </p>
+                     </div>
+                   </div>
 
                     <div className="bg-white rounded-lg p-4">
-                      <p className="text-sm text-foreground whitespace-pre-line">{result.response}</p>
-                    </div>
+                            <p className="text-sm text-foreground">{result.message}</p>
+                          </div>
 
-                    {result.booking_status && (
-                      <div className="mt-4 p-4 bg-muted rounded-lg">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
-                          Current Booking Status
-                        </p>
-                        <p className="text-sm font-medium text-foreground">{result.booking_status}</p>
-                      </div>
-                    )}
-
-                    <Button
-                      onClick={() => setResult(null)}
-                      variant="outline"
-                      className="w-full mt-4"
-                    >
-                      Ask Another Question
-                    </Button>
+                          <Button
+                            onClick={() => setResult(null)}
+                            variant="outline"
+                            className="w-full mt-4"
+                          >
+                            Submit Another Inquiry
+                          </Button>
                   </div>
                 </motion.div>
               )}
