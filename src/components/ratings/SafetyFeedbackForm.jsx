@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, CheckCircle2, Star } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 export default function SafetyFeedbackForm({ bookingId, guestEmail, providerEmail, onSubmitted }) {
@@ -83,9 +83,43 @@ export default function SafetyFeedbackForm({ bookingId, guestEmail, providerEmai
         <h3 className="font-semibold text-foreground">Sikkerhedsfeedback</h3>
       </div>
 
-      <Question label="Blev der tilbudt redningsveste til alle passagerer?" field="life_vests_offered" />
-      <Question label="Var sikkerhedsudstyret synligt og tilgængeligt?" field="equipment_visible" />
-      <Question label="Følte du dig sikker under turen?" field="felt_safe" />
+      {/* Ja/Nej spørgsmål */}
+      <div className="space-y-3 pb-4 border-b border-blue-200">
+        <Question label="Blev der tilbudt redningsveste til alle passagerer?" field="life_vests_offered" />
+        <Question label="Var sikkerhedsudstyret synligt og tilgængeligt?" field="equipment_visible" />
+      </div>
+
+      {/* Star rating spørgsmål */}
+      <div className="space-y-3">
+        <label className="text-sm font-medium text-foreground block">Følte du dig sikker under turen?</label>
+        <div className="flex gap-2 justify-center">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => setForm({ ...form, felt_safe: star })}
+              className="transition-transform hover:scale-110"
+            >
+              <Star
+                className={`w-8 h-8 ${
+                  form.felt_safe >= star
+                    ? 'fill-amber-400 text-amber-400'
+                    : 'text-gray-300'
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+        {form.felt_safe && (
+          <p className="text-xs text-center text-muted-foreground">
+            {form.felt_safe === 1 && 'Meget usikker'}
+            {form.felt_safe === 2 && 'Usikker'}
+            {form.felt_safe === 3 && 'Neutral'}
+            {form.felt_safe === 4 && 'Sikker'}
+            {form.felt_safe === 5 && 'Meget sikker'}
+          </p>
+        )}
+      </div>
 
       <div>
         <label className="text-sm font-medium text-foreground mb-1.5 block">Yderligere kommentarer (valgfrit)</label>
