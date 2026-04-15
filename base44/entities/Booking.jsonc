@@ -59,6 +59,11 @@
         "completed"
       ],
       "default": "pending"
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether a 7-day reminder email has been sent"
     }
   },
   "required": [
