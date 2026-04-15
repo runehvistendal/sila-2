@@ -4,9 +4,18 @@ const translations = {
   en: {
     nav_experiences: 'Experiences',
     nav_cabins: 'Cabins',
-    nav_boats: 'Boat Shares',
+    nav_boats: 'Transport',
     nav_about: 'About',
     nav_list: 'List Your Experience',
+    nav_request_transport: 'Request Transport',
+    nav_request_cabin: 'Request Cabin',
+    nav_dashboard: 'Dashboard',
+    nav_profile: 'My Profile',
+    nav_favourites: 'Favourites',
+    nav_sign_in: 'Sign in',
+    nav_get_started: 'Get started',
+    nav_sign_out: 'Sign out',
+    nav_create_listing: 'Create listing',
     hero_title: 'Greenland on Local Terms',
     hero_subtitle: 'Authentic Arctic experiences hosted by the people who call it home',
     hero_cta: 'Explore Experiences',
@@ -72,9 +81,18 @@ const translations = {
   da: {
     nav_experiences: 'Oplevelser',
     nav_cabins: 'Hytter',
-    nav_boats: 'Bådpladser',
+    nav_boats: 'Transport',
     nav_about: 'Om os',
     nav_list: 'Opret din oplevelse',
+    nav_request_transport: 'Anmod om transport',
+    nav_request_cabin: 'Anmod om hytte',
+    nav_dashboard: 'Dashboard',
+    nav_profile: 'Min profil',
+    nav_favourites: 'Favoritter',
+    nav_sign_in: 'Log ind',
+    nav_get_started: 'Kom i gang',
+    nav_sign_out: 'Log ud',
+    nav_create_listing: 'Opret annonce',
     hero_title: 'Grønland på lokale vilkår',
     hero_subtitle: 'Autentiske arktiske oplevelser fra dem, der kalder det hjem',
     hero_cta: 'Udforsk oplevelser',
@@ -143,6 +161,15 @@ const translations = {
     nav_boats: 'Umiarsuit',
     nav_about: 'Pillugu',
     nav_list: 'Suliffinneqarnerit',
+    nav_request_transport: 'Umiarsueruk',
+    nav_request_cabin: 'Illueruk',
+    nav_dashboard: 'Dashboard',
+    nav_profile: 'Profili',
+    nav_favourites: 'Inerneraat',
+    nav_sign_in: 'Loggi-eruk',
+    nav_get_started: 'Allariaruk',
+    nav_sign_out: 'Loggi-neq',
+    nav_create_listing: 'Illu takuuk',
     hero_title: 'Kalaallit Nunaat nunaqarfinni',
     hero_subtitle: 'Arktikkimi pikkorissartut nunaqarfinni',
     hero_cta: 'Suliffinneqarnerit',
@@ -183,14 +210,27 @@ const translations = {
 const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState('en');
+  const [lang, setLang] = useState(() => {
+    // Load from localStorage or default to 'da'
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sila_language') || 'da';
+    }
+    return 'da';
+  });
+
+  const changeLang = (newLang) => {
+    setLang(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sila_language', newLang);
+    }
+  };
 
   const t = (key) => {
-    return translations[lang]?.[key] || translations['en']?.[key] || key;
+    return translations[lang]?.[key] || translations['da']?.[key] || key;
   };
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider value={{ lang, setLang: changeLang, t }}>
       {children}
     </LanguageContext.Provider>
   );

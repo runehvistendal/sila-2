@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,9 +14,11 @@ import {
 import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import RoleSwitcher from '@/components/shared/RoleSwitcher';
+import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
 
 export default function Navbar() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -57,10 +60,10 @@ export default function Navbar() {
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
             {[
-              { to: '/cabins', label: 'Hytter' },
-              { to: '/transport', label: 'Transport' },
-              { to: '/request-transport', label: 'Anmod om transport' },
-              { to: '/request-cabin', label: 'Anmod om hytte' },
+              { to: '/cabins', label: 'nav_cabins' },
+              { to: '/transport', label: 'nav_boats' },
+              { to: '/request-transport', label: 'nav_request_transport' },
+              { to: '/request-cabin', label: 'nav_request_cabin' },
             ].map((link) => (
               <Link
                 key={link.to}
@@ -71,19 +74,20 @@ export default function Navbar() {
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 } ${location.pathname === link.to ? (transparent ? 'text-white bg-white/10' : 'text-foreground bg-muted') : ''}`}
               >
-                {link.label}
+                {t(link.label)}
               </Link>
             ))}
           </div>
 
           {/* Right side */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
+            <LanguageSwitcher transparent={transparent} />
             {user ? (
               <>
                 <RoleSwitcher />
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm" className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
-                    Dashboard
+                    {t('nav_dashboard')}
                   </Button>
                 </Link>
                 <DropdownMenu>
@@ -98,39 +102,39 @@ export default function Navbar() {
                     <div className="px-3 py-2 text-sm font-medium text-foreground truncate">{user.full_name || user.email}</div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
-                        <LayoutDashboard className="w-4 h-4" /> Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
-                        <UserCircle className="w-4 h-4" /> Min profil
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/favourites" className="flex items-center gap-2 cursor-pointer">
-                        <Heart className="w-4 h-4" /> Favoritter
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
-                        <PlusCircle className="w-4 h-4" /> Create listing
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive flex items-center gap-2 cursor-pointer">
-                      <LogOut className="w-4 h-4" /> Sign out
-                    </DropdownMenuItem>
+                       <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
+                         <LayoutDashboard className="w-4 h-4" /> {t('nav_dashboard')}
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                       <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                         <UserCircle className="w-4 h-4" /> {t('nav_profile')}
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                       <Link to="/favourites" className="flex items-center gap-2 cursor-pointer">
+                         <Heart className="w-4 h-4" /> {t('nav_favourites')}
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                       <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
+                         <PlusCircle className="w-4 h-4" /> {t('nav_create_listing')}
+                       </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuSeparator />
+                     <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive flex items-center gap-2 cursor-pointer">
+                       <LogOut className="w-4 h-4" /> {t('nav_sign_out')}
+                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
               <>
                 <Button variant="ghost" size="sm" onClick={() => base44.auth.redirectToLogin()} className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
-                  Sign in
+                  {t('nav_sign_in')}
                 </Button>
                 <Button size="sm" onClick={() => base44.auth.redirectToLogin()} className="bg-primary text-white hover:bg-primary/90 rounded-full px-5">
-                  Get started
+                  {t('nav_get_started')}
                 </Button>
               </>
             )}
@@ -158,22 +162,25 @@ export default function Navbar() {
             className="md:hidden bg-white border-b border-border overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
-              <Link to="/cabins" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Hytter</Link>
-              <Link to="/transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Transport</Link>
-              <Link to="/request-transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Anmod om transport</Link>
-              <Link to="/request-cabin" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Anmod om hytte</Link>
+              <Link to="/cabins" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_cabins')}</Link>
+              <Link to="/transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_boats')}</Link>
+              <Link to="/request-transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_request_transport')}</Link>
+              <Link to="/request-cabin" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_request_cabin')}</Link>
               {user ? (
                 <>
-                  <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Dashboard</Link>
-                  <Link to="/favourites" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Favoritter</Link>
-                  <Link to="/create-listing" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Create listing</Link>
-                  <button onClick={() => base44.auth.logout()} className="w-full text-left px-4 py-3 rounded-lg text-destructive hover:bg-muted font-medium">Sign out</button>
+                  <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_dashboard')}</Link>
+                  <Link to="/favourites" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_favourites')}</Link>
+                  <Link to="/create-listing" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_create_listing')}</Link>
+                  <button onClick={() => base44.auth.logout()} className="w-full text-left px-4 py-3 rounded-lg text-destructive hover:bg-muted font-medium">{t('nav_sign_out')}</button>
                 </>
               ) : (
                 <div className="pt-2">
-                  <Button className="w-full bg-primary text-white" onClick={() => base44.auth.redirectToLogin()}>Sign in / Get started</Button>
+                  <Button className="w-full bg-primary text-white" onClick={() => base44.auth.redirectToLogin()}>{t('nav_sign_in')} / {t('nav_get_started')}</Button>
                 </div>
               )}
+              <div className="pt-4 border-t border-border">
+                <LanguageSwitcher />
+              </div>
             </div>
           </motion.div>
         )}
