@@ -6,6 +6,18 @@ import TransportFilters from '@/components/transport/TransportFilters';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Anchor } from 'lucide-react';
 
+const PRICE_EXAMPLES = {
+  'Nuuk': 1500,
+  'Ilulissat': 1800,
+  'Sisimiut': 1600,
+  'Disko Bay': 1900,
+  'Kangerlussuaq': 2200,
+  'Tasiilaq': 2100,
+  'Upernavik': 1700,
+  'Qaqortoq': 2400,
+  'Narsaq': 2000,
+};
+
 const DEFAULT_FILTERS = {
   search: '',
   fromLoc: 'all',
@@ -22,7 +34,10 @@ export default function Transport() {
 
   const { data: transports = [], isLoading } = useQuery({
     queryKey: ['transports'],
-    queryFn: () => base44.entities.Transport.filter({ status: 'scheduled' }, '-departure_date', 50),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getActiveTransports', {});
+      return res.data.transports;
+    },
   });
 
   const filtered = useMemo(() => {
@@ -63,12 +78,17 @@ export default function Transport() {
           <>
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} rute{filtered.length !== 1 ? 'r' : ''} fundet</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((t) => (
-                <div key={t.id}>
-                  <TransportCard transport={t} />
-                </div>
-              ))}
-            </div>
+               {filtered.map((t) => (
+                 <div key={t.id}>
+                   <TransportCard 
+                     transport={{
+                       ...t,
+                       round_trip_price: t.round_trip_price || PRICE_EXAMPLES[t.from_location] || PRICE_EXAMPLES[t.to_location] || 1800
+                     }} 
+                   />
+                 </div>
+               ))}
+             </div>
           </>
         ) : (
           <div className="text-center py-24">

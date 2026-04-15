@@ -51,21 +51,7 @@ export default function TransportCard({ transport, compact = false }) {
         </div>
       </div>
 
-      {/* Provider Trust Score */}
-      {providerTrust && (
-        <div className="mb-3 flex items-center gap-2">
-          <Shield className="w-4 h-4 text-muted-foreground" />
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getTrustBadgeColor(providerTrust.status)}`}>
-            {getTrustLabel(providerTrust.status, providerTrust.trust_score)}
-          </span>
-          {providerTrust.status === 'suspended_perm' && (
-            <span className="inline-flex items-center gap-1 text-xs text-destructive font-medium">
-              <AlertTriangle className="w-3 h-3" />
-              Booking ikke tilgængelig
-            </span>
-          )}
-        </div>
-      )}
+
 
       {/* Details row */}
       <div className="flex flex-wrap gap-2 mb-4">

@@ -16,6 +16,7 @@ const DEFAULT_FILTERS = {
   minGuests: '',
   checkIn: '',
   amenities: [],
+  hostTransport: false,
 };
 
 export default function Cabins() {
@@ -43,7 +44,8 @@ export default function Cabins() {
       const matchMax = !filters.maxPrice || c.price_per_night <= Number(filters.maxPrice);
       const matchGuests = !filters.minGuests || (c.max_guests || 0) >= Number(filters.minGuests);
       const matchAmenities = !(filters.amenities || []).length || (filters.amenities || []).every(a => c.amenities?.includes(a));
-      return matchSearch && matchLoc && matchMin && matchMax && matchGuests && matchAmenities;
+      const matchTransport = !filters.hostTransport || c.host_provides_transport === true;
+      return matchSearch && matchLoc && matchMin && matchMax && matchGuests && matchAmenities && matchTransport;
     });
     if (filters.sort === 'price_asc') result = [...result].sort((a, b) => a.price_per_night - b.price_per_night);
     if (filters.sort === 'price_desc') result = [...result].sort((a, b) => b.price_per_night - a.price_per_night);

@@ -11,14 +11,14 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const set = (key, val) => onChange({ ...filters, [key]: val });
-  const hasActive = filters.location !== 'all' || filters.minPrice || filters.maxPrice || filters.minGuests || filters.amenities?.length > 0;
+  const hasActive = filters.location !== 'all' || filters.minPrice || filters.maxPrice || filters.minGuests || filters.amenities?.length > 0 || filters.hostTransport;
 
   const toggleAmenity = (a) => {
     const cur = filters.amenities || [];
     set('amenities', cur.includes(a) ? cur.filter(x => x !== a) : [...cur, a]);
   };
 
-  const reset = () => onChange({ search: filters.search, location: 'all', sort: 'newest', minPrice: '', maxPrice: '', minGuests: '', amenities: [] });
+  const reset = () => onChange({ search: filters.search, location: 'all', sort: 'newest', minPrice: '', maxPrice: '', minGuests: '', amenities: [], hostTransport: false });
 
   return (
     <div className="space-y-3">
@@ -108,6 +108,17 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
                 </button>
               ))}
             </div>
+          </div>
+          <div>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={filters.hostTransport || false}
+                onChange={(e) => set('hostTransport', e.target.checked)}
+                className="w-4 h-4 accent-primary rounded"
+              />
+              <span className="font-medium text-foreground">Værten tilbyder transport</span>
+            </label>
           </div>
           {hasActive && (
             <button onClick={reset} className="text-muted-foreground text-sm flex items-center gap-1 h-8 px-2 rounded-lg hover:bg-muted">
