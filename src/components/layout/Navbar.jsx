@@ -11,10 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, Heart } from 'lucide-react';
+import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, Heart, Briefcase } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import RoleSwitcher from '@/components/shared/RoleSwitcher';
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
+import RoleSwitcherDropdown from '@/components/shared/RoleSwitcherDropdown';
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -89,7 +89,6 @@ export default function Navbar() {
             <LanguageSwitcher transparent={transparent} />
             {user ? (
               <>
-                <RoleSwitcher />
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm" className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
                     {t('nav_dashboard')}
@@ -125,6 +124,15 @@ export default function Navbar() {
                        <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
                          <PlusCircle className="w-4 h-4" /> {t('nav_create_listing')}
                        </Link>
+                     </DropdownMenuItem>
+                     <DropdownMenuSeparator />
+                     <DropdownMenuItem asChild>
+                       <div className="flex items-center gap-2 cursor-pointer">
+                         <Briefcase className="w-4 h-4" />
+                         <div className="flex-1">
+                           <RoleSwitcherDropdown />
+                         </div>
+                       </div>
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
                      <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive flex items-center gap-2 cursor-pointer">
