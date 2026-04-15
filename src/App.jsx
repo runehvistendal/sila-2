@@ -25,7 +25,6 @@ import RequestTransport from '@/pages/RequestTransport';
 import RequestCabin from '@/pages/RequestCabin';
 import Profile from '@/pages/Profile';
 import BookingSuccess from '@/pages/BookingSuccess';
-import BookingConfirmation from '@/pages/BookingConfirmation';
 import BookingCancelled from '@/pages/BookingCancelled';
 import Favourites from '@/pages/Favourites';
 import PrivacyCenter from '@/pages/PrivacyCenter';
@@ -81,7 +80,6 @@ const AuthenticatedApp = () => {
         <Route path="/request-cabin" element={<RequestCabin />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/booking-success" element={<BookingSuccess />} />
-        <Route path="/booking-confirmation" element={<BookingConfirmation />} />
         <Route path="/booking-cancelled" element={<BookingCancelled />} />
         <Route path="/favourites" element={<Favourites />} />
         <Route path="/privacy-center" element={<PrivacyCenter />} />
