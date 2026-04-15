@@ -90,14 +90,9 @@ export default function Cabins() {
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} cabin{filtered.length !== 1 ? 's' : ''} found</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((cabin, i) => (
-                <motion.div
-                  key={cabin.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                >
+                <div key={cabin.id}>
                   <CabinCard cabin={cabin} />
-                </motion.div>
+                </div>
               ))}
             </div>
           </>
