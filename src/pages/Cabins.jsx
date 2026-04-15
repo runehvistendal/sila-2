@@ -26,7 +26,14 @@ export default function Cabins() {
 
   const { data: rawCabins, isLoading } = useQuery({
     queryKey: ['cabins'],
-    queryFn: () => base44.entities.Cabin.filter({ status: 'active' }, '-created_date', 60),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Cabin.filter({ status: 'active' }, '-created_date', 60);
+      } catch (error) {
+        console.error('Error fetching cabins:', error);
+        return [];
+      }
+    },
     initialData: [],
   });
 
