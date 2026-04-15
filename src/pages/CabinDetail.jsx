@@ -11,9 +11,9 @@ import TransportCard from '@/components/transport/TransportCard';
 import CabinReviews from '@/components/cabins/CabinReviews';
 import CabinAvailabilityCalendar from '@/components/cabins/CabinAvailabilityCalendar';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
-import { MapPin, Users, Anchor, ChevronLeft, Star, Check } from 'lucide-react';
+import { MapPin, Users, Anchor, ChevronLeft, Star, Check, ChevronDown } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CabinDetail() {
   const { id } = useParams();
@@ -165,30 +165,55 @@ export default function CabinDetail() {
             )}
 
             {/* Transport section */}
-            <div>
-              <h2 className="text-xl font-bold text-foreground mb-2">Getting there</h2>
-              {cabin.host_provides_transport ? (
-                <div className="bg-primary/5 border border-primary/15 rounded-2xl p-5 mb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Anchor className="w-5 h-5 text-primary" />
-                    <span className="font-semibold text-foreground">Host-provided transport</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {cabin.host_name || 'Your host'} offers transport from{' '}
-                    <strong>{cabin.transport_route_from || 'the mainland'}</strong> to the cabin.
-                    {cabin.transport_price_per_seat && ` Price: ${cabin.transport_price_per_seat} DKK/seat.`}
-                  </p>
-                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={wantHostTransport}
-                      onChange={e => setWantHostTransport(e.target.checked)}
-                      className="w-4 h-4 rounded border-border accent-primary cursor-pointer"
-                    />
-                    <span className="text-sm font-medium text-foreground">Jeg ønsker transport fra hosten</span>
-                  </label>
-                </div>
-              ) : null}
+             <div>
+               <h2 className="text-xl font-bold text-foreground mb-2">Getting there</h2>
+               {cabin.host_provides_transport ? (
+                 <div className="bg-primary/5 border border-primary/15 rounded-2xl p-5 mb-4">
+                   <div className="flex items-center gap-2 mb-2">
+                     <Anchor className="w-5 h-5 text-primary" />
+                     <span className="font-semibold text-foreground">Host-provided transport</span>
+                   </div>
+                   <p className="text-sm text-muted-foreground mb-3">
+                     {cabin.host_name || 'Your host'} offers transport from{' '}
+                     <strong>{cabin.transport_route_from || 'the mainland'}</strong> to the cabin.
+                     {cabin.transport_price_per_seat && ` Price: ${cabin.transport_price_per_seat} DKK/seat.`}
+                   </p>
+                   <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                     <input
+                       type="checkbox"
+                       checked={wantHostTransport}
+                       onChange={e => setWantHostTransport(e.target.checked)}
+                       className="w-4 h-4 rounded border-border accent-primary cursor-pointer"
+                     />
+                     <span className="text-sm font-medium text-foreground">Jeg ønsker transport fra hosten</span>
+                   </label>
+
+                   {/* Expanded transport form */}
+                   <AnimatePresence>
+                     {wantHostTransport && (
+                       <motion.div
+                         initial={{ opacity: 0, height: 0 }}
+                         animate={{ opacity: 1, height: 'auto' }}
+                         exit={{ opacity: 0, height: 0 }}
+                         className="mt-4 pt-4 border-t border-primary/20 space-y-3"
+                       >
+                         <div>
+                           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Departing from</label>
+                           <p className="text-sm font-medium text-foreground">{cabin.transport_route_from || 'Main port'}</p>
+                         </div>
+                         <div>
+                           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Number of passengers</label>
+                           <p className="text-sm font-medium text-foreground">{guests} {guests !== 1 ? 'passengers' : 'passenger'}</p>
+                         </div>
+                         <div className="bg-white rounded-lg p-3 mt-3">
+                           <p className="text-xs text-muted-foreground mb-1.5">Transport price (will be added to total)</p>
+                           <p className="text-sm font-semibold text-accent">{cabin.transport_price_per_seat} DKK × {guests} = {transportCost} DKK</p>
+                         </div>
+                       </motion.div>
+                     )}
+                   </AnimatePresence>
+                 </div>
+               ) : null}
 
               {transports.length > 0 ? (
                 <div className="space-y-3">
