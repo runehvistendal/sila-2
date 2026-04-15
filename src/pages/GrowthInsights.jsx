@@ -13,17 +13,6 @@ export default function GrowthInsights() {
   const qc = useQueryClient();
   const [expandedRec, setExpandedRec] = useState(null);
 
-  if (user?.role !== 'admin') {
-    return (
-      <div className="min-h-screen pt-16 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-          <p className="text-muted-foreground">Admin access required</p>
-        </div>
-      </div>
-    );
-  }
-
   // Fetch latest growth report
   const { data: report, isLoading } = useQuery({
     queryKey: ['growth-report'],
@@ -50,6 +39,17 @@ export default function GrowthInsights() {
       approveMutation.mutate({ reportId: report.id, recId, status });
     }
   };
+
+  if (user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen pt-16 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <p className="text-muted-foreground">Admin access required</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
