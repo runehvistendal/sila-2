@@ -43,7 +43,9 @@
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "minItems": 1,
+      "description": "At least one photo of the entire boat from outside. Required for listing publication."
     },
     "status": {
       "type": "string",
@@ -60,6 +62,7 @@
     "to_location",
     "departure_date",
     "seats_available",
-    "round_trip_price"
+    "round_trip_price",
+    "images"
   ]
 }

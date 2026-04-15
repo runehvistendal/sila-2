@@ -76,6 +76,13 @@ export default function CreateListing() {
 
   const handleTransportSubmit = (e) => {
     e.preventDefault();
+    
+    // Validate required images
+    if (!transportForm.images || transportForm.images.length === 0) {
+      toast({ title: 'Billede påkrævet', description: 'Upload mindst ét billede af hele båden udefra for at publicere.' });
+      return;
+    }
+
     transportMutation.mutate({
       ...transportForm,
       seats_available: Number(transportForm.seats_available),
@@ -310,15 +317,27 @@ export default function CreateListing() {
             </Field>
 
             {/* Boat photos (max 5) */}
-            <Field label="Billeder af båden">
+            <Field label="Billeder af båden *">
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 mb-3">
+                <p className="text-sm text-blue-900">
+                  <strong>Vigtigt:</strong> Upload mindst ét billede af hele båden udefra, så gæster kan se bådtype og størrelse. Billeder af interiør eller detaljer alene accepteres ikke.
+                </p>
+              </div>
               <ImageUploader
                 images={transportForm.images || []}
                 onChange={(urls) => setTransportForm((p) => ({ ...p, images: urls }))}
                 maxImages={5}
               />
+              {(!transportForm.images || transportForm.images.length === 0) && (
+                <p className="text-sm text-destructive mt-2">Mindst ét billede er påkrævet</p>
+              )}
             </Field>
 
-            <Button type="submit" disabled={transportMutation.isPending} className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold text-base">
+            <Button 
+              type="submit" 
+              disabled={transportMutation.isPending || !transportForm.images || transportForm.images.length === 0} 
+              className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               {transportMutation.isPending ? 'Publishing...' : 'Publish route'}
             </Button>
           </form>
