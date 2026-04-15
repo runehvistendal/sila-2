@@ -35,6 +35,11 @@ export default function TransportCard({ transport, compact = false }) {
     <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 ${compact ? '' : 'hover:border-primary/30'}`}>
       {/* Route */}
       <div className="flex items-center gap-3 mb-4">
+        {transport.provider_avatar && (
+          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
+            <img src={transport.provider_avatar} alt="" className="w-full h-full object-cover" />
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 font-semibold text-foreground text-sm">
             <span className="truncate">{transport.from_location}</span>

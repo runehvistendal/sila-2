@@ -60,6 +60,10 @@
     "host_email": {
       "type": "string"
     },
+    "host_avatar": {
+      "type": "string",
+      "description": "Host profile image URL"
+    },
     "host_provides_transport": {
       "type": "boolean"
     },

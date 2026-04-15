@@ -71,6 +71,7 @@ export default function CreateListing() {
       transport_price_per_seat: Number(cabinForm.transport_price_per_seat) || undefined,
       host_name: user.full_name || '',
       host_email: user.email,
+      host_avatar: user.avatar_url || '',
       status: 'active',
     });
   };
@@ -90,6 +91,7 @@ export default function CreateListing() {
       round_trip_price: Number(transportForm.round_trip_price),
       provider_name: user.full_name || '',
       provider_email: user.email,
+      provider_avatar: user.avatar_url || '',
       status: 'scheduled',
     });
   };

@@ -28,6 +28,10 @@
     "provider_email": {
       "type": "string"
     },
+    "provider_avatar": {
+      "type": "string",
+      "description": "Provider profile image URL"
+    },
     "boat_type": {
       "type": "string"
     },

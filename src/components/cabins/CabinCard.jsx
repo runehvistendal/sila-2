@@ -44,14 +44,26 @@ export default function CabinCard({ cabin }) {
             {cabin.price_per_night} <span className="font-normal text-muted-foreground text-xs">DKK/night</span>
           </span>
         </div>
-        <div className="flex items-center gap-1 text-muted-foreground text-xs mb-1">
+        <div className="flex items-center gap-1 text-muted-foreground text-xs mb-2">
           <MapPin className="w-3 h-3" />
           <span>{cabin.location}</span>
         </div>
         {cabin.max_guests && (
-          <div className="flex items-center gap-1 text-muted-foreground text-xs">
+          <div className="flex items-center gap-1 text-muted-foreground text-xs mb-2">
             <Users className="w-3 h-3" />
             <span>Up to {cabin.max_guests} guests</span>
+          </div>
+        )}
+        {cabin.host_name && (
+          <div className="flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
+              {cabin.host_avatar ? (
+                <img src={cabin.host_avatar} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xs font-semibold text-muted-foreground">{cabin.host_name.charAt(0)}</span>
+              )}
+            </div>
+            <span className="text-xs text-muted-foreground">{cabin.host_name}</span>
           </div>
         )}
       </div>

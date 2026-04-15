@@ -11,6 +11,7 @@ import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Copy } from 'lu
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
+import ImageUploader from '@/components/shared/ImageUploader';
 
 export default function Profile() {
   const { user } = useAuth();
@@ -256,8 +257,12 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Profilbillede URL (valgfri)</label>
-                <Input value={currentForm.avatar_url} onChange={e => setForm(f => ({ ...f, avatar_url: e.target.value }))} placeholder="https://..." className="h-10 rounded-xl text-sm" />
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Profilbillede (valgfri)</label>
+                <ImageUploader
+                  images={currentForm.avatar_url ? [currentForm.avatar_url] : []}
+                  onChange={(urls) => setForm(f => ({ ...f, avatar_url: urls[0] || '' }))}
+                  maxImages={1}
+                />
               </div>
 
               {/* Provider sync button for user role */}

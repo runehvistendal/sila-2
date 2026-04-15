@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Send, Package } from 'lucide-react';
+import { Send, Package, User } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function RequestChat({ requestId, requestType, participants, onOfferAccepted }) {
@@ -93,23 +93,34 @@ export default function RequestChat({ requestId, requestType, participants, onOf
           <p className="text-center text-xs text-muted-foreground py-6">Ingen beskeder endnu. Start samtalen.</p>
         )}
         {messages.map((msg) => {
-          const isMe = msg.sender_email === user.email;
-          return (
-            <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-              {msg.message_type === 'offer' ? (
-                <OfferCard msg={msg} isMe={isMe} onAccept={onOfferAccepted} userEmail={user.email} />
-              ) : (
-                <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${isMe ? 'bg-primary text-white rounded-br-sm' : 'bg-muted text-foreground rounded-bl-sm'}`}>
-                  {!isMe && <p className="text-xs font-semibold mb-1 opacity-60">{msg.sender_name}</p>}
-                  <p>{msg.content}</p>
-                  <p className={`text-xs mt-1 ${isMe ? 'text-white/50' : 'text-muted-foreground'}`}>
-                    {format(new Date(msg.created_date), 'HH:mm')}
-                  </p>
-                </div>
-              )}
-            </div>
-          );
-        })}
+           const isMe = msg.sender_email === user.email;
+           return (
+             <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} gap-2`}>
+               {!isMe && (
+                 <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
+                   {msg.sender_avatar ? (
+                     <img src={msg.sender_avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                   ) : (
+                     <User className="w-3 h-3" />
+                   )}
+                 </div>
+               )}
+               <div className={isMe ? 'flex gap-2' : ''}>
+                 {msg.message_type === 'offer' ? (
+                   <OfferCard msg={msg} isMe={isMe} onAccept={onOfferAccepted} userEmail={user.email} />
+                 ) : (
+                   <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${isMe ? 'bg-primary text-white rounded-br-sm' : 'bg-muted text-foreground rounded-bl-sm'}`}>
+                     {!isMe && <p className="text-xs font-semibold mb-1 opacity-60">{msg.sender_name}</p>}
+                     <p>{msg.content}</p>
+                     <p className={`text-xs mt-1 ${isMe ? 'text-white/50' : 'text-muted-foreground'}`}>
+                       {format(new Date(msg.created_date), 'HH:mm')}
+                     </p>
+                   </div>
+                 )}
+               </div>
+             </div>
+           );
+         })}
         <div ref={bottomRef} />
       </div>
 
