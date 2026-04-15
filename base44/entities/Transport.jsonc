@@ -1,0 +1,56 @@
+{
+  "name": "Transport",
+  "type": "object",
+  "properties": {
+    "from_location": {
+      "type": "string"
+    },
+    "to_location": {
+      "type": "string"
+    },
+    "departure_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "departure_time": {
+      "type": "string"
+    },
+    "seats_available": {
+      "type": "number"
+    },
+    "price_per_seat": {
+      "type": "number"
+    },
+    "provider_name": {
+      "type": "string"
+    },
+    "provider_email": {
+      "type": "string"
+    },
+    "boat_type": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "linked_cabin_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "full",
+        "cancelled"
+      ],
+      "default": "scheduled"
+    }
+  },
+  "required": [
+    "from_location",
+    "to_location",
+    "departure_date",
+    "seats_available",
+    "price_per_seat"
+  ]
+}

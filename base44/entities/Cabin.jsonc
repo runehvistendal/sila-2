@@ -3,47 +3,19 @@
   "type": "object",
   "properties": {
     "title": {
-      "type": "string",
-      "description": "Cabin name"
-    },
-    "title_da": {
-      "type": "string"
-    },
-    "title_kl": {
       "type": "string"
     },
     "description": {
       "type": "string"
     },
-    "description_da": {
-      "type": "string"
-    },
-    "description_kl": {
-      "type": "string"
-    },
     "location": {
-      "type": "string",
-      "description": "Location name"
+      "type": "string"
     },
-    "coordinates": {
-      "type": "string",
-      "description": "Lat,Lng"
-    },
-    "price_per_night_dkk": {
+    "price_per_night": {
       "type": "number"
     },
     "max_guests": {
       "type": "number"
-    },
-    "bedrooms": {
-      "type": "number"
-    },
-    "amenities": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "Available amenities"
     },
     "images": {
       "type": "array",
@@ -51,38 +23,33 @@
         "type": "string"
       }
     },
-    "cover_image": {
+    "amenities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "host_name": {
       "type": "string"
     },
-    "provider_name": {
+    "host_email": {
       "type": "string"
     },
-    "provider_email": {
-      "type": "string"
-    },
-    "is_remote": {
-      "type": "boolean",
-      "description": "Truly remote cabin"
-    },
-    "access_info": {
-      "type": "string",
-      "description": "How to reach the cabin"
-    },
-    "rating": {
-      "type": "number"
-    },
-    "review_count": {
-      "type": "number"
-    },
-    "is_featured": {
+    "host_provides_transport": {
       "type": "boolean"
+    },
+    "transport_price_per_seat": {
+      "type": "number"
+    },
+    "transport_route_from": {
+      "type": "string"
     },
     "status": {
       "type": "string",
       "enum": [
         "active",
-        "paused",
-        "draft"
+        "draft",
+        "paused"
       ],
       "default": "active"
     }
@@ -90,6 +57,6 @@
   "required": [
     "title",
     "location",
-    "price_per_night_dkk"
+    "price_per_night"
   ]
 }
