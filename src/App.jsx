@@ -17,6 +17,7 @@ import Dashboard from '@/pages/Dashboard';
 import CreateListing from '@/pages/CreateListing';
 import RequestTransport from '@/pages/RequestTransport';
 import RequestCabin from '@/pages/RequestCabin';
+import Profile from '@/pages/Profile';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -50,6 +51,7 @@ const AuthenticatedApp = () => {
         <Route path="/create-listing" element={<CreateListing />} />
         <Route path="/request-transport" element={<RequestTransport />} />
         <Route path="/request-cabin" element={<RequestCabin />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

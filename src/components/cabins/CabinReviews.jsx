@@ -1,0 +1,174 @@
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Star, User } from 'lucide-react';
+import { format } from 'date-fns';
+import { toast } from '@/components/ui/use-toast';
+
+function StarPicker({ value, onChange }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          onMouseEnter={() => setHovered(n)}
+          onMouseLeave={() => setHovered(0)}
+          onClick={() => onChange(n)}
+          className="transition-transform hover:scale-110"
+        >
+          <Star className={`w-7 h-7 transition-colors ${n <= (hovered || value) ? 'fill-amber-400 text-amber-400' : 'text-muted'}`} />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function StarBar({ stars, count }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Star key={n} className={`w-4 h-4 ${n <= Math.round(stars) ? 'fill-amber-400 text-amber-400' : 'text-muted'}`} />
+      ))}
+      {count !== undefined && <span className="text-xs text-muted-foreground ml-1">({count})</span>}
+    </div>
+  );
+}
+
+export default function CabinReviews({ cabinId, hostEmail, hostName }) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [stars, setStars] = useState(0);
+  const [comment, setComment] = useState('');
+  const [showForm, setShowForm] = useState(false);
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['cabin-reviews', cabinId],
+    queryFn: () => base44.entities.Review.filter({ listing_id: cabinId, listing_type: 'cabin' }, '-created_date', 50),
+  });
+
+  // Also pull host ratings from the Rating entity (cross-booking ratings)
+  const { data: hostRatings = [] } = useQuery({
+    queryKey: ['host-ratings', hostEmail],
+    queryFn: () => base44.entities.Rating.filter({ to_email: hostEmail, request_type: 'cabin' }, '-created_date', 50),
+    enabled: !!hostEmail,
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: () => base44.entities.Review.create({
+      listing_type: 'cabin',
+      listing_id: cabinId,
+      reviewer_name: user.full_name || user.email.split('@')[0],
+      reviewer_email: user.email,
+      rating: stars,
+      comment: comment.trim(),
+      provider_email: hostEmail,
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries(['cabin-reviews', cabinId]);
+      setStars(0);
+      setComment('');
+      setShowForm(false);
+      toast({ title: 'Anmeldelse sendt', description: 'Tak for din anmeldelse!' });
+    },
+  });
+
+  const allRatings = [...reviews.map(r => r.rating), ...hostRatings.map(r => r.stars)];
+  const avgRating = allRatings.length > 0 ? (allRatings.reduce((s, r) => s + r, 0) / allRatings.length).toFixed(1) : null;
+  const alreadyReviewed = reviews.some(r => r.reviewer_email === user?.email);
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+            Anmeldelser
+            {avgRating && <span className="text-lg font-bold text-foreground">{avgRating}</span>}
+          </h2>
+          {avgRating && (
+            <div className="mt-1 flex items-center gap-2">
+              <StarBar stars={Number(avgRating)} count={allRatings.length} />
+              <span className="text-xs text-muted-foreground">af {hostName || 'udlejeren'}</span>
+            </div>
+          )}
+        </div>
+        {user && !alreadyReviewed && !showForm && (
+          <Button variant="outline" onClick={() => setShowForm(true)} className="rounded-xl text-sm gap-1">
+            <Star className="w-3.5 h-3.5" /> Skriv anmeldelse
+          </Button>
+        )}
+      </div>
+
+      {/* Write review form */}
+      {showForm && (
+        <div className="bg-muted/50 rounded-2xl p-5 mb-6 border border-border space-y-4">
+          <p className="text-sm font-semibold text-foreground">Din anmeldelse</p>
+          <StarPicker value={stars} onChange={setStars} />
+          <Textarea
+            placeholder="Del din oplevelse med hytten og udlejeren..."
+            value={comment}
+            onChange={e => setComment(e.target.value)}
+            className="h-24 resize-none text-sm rounded-xl"
+          />
+          <div className="flex gap-2">
+            <Button onClick={() => submitMutation.mutate()} disabled={stars === 0 || submitMutation.isPending} className="bg-primary text-white rounded-xl text-sm">
+              {submitMutation.isPending ? 'Sender...' : 'Send anmeldelse'}
+            </Button>
+            <Button variant="ghost" onClick={() => setShowForm(false)} className="text-sm rounded-xl">Annuller</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Review list */}
+      {reviews.length === 0 && hostRatings.length === 0 ? (
+        <p className="text-sm text-muted-foreground bg-muted rounded-xl p-5 text-center">
+          Ingen anmeldelser endnu – bliv den første til at anmelde denne hytte.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {reviews.map((r) => (
+            <div key={r.id} className="bg-white rounded-xl border border-border p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <p className="text-sm font-semibold text-foreground">{r.reviewer_name || 'Anonym'}</p>
+                    <p className="text-xs text-muted-foreground">{format(new Date(r.created_date), 'MMM d, yyyy')}</p>
+                  </div>
+                  <StarBar stars={r.rating} />
+                  {r.comment && <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{r.comment}</p>}
+                </div>
+              </div>
+            </div>
+          ))}
+          {/* Show host ratings from booking flow too */}
+          {hostRatings.map((r) => (
+            <div key={r.id} className="bg-white rounded-xl border border-border p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4 text-accent" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <p className="text-sm font-semibold text-foreground">{r.from_email?.split('@')[0]}</p>
+                    <p className="text-xs text-muted-foreground">{format(new Date(r.created_date), 'MMM d, yyyy')}</p>
+                  </div>
+                  <StarBar stars={r.stars} />
+                  {r.comment && <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{r.comment}</p>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

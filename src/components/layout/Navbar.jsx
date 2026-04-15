@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves } from 'lucide-react';
+import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
@@ -90,6 +90,11 @@ export default function Navbar() {
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
                         <LayoutDashboard className="w-4 h-4" /> Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                        <UserCircle className="w-4 h-4" /> Min profil
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

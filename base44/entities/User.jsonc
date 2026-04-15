@@ -1,17 +1,48 @@
 {
+  "name": "User",
+  "type": "object",
   "properties": {
     "role": {
       "type": "string",
-      "description": "The role of the user in the app",
       "enum": [
         "admin",
         "user"
-      ]
+      ],
+      "description": "App role"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Short personal description"
+    },
+    "location": {
+      "type": "string",
+      "description": "User's home city/region"
+    },
+    "languages": {
+      "type": "string",
+      "description": "Languages spoken, comma-separated"
+    },
+    "role_type": {
+      "type": "string",
+      "enum": [
+        "traveler",
+        "host",
+        "provider",
+        "both"
+      ],
+      "description": "User's role in the marketplace",
+      "default": "traveler"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "Profile picture URL"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone number"
     }
   },
   "required": [
     "role"
-  ],
-  "name": "User",
-  "type": "object"
+  ]
 }

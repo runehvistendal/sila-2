@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import TransportCard from '@/components/transport/TransportCard';
+import CabinReviews from '@/components/cabins/CabinReviews';
 import { MapPin, Users, Anchor, ChevronLeft, Star, Check } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
@@ -199,6 +200,13 @@ export default function CabinDetail() {
                 </p>
               ) : null}
             </div>
+
+            {/* Reviews */}
+            <CabinReviews
+              cabinId={cabin.id}
+              hostEmail={cabin.host_email}
+              hostName={cabin.host_name}
+            />
           </div>
 
           {/* Right — booking card */}
