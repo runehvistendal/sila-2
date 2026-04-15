@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Home, Anchor, X, Plus } from 'lucide-react';
-import ImageUploader from '@/components/shared/ImageUploader';
+import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
 import AddOnServicesEditor from '@/components/shared/AddOnServicesEditor';
 import { toast } from '@/components/ui/use-toast';
 
@@ -216,13 +216,15 @@ export default function CreateListing() {
             </Field>
 
             {/* Images */}
-            <Field label="Billeder af hytten">
-              <ImageUploader
-                images={cabinForm.images || []}
-                onChange={(urls) => setCabinForm((p) => ({ ...p, images: urls }))}
-                maxImages={10}
-              />
-            </Field>
+             <Field label="Billeder af hytten">
+               <ImageUploadWithEditor
+                 images={cabinForm.images || []}
+                 onChange={(urls) => setCabinForm((p) => ({ ...p, images: urls }))}
+                 maxImages={10}
+                 shape="rect"
+                 aspectRatio={16/9}
+               />
+             </Field>
 
             {/* Host transport */}
             <div className="bg-muted/60 rounded-2xl p-5">
@@ -346,10 +348,12 @@ export default function CreateListing() {
                   <strong>Vigtigt:</strong> Upload mindst ét billede af hele båden udefra, så gæster kan se bådtype og størrelse. Billeder af interiør eller detaljer alene accepteres ikke.
                 </p>
               </div>
-              <ImageUploader
+              <ImageUploadWithEditor
                 images={transportForm.images || []}
                 onChange={(urls) => setTransportForm((p) => ({ ...p, images: urls }))}
                 maxImages={5}
+                shape="rect"
+                aspectRatio={4/3}
               />
               {(!transportForm.images || transportForm.images.length === 0) && (
                 <p className="text-sm text-destructive mt-2">Mindst ét billede er påkrævet</p>

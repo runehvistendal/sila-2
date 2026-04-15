@@ -11,7 +11,7 @@ import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Copy } from 'lu
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
-import ImageUploader from '@/components/shared/ImageUploader';
+import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
 
 export default function Profile() {
   const { user } = useAuth();
@@ -259,10 +259,11 @@ export default function Profile() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Profilbillede (valgfri)</label>
-                <ImageUploader
+                <ImageUploadWithEditor
                   images={currentForm.avatar_url ? [currentForm.avatar_url] : []}
                   onChange={(urls) => setForm(f => ({ ...f, avatar_url: urls[0] || '' }))}
                   maxImages={1}
+                  shape="circle"
                 />
               </div>
 
