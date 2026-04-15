@@ -5,7 +5,8 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CabinCard from '@/components/cabins/CabinCard';
-import { Search, ArrowRight, Anchor, Home as HomeIcon, Users } from 'lucide-react';
+import GreenlandMap from '@/components/shared/GreenlandMap';
+import { Search, ArrowRight, Anchor, Home as HomeIcon, Users, Map } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -147,6 +148,21 @@ export default function Home() {
           <div className="mt-8 text-center sm:hidden">
             <Button variant="outline" onClick={() => navigate('/cabins')} className="rounded-xl px-6">View all cabins</Button>
           </div>
+        </div>
+      </section>
+
+      {/* MAP SECTION */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
+                <Map className="w-7 h-7 text-primary" /> Udforsk på kort
+              </h2>
+              <p className="text-muted-foreground">Se alle hytter geografisk placeret i Grønland</p>
+            </div>
+          </div>
+          <GreenlandMap cabins={featuredCabins} height="450px" />
         </div>
       </section>
 

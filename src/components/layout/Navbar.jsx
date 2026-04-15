@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle } from 'lucide-react';
+import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
@@ -98,6 +98,11 @@ export default function Navbar() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                      <Link to="/favourites" className="flex items-center gap-2 cursor-pointer">
+                        <Heart className="w-4 h-4" /> Favoritter
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
                         <PlusCircle className="w-4 h-4" /> Create listing
                       </Link>
@@ -148,6 +153,7 @@ export default function Navbar() {
               {user ? (
                 <>
                   <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Dashboard</Link>
+                  <Link to="/favourites" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Favoritter</Link>
                   <Link to="/create-listing" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">Create listing</Link>
                   <button onClick={() => base44.auth.logout()} className="w-full text-left px-4 py-3 rounded-lg text-destructive hover:bg-muted font-medium">Sign out</button>
                 </>

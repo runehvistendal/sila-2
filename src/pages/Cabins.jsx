@@ -2,19 +2,27 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import CabinCard from '@/components/cabins/CabinCard';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CabinFilters from '@/components/cabins/CabinFilters';
+import GreenlandMap from '@/components/shared/GreenlandMap';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, SlidersHorizontal, Home } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Home, Map, Grid } from 'lucide-react';
 
-const LOCATIONS = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Disko Bay', 'Kangerlussuaq', 'Tasiilaq', 'Upernavik', 'Qaqortoq', 'Narsaq'];
+const DEFAULT_FILTERS = {
+  search: '',
+  location: 'all',
+  sort: 'newest',
+  minPrice: '',
+  maxPrice: '',
+  minGuests: '',
+  checkIn: '',
+  amenities: [],
+};
 
 export default function Cabins() {
   const urlParams = new URLSearchParams(window.location.search);
-  const [search, setSearch] = useState(urlParams.get('q') || '');
-  const [location, setLocation] = useState('all');
-  const [sort, setSort] = useState('newest');
+  const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, search: urlParams.get('q') || '' });
+  const [view, setView] = useState('grid'); // 'grid' | 'map'
 
   const { data: cabins = [], isLoading } = useQuery({
     queryKey: ['cabins'],
@@ -23,57 +31,39 @@ export default function Cabins() {
 
   const filtered = useMemo(() => {
     let result = cabins.filter((c) => {
-      const matchSearch = !search || c.title?.toLowerCase().includes(search.toLowerCase()) || c.location?.toLowerCase().includes(search.toLowerCase());
-      const matchLoc = location === 'all' || c.location === location;
-      return matchSearch && matchLoc;
+      const q = filters.search.toLowerCase();
+      const matchSearch = !q || c.title?.toLowerCase().includes(q) || c.location?.toLowerCase().includes(q) || c.description?.toLowerCase().includes(q) || c.amenities?.some(a => a.toLowerCase().includes(q));
+      const matchLoc = filters.location === 'all' || c.location === filters.location;
+      const matchMin = !filters.minPrice || c.price_per_night >= Number(filters.minPrice);
+      const matchMax = !filters.maxPrice || c.price_per_night <= Number(filters.maxPrice);
+      const matchGuests = !filters.minGuests || (c.max_guests || 0) >= Number(filters.minGuests);
+      const matchAmenities = !filters.amenities?.length || filters.amenities.every(a => c.amenities?.includes(a));
+      return matchSearch && matchLoc && matchMin && matchMax && matchGuests && matchAmenities;
     });
-    if (sort === 'price_asc') result = [...result].sort((a, b) => a.price_per_night - b.price_per_night);
-    if (sort === 'price_desc') result = [...result].sort((a, b) => b.price_per_night - a.price_per_night);
+    if (filters.sort === 'price_asc') result = [...result].sort((a, b) => a.price_per_night - b.price_per_night);
+    if (filters.sort === 'price_desc') result = [...result].sort((a, b) => b.price_per_night - a.price_per_night);
     return result;
-  }, [cabins, search, location, sort]);
+  }, [cabins, filters]);
 
   return (
     <div className="min-h-screen pt-16">
-      {/* Page header */}
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-foreground mb-6">Browse Cabins</h1>
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1 max-w-xs">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search location or name..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 h-10 rounded-xl"
-              />
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold text-foreground">Hytter i Grønland</h1>
+            <div className="flex gap-1 bg-muted rounded-xl p-1">
+              <button onClick={() => setView('grid')} className={`p-2 rounded-lg transition-colors ${view === 'grid' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground'}`}>
+                <Grid className="w-4 h-4" />
+              </button>
+              <button onClick={() => setView('map')} className={`p-2 rounded-lg transition-colors ${view === 'map' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground'}`}>
+                <Map className="w-4 h-4" />
+              </button>
             </div>
-            <Select value={location} onValueChange={setLocation}>
-              <SelectTrigger className="w-[180px] h-10 rounded-xl">
-                <SelectValue placeholder="All locations" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All locations</SelectItem>
-                {LOCATIONS.map((loc) => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="w-[160px] h-10 rounded-xl">
-                <SlidersHorizontal className="w-4 h-4 mr-2 text-muted-foreground" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="newest">Newest first</SelectItem>
-                <SelectItem value="price_asc">Price: low to high</SelectItem>
-                <SelectItem value="price_desc">Price: high to low</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
+          <CabinFilters filters={filters} onChange={setFilters} />
         </div>
       </div>
 
-      {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -85,11 +75,13 @@ export default function Cabins() {
               </div>
             ))}
           </div>
+        ) : view === 'map' ? (
+          <GreenlandMap cabins={filtered} height="600px" />
         ) : filtered.length > 0 ? (
           <>
-            <p className="text-sm text-muted-foreground mb-6">{filtered.length} cabin{filtered.length !== 1 ? 's' : ''} found</p>
+            <p className="text-sm text-muted-foreground mb-6">{filtered.length} hytte{filtered.length !== 1 ? 'r' : ''} fundet</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((cabin, i) => (
+              {filtered.map((cabin) => (
                 <div key={cabin.id}>
                   <CabinCard cabin={cabin} />
                 </div>
@@ -99,8 +91,8 @@ export default function Cabins() {
         ) : (
           <div className="text-center py-24">
             <Home className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-lg font-medium text-foreground mb-1">No cabins found</p>
-            <p className="text-muted-foreground text-sm">Try adjusting your search</p>
+            <p className="text-lg font-medium text-foreground mb-1">Ingen hytter fundet</p>
+            <p className="text-muted-foreground text-sm">Prøv at justere dine filtre</p>
           </div>
         )}
       </div>

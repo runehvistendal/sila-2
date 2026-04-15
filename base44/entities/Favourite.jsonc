@@ -1,0 +1,36 @@
+{
+  "name": "Favourite",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "listing_type": {
+      "type": "string",
+      "enum": [
+        "cabin",
+        "transport"
+      ]
+    },
+    "listing_id": {
+      "type": "string"
+    },
+    "listing_title": {
+      "type": "string"
+    },
+    "listing_image": {
+      "type": "string"
+    },
+    "listing_location": {
+      "type": "string"
+    },
+    "listing_price": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "user_email",
+    "listing_type",
+    "listing_id"
+  ]
+}

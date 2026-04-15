@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Users, Anchor } from 'lucide-react';
+import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default function CabinCard({ cabin }) {
   const coverImage = cabin.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=600&h=400&fit=crop&q=80';
@@ -15,6 +16,16 @@ export default function CabinCard({ cabin }) {
           alt={cabin.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
+        <div className="absolute top-3 right-3">
+          <FavouriteButton
+            listingType="cabin"
+            listingId={cabin.id}
+            listingTitle={cabin.title}
+            listingImage={coverImage}
+            listingLocation={cabin.location}
+            listingPrice={cabin.price_per_night}
+          />
+        </div>
         {cabin.host_provides_transport && (
           <div className="absolute top-3 left-3">
             <Badge className="bg-white text-primary border-0 shadow-sm text-xs font-semibold gap-1">
