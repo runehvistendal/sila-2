@@ -235,7 +235,6 @@ export default function TransportDetail() {
                   <>
                     <div className="text-sm text-muted-foreground mb-3">
                       <p className="mb-2">{t('no_confirmed_return')}</p>
-                      <p className="font-semibold">{t('no_return_other_providers')} {transport.from_location}:</p>
                     </div>
                     <div className="space-y-2 mb-4">
                       {returnTrips.map((rt) => (
