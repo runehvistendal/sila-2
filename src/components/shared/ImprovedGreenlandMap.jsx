@@ -27,12 +27,15 @@ const LOCATIONS = {
   'Narsaq': [60.912, -46.059]
 };
 
-// Brugerdefinerede ikoner
+// Standard Leaflet marker icon (blue pin)
 const createCabinIcon = () => new L.Icon({
-  iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iNDIiIHZpZXdCb3g9IjAgMCAzMiA0MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iNDIiIHJ4PSI4IiBmaWxsPSIjMDM5QkMxIi8+PHBhdGggZD0iTTEwIDIwSDE2VjI4SDEwVjIwWiIgZmlsbD0id2hpdGUiLz48cGF0aCBkPSJNMTYgMTBMMjYgMjBIMTZWMjhIMTBWMjBMMTYgMTBaIiBmaWxsPSJ3aGl0ZSIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9zdmc+',
-  iconSize: [32, 42],
-  iconAnchor: [16, 42],
-  popupAnchor: [0, -42]
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
 });
 
 const createTransportIcon = () => new L.Icon({
