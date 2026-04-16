@@ -13,34 +13,14 @@ import { MessageCircle, Send, CheckCircle, AlertCircle, Loader, ShieldAlert, Pap
 import { toast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const FAQ_QUESTIONS = [
-  { value: 'Hvordan annullerer jeg en booking?', label: 'Hvordan annullerer jeg en booking?' },
-  { value: 'Kan jeg ændre mine rejsedatoer?', label: 'Kan jeg ændre mine rejsedatoer?' },
-  { value: 'Hvilke betalingsmetoder accepteres?', label: 'Hvilke betalingsmetoder accepteres?' },
-  { value: 'Hvordan kontakter jeg min udbyder?', label: 'Hvordan kontakter jeg min udbyder?' },
-  { value: 'Hvad er jeres afbestillingspolitik?', label: 'Hvad er jeres afbestillingspolitik?' },
-  { value: 'Hvordan rapporterer jeg et sikkerhedsproblem?', label: 'Hvordan rapporterer jeg et sikkerhedsproblem?' },
-  { value: 'Jeg har ikke modtaget en bekræftelsesmail', label: 'Jeg har ikke modtaget en bekræftelsesmail' },
-  { value: 'Jeg vil oprette et opslag som udbyder', label: 'Jeg vil oprette et opslag som udbyder' },
-  { value: 'Andet (beskriv manuelt)', label: 'Andet — skriv selv...' },
-];
-
-const FAQ_ANSWERS = {
-  'Hvordan annullerer jeg en booking?': 'Du kan annullere en booking fra dit dashboard under "Mine bookinger". Find den relevante booking og klik på "Annuller". Bemærk at vores afbestillingspolitik gælder — kontakt os på support@sila.gl hvis du har spørgsmål til refundering.',
-  'Kan jeg ændre mine rejsedatoer?': 'Datoer kan ikke ændres direkte. Du skal annullere den eksisterende booking og oprette en ny. Kontakt udbyderen direkte via chat, da de muligvis kan hjælpe med en fleksibel løsning.',
-  'Hvilke betalingsmetoder accepteres?': 'Vi accepterer alle større kreditkort (Visa, Mastercard, American Express) via Stripe. Betaling sker sikkert online — vi gemmer ikke kortoplysninger.',
-  'Hvordan kontakter jeg min udbyder?': 'Gå til dit dashboard og find din booking eller forespørgsel. Herfra kan du åbne chatten med udbyderen direkte.',
-  'Hvad er jeres afbestillingspolitik?': 'Afbestillingsbetingelserne varierer pr. udbyder og er synlige på hvert opslag inden booking. Ved tvivl — kontakt os på support@sila.gl.',
-  'Hvordan rapporterer jeg et sikkerhedsproblem?': 'Brug vores hændelsesrapport-formular under Support → "Rapportér en hændelse", eller skriv direkte til support@sila.gl. Alvorlige situationer: kontakt lokale myndigheder.',
-  'Jeg har ikke modtaget en bekræftelsesmail': 'Tjek din spam-mappe. Mailen sendes fra no-reply@sila.gl. Har du stadig ikke modtaget den efter 10 minutter, så kontakt os med dit booking-ID.',
-  'Jeg vil oprette et opslag som udbyder': 'Log ind og gå til Dashboard → "Nyt opslag". Du kan oprette hytteophold eller bådruter. Har du spørgsmål til onboarding, er du velkommen til at skrive til os.',
-};
+const FAQ_KEYS = ['faq_q1','faq_q2','faq_q3','faq_q4','faq_q5','faq_q6','faq_q7','faq_q8'];
+const FAQ_ANSWER_KEYS = { faq_q1:'faq_a1', faq_q2:'faq_a2', faq_q3:'faq_a3', faq_q4:'faq_a4', faq_q5:'faq_a5', faq_q6:'faq_a6', faq_q7:'faq_a7', faq_q8:'faq_a8' };
 
 export default function Support() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const fileInputRef = useRef(null);
-  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedKey, setSelectedKey] = useState('');
   const [faqAnswer, setFaqAnswer] = useState('');
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -51,14 +31,17 @@ export default function Support() {
   });
   const [result, setResult] = useState(null);
 
+  const faqQuestions = FAQ_KEYS.map(k => ({ key: k, label: t(k) }));
+
   const handleSubjectSelect = (value) => {
-    setSelectedSubject(value);
-    if (value === 'Andet (beskriv manuelt)') {
+    setSelectedKey(value);
+    if (value === 'other') {
       setForm({ ...form, subject: '' });
       setFaqAnswer('');
     } else {
-      setForm({ ...form, subject: value });
-      setFaqAnswer(FAQ_ANSWERS[value] || '');
+      setForm({ ...form, subject: t(value) });
+      const answerKey = FAQ_ANSWER_KEYS[value];
+      setFaqAnswer(answerKey ? t(answerKey) : '');
     }
   };
 
@@ -75,7 +58,7 @@ export default function Support() {
       );
       setAttachments((prev) => [...prev, ...uploaded]);
     } catch {
-      toast({ title: 'Fejl ved upload af fil', variant: 'destructive' });
+      toast({ title: t('support_upload_error'), variant: 'destructive' });
     } finally {
       setUploading(false);
     }
@@ -97,18 +80,18 @@ export default function Support() {
       setResult({ success: true, message: res.data.message });
       setForm({ subject: '', message: '', booking_id: '' });
       setAttachments([]);
-      setSelectedSubject('');
+      setSelectedKey('');
       setFaqAnswer('');
     },
     onError: () => {
-      toast({ title: 'Error submitting inquiry', description: 'Please try again' });
+      toast({ title: t('support_fill_fields') });
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.subject || !form.message) {
-      toast({ title: 'Please fill in all fields' });
+      toast({ title: t('support_fill_fields') });
       return;
     }
     mutation.mutate(form);
@@ -122,10 +105,8 @@ export default function Support() {
           <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
             <MessageCircle className="w-6 h-6 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Kundesupport</h1>
-          <p className="text-muted-foreground">
-            Få hjælp til bookinger, transport, hytter og mere.
-          </p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">{t('support_title')}</h1>
+          <p className="text-muted-foreground">{t('support_subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -141,33 +122,34 @@ export default function Support() {
                   exit={{ opacity: 0, y: -8 }}
                   className="bg-accent/10 border border-accent/30 rounded-2xl p-5"
                 >
-                  <p className="text-xs font-semibold text-accent uppercase mb-2">Svar på dit spørgsmål</p>
+                  <p className="text-xs font-semibold text-accent uppercase mb-2">{t('support_faq_answer_heading')}</p>
                   <p className="text-sm text-foreground leading-relaxed">{faqAnswer}</p>
-                  <p className="text-xs text-muted-foreground mt-3">Hjalp dette ikke? Udfyld formularen nedenfor.</p>
+                  <p className="text-xs text-muted-foreground mt-3">{t('support_faq_didnt_help')}</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-border p-6 shadow-card space-y-4">
               <div>
-                <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Emne</Label>
-                <Select value={selectedSubject} onValueChange={handleSubjectSelect}>
+                <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('support_subject_label')}</Label>
+                <Select value={selectedKey} onValueChange={handleSubjectSelect}>
                   <SelectTrigger className="rounded-lg">
-                    <SelectValue placeholder="Vælg et spørgsmål..." />
+                    <SelectValue placeholder={t('support_subject_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {FAQ_QUESTIONS.map((q) => (
-                      <SelectItem key={q.value} value={q.value}>{q.label}</SelectItem>
+                    {faqQuestions.map((q) => (
+                      <SelectItem key={q.key} value={q.key}>{q.label}</SelectItem>
                     ))}
+                    <SelectItem value="other">{t('faq_other')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {selectedSubject === 'Andet (beskriv manuelt)' && (
+              {selectedKey === 'other' && (
                 <div>
-                  <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Beskriv dit emne</Label>
+                  <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('support_custom_subject_label')}</Label>
                   <Input
-                    placeholder="Skriv dit spørgsmål eller emne her..."
+                    placeholder={t('support_custom_subject_placeholder')}
                     value={form.subject}
                     onChange={(e) => setForm({ ...form, subject: e.target.value })}
                     className="rounded-lg"
@@ -176,9 +158,9 @@ export default function Support() {
               )}
 
               <div>
-                <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">Besked</Label>
+                <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('support_message_label')}</Label>
                 <Textarea
-                  placeholder="Beskriv dit problem eller spørgsmål..."
+                  placeholder={t('support_message_placeholder')}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   className="resize-none h-32 rounded-lg"
@@ -187,10 +169,10 @@ export default function Support() {
 
               <div>
                 <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">
-                  Booking ID <span className="text-muted-foreground font-normal">(valgfrit)</span>
+                  {t('support_booking_id_label')} <span className="text-muted-foreground font-normal">{t('support_booking_id_optional')}</span>
                 </Label>
                 <Input
-                  placeholder="Hvis din henvendelse handler om en specifik booking"
+                  placeholder={t('support_booking_id_placeholder')}
                   value={form.booking_id}
                   onChange={(e) => setForm({ ...form, booking_id: e.target.value })}
                   className="rounded-lg"
@@ -200,7 +182,7 @@ export default function Support() {
               {/* File attachments */}
               <div>
                 <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">
-                  Vedhæft filer <span className="text-muted-foreground font-normal">(valgfrit)</span>
+                  {t('support_attachments_label')} <span className="text-muted-foreground font-normal">{t('support_attachments_optional')}</span>
                 </Label>
                 <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileSelect} />
                 <button
@@ -210,7 +192,7 @@ export default function Support() {
                   className="flex items-center gap-2 text-sm text-primary border border-dashed border-primary/40 rounded-lg px-4 py-2.5 hover:bg-primary/5 transition-colors w-full justify-center"
                 >
                   {uploading ? <Loader className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
-                  {uploading ? 'Uploader...' : 'Vælg filer at vedhæfte'}
+                  {uploading ? t('support_uploading') : t('support_attach_files')}
                 </button>
                 {attachments.length > 0 && (
                   <div className="mt-2 space-y-1.5">
@@ -234,12 +216,12 @@ export default function Support() {
                 {mutation.isPending ? (
                   <>
                     <Loader className="w-4 h-4 animate-spin" />
-                    Sender...
+                    {t('support_sending')}
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Send henvendelse
+                    {t('support_send_btn')}
                   </>
                 )}
               </Button>
@@ -258,10 +240,8 @@ export default function Support() {
                    <div className="flex items-start gap-3 mb-4">
                      <CheckCircle className="w-5 h-5 text-accent shrink-0 mt-1" />
                      <div>
-                       <h3 className="font-semibold text-foreground">Inquiry Received</h3>
-                       <p className="text-sm text-muted-foreground mt-1">
-                         Your message has been received and saved. Our support team will respond to your inquiry at support@sila.gl within 24 hours.
-                       </p>
+                       <h3 className="font-semibold text-foreground">{t('support_received_title')}</h3>
+                         <p className="text-sm text-muted-foreground mt-1">{t('support_received_desc')}</p>
                      </div>
                    </div>
 
@@ -274,7 +254,7 @@ export default function Support() {
                             variant="outline"
                             className="w-full mt-4"
                           >
-                            Send en ny henvendelse
+                            {t('support_new_inquiry')}
                           </Button>
                   </div>
                 </motion.div>
@@ -285,14 +265,14 @@ export default function Support() {
           {/* FAQ Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl border border-border p-6 sticky top-24">
-              <h3 className="font-bold text-foreground mb-4">Ofte stillede spørgsmål</h3>
+              <h3 className="font-bold text-foreground mb-4">{t('support_faq_title')}</h3>
               <div className="space-y-2 text-sm">
-                {FAQ_QUESTIONS.filter((q) => q.value !== 'Andet (beskriv manuelt)').map((q) => (
+                {faqQuestions.map((q) => (
                   <button
-                    key={q.value}
-                    onClick={() => handleSubjectSelect(q.value)}
+                    key={q.key}
+                    onClick={() => handleSubjectSelect(q.key)}
                     className={`block text-left w-full p-2 rounded-lg transition-colors text-xs leading-tight ${
-                      selectedSubject === q.value
+                      selectedKey === q.key
                         ? 'bg-primary/10 text-primary font-medium'
                         : 'text-primary hover:bg-primary/10'
                     }`}
@@ -313,14 +293,12 @@ export default function Support() {
             <ShieldAlert className="w-6 h-6 text-red-600" />
           </div>
           <div className="flex-1">
-            <h2 className="font-bold text-foreground text-lg mb-1">Rapportér en hændelse</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Har du oplevet en sikkerhedsmæssig bekymring, chikane, svindel eller en anden alvorlig hændelse i forbindelse med en booking eller transport? Du kan indgive en fortrolig rapport til Sila, og vores team vil behandle den hurtigst muligt.
-            </p>
+            <h2 className="font-bold text-foreground text-lg mb-1">{t('support_incident_title')}</h2>
+            <p className="text-sm text-muted-foreground mb-4">{t('support_incident_desc')}</p>
             <Link to="/report-incident">
               <Button variant="destructive" className="gap-2 rounded-xl">
                 <ShieldAlert className="w-4 h-4" />
-                Indgiv en hændelsesrapport
+                {t('support_incident_btn')}
               </Button>
             </Link>
           </div>

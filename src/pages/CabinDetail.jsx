@@ -14,6 +14,7 @@ import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import CabinTransportSection from '@/components/cabins/CabinTransportSection';
 import { MapPin, Users, Anchor, ChevronLeft, Check, User } from 'lucide-react';
 import CabinImageGallery from '@/components/cabins/CabinImageGallery';
+import AskProviderQuestion from '@/components/shared/AskProviderQuestion';
 
 export default function CabinDetail() {
   const { id } = useParams();
@@ -246,6 +247,16 @@ export default function CabinDetail() {
                 />
               )}
               <p className="text-xs text-muted-foreground text-center mt-3">{t('secure_payment')}</p>
+
+              {cabin.host_email && (
+                <div className="mt-4">
+                  <AskProviderQuestion
+                    providerEmail={cabin.host_email}
+                    listingId={cabin.id}
+                    listingType="cabin"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

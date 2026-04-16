@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import TransportReviews from '@/components/transport/TransportReviews';
 import TransportDrawer from '@/components/transport/TransportDrawer';
+import AskProviderQuestion from '@/components/shared/AskProviderQuestion';
 import { toast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -404,6 +405,16 @@ export default function TransportDetail() {
             />
           )}
           <p className="text-xs text-muted-foreground text-center mt-3">{t('secure_payment')}</p>
+
+          {transport.provider_email && (
+            <div className="mt-4">
+              <AskProviderQuestion
+                providerEmail={transport.provider_email}
+                listingId={transport.id}
+                listingType="transport"
+              />
+            </div>
+          )}
           </div>
 
           {/* Provider profile */}
