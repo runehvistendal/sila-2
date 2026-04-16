@@ -84,6 +84,41 @@ export default function Navbar() {
                 {t(link.label)}
               </Link>
             ))}
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors bg-primary text-white hover:bg-primary/90`}>
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  {isProvider && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
+                          <Plus className="w-4 h-4" /> {t('nav_create_listing')}
+                        </Link>
+                      </DropdownMenuItem>
+                      {isTraveler && <DropdownMenuSeparator />}
+                    </>
+                  )}
+                  {isTraveler && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/request-cabin" className="flex items-center gap-2 cursor-pointer">
+                          <Home className="w-4 h-4" /> {t('nav_request_cabin')}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/request-transport" className="flex items-center gap-2 cursor-pointer">
+                          <Waves className="w-4 h-4" /> {t('nav_request_transport')}
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Mobile language switcher */}
@@ -97,42 +132,6 @@ export default function Navbar() {
             <LanguageSwitcher transparent={transparent} />
             {user ? (
               <>
-                <DropdownMenu>
-                   <DropdownMenuTrigger asChild>
-                     <button className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                       transparent ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-muted hover:bg-secondary text-foreground'
-                     }`}>
-                       <Plus className="w-4 h-4" />
-                     </button>
-                   </DropdownMenuTrigger>
-                   <DropdownMenuContent align="end" className="w-48">
-                     {isProvider && (
-                       <>
-                         <DropdownMenuItem asChild>
-                           <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
-                             <Plus className="w-4 h-4" /> {t('nav_create_listing')}
-                           </Link>
-                         </DropdownMenuItem>
-                         {isTraveler && <DropdownMenuSeparator />}
-                       </>
-                     )}
-                     {isTraveler && (
-                       <>
-                         <DropdownMenuItem asChild>
-                           <Link to="/request-cabin" className="flex items-center gap-2 cursor-pointer">
-                             <Home className="w-4 h-4" /> {t('nav_request_cabin')}
-                           </Link>
-                         </DropdownMenuItem>
-                         <DropdownMenuItem asChild>
-                           <Link to="/request-transport" className="flex items-center gap-2 cursor-pointer">
-                             <Waves className="w-4 h-4" /> {t('nav_request_transport')}
-                           </Link>
-                         </DropdownMenuItem>
-                       </>
-                     )}
-                   </DropdownMenuContent>
-                 </DropdownMenu>
-
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm" className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
                     {t('nav_dashboard')}

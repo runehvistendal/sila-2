@@ -42,6 +42,7 @@ export default function Dashboard() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: myBookings = [] } = useQuery({
     queryKey: ['my-bookings', user?.email],
@@ -79,6 +80,18 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
+  const { data: allCabinRequests = [] } = useQuery({
+    queryKey: ['all-cabin-requests'],
+    queryFn: () => base44.entities.CabinRequest.filter({}, '-created_date', 100),
+    enabled: !!user,
+  });
+
+  const { data: allTransportRequests = [] } = useQuery({
+    queryKey: ['all-transport-requests'],
+    queryFn: () => base44.entities.TransportRequest.filter({}, '-created_date', 100),
+    enabled: !!user,
+  });
+
   const updateBooking = useMutation({
     mutationFn: ({ id, status }) => base44.entities.Booking.update(id, { status }),
     onSuccess: () => {
@@ -89,7 +102,9 @@ export default function Dashboard() {
   });
 
   const pendingHostBookings = hostBookings.filter((b) => b.status === 'pending').length;
-  const isProvider = myCabins.length > 0 || myTransports.length > 0;
+  const userRoleType = user?.role_type || 'traveler';
+  const isProvider = userRoleType === 'provider' || userRoleType === 'both';
+  const isTraveler = userRoleType === 'traveler' || userRoleType === 'both';
 
   if (!user) return null;
 
@@ -149,9 +164,14 @@ export default function Dashboard() {
                <Clock className="w-4 h-4" /> {t('my_requests')}
              </TabsTrigger>
              {isProvider && (
-               <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
-                 <Briefcase className="w-4 h-4" /> {t('provider_tab')}
-               </TabsTrigger>
+               <>
+                 <TabsTrigger value="all-requests" className="rounded-lg px-4 py-2 text-sm gap-2">
+                   <Users className="w-4 h-4" /> {t('all_requests') || 'Alle anmodninger'}
+                 </TabsTrigger>
+                 <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
+                   <Briefcase className="w-4 h-4" /> {t('provider_tab')}
+                 </TabsTrigger>
+               </>
              )}
              <TabsTrigger value="history" className="rounded-lg px-4 py-2 text-sm gap-2">
                <Clock className="w-4 h-4" /> {t('history')}
@@ -209,18 +229,103 @@ export default function Dashboard() {
           </TabsContent>
 
           {/* MY REQUESTS */}
-          <TabsContent value="requests">
-            <div className="space-y-8">
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">{t('transport_requests')}</h3>
-                <MyTransportRequestsTab />
+           <TabsContent value="requests">
+             <div className="space-y-8">
+               <div>
+                 <h3 className="font-semibold text-foreground mb-3">{t('transport_requests')}</h3>
+                 <MyTransportRequestsTab />
+               </div>
+               <div>
+                 <h3 className="font-semibold text-foreground mb-3">{t('cabin_requests')}</h3>
+                 <MyCabinRequestsTab />
+               </div>
+             </div>
+           </TabsContent>
+
+          {/* ALL REQUESTS — for providers */}
+          {isProvider && (
+            <TabsContent value="all-requests">
+              <div className="space-y-8">
+                {/* Transport Requests */}
+                <div>
+                  <h3 className="font-semibold text-foreground mb-3">{t('all_transport_requests') || 'Alle transportanmodninger'}</h3>
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      placeholder={t('search_by_location') || 'Søg efter by...'}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full px-4 py-2 rounded-xl border border-input bg-transparent text-sm"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    {allTransportRequests
+                      .filter((r) => {
+                        const q = searchQuery.toLowerCase();
+                        return !q || r.from_location?.toLowerCase().includes(q) || r.to_location?.toLowerCase().includes(q);
+                      })
+                      .map((r) => (
+                        <div key={r.id} className="bg-white rounded-xl border border-border p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="font-semibold text-sm text-foreground">{r.from_location} → {r.to_location}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">Fra: {r.guest_name || r.guest_email}</p>
+                              <p className="text-xs text-muted-foreground">{format(new Date(r.travel_date), 'd. MMM yyyy')} · {r.passengers} passagerer</p>
+                            </div>
+                            <Badge className={r.status === 'pending' ? 'bg-amber-100 text-amber-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{r.status}</Badge>
+                          </div>
+                        </div>
+                      ))}
+                    {allTransportRequests.filter((r) => {
+                      const q = searchQuery.toLowerCase();
+                      return !q || r.from_location?.toLowerCase().includes(q) || r.to_location?.toLowerCase().includes(q);
+                    }).length === 0 && (
+                      <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_requests') || 'Ingen anmodninger'}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Cabin Requests */}
+                <div>
+                  <h3 className="font-semibold text-foreground mb-3">{t('all_cabin_requests') || 'Alle hytteanmodninger'}</h3>
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      placeholder={t('search_by_location') || 'Søg efter by...'}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full px-4 py-2 rounded-xl border border-input bg-transparent text-sm"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    {allCabinRequests
+                      .filter((r) => {
+                        const q = searchQuery.toLowerCase();
+                        return !q || r.location?.toLowerCase().includes(q);
+                      })
+                      .map((r) => (
+                        <div key={r.id} className="bg-white rounded-xl border border-border p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <p className="font-semibold text-sm text-foreground">{r.location}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">Fra: {r.guest_name || r.guest_email}</p>
+                              <p className="text-xs text-muted-foreground">{format(new Date(r.check_in), 'd. MMM')} – {format(new Date(r.check_out), 'd. MMM yyyy')} · {r.guests} gæster</p>
+                            </div>
+                            <Badge className={r.status === 'pending' ? 'bg-amber-100 text-amber-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{r.status}</Badge>
+                          </div>
+                        </div>
+                      ))}
+                    {allCabinRequests.filter((r) => {
+                      const q = searchQuery.toLowerCase();
+                      return !q || r.location?.toLowerCase().includes(q);
+                    }).length === 0 && (
+                      <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_requests') || 'Ingen anmodninger'}</p>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">{t('cabin_requests')}</h3>
-                <MyCabinRequestsTab />
-              </div>
-            </div>
-          </TabsContent>
+            </TabsContent>
+          )}
 
           {/* PROVIDER */}
           {isProvider && (
