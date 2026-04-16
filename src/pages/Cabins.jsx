@@ -5,6 +5,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import CabinCard from '@/components/cabins/CabinCard';
 import CabinFilters from '@/components/cabins/CabinFilters';
 import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
+import RequestCabinCTA from '@/components/cabins/RequestCabinCTA';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Home, Map, Grid } from 'lucide-react';
 
@@ -97,12 +98,16 @@ export default function Cabins() {
                 <CabinCard key={cabin.id} cabin={cabin} />
               ))}
             </div>
+            <RequestCabinCTA />
           </>
         ) : (
           <div className="text-center py-24">
             <Home className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
             <p className="text-lg font-medium text-foreground mb-1">{t('no_cabins_found')}</p>
             <p className="text-muted-foreground text-sm">{t('adjust_filters')}</p>
+            <div className="mt-8">
+              <RequestCabinCTA />
+            </div>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import TransportCard from '@/components/transport/TransportCard';
 import TransportFilters from '@/components/transport/TransportFilters';
 import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
+import RequestTransportCTA from '@/components/transport/RequestTransportCTA';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Anchor, Grid, Map } from 'lucide-react';
 
@@ -116,12 +117,16 @@ export default function Transport() {
                  </div>
                ))}
              </div>
+            <RequestTransportCTA />
           </>
         ) : (
           <div className="text-center py-24">
             <Anchor className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
             <p className="text-lg font-medium text-foreground mb-1">{t('no_transport_found')}</p>
             <p className="text-muted-foreground text-sm">{t('try_another_search')}</p>
+            <div className="mt-8">
+              <RequestTransportCTA />
+            </div>
           </div>
         )}
       </div>
