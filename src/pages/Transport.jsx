@@ -39,6 +39,7 @@ export default function Transport() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [view, setView] = useState('grid'); // 'grid' | 'map'
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [showAllTransport, setShowAllTransport] = useState(false);
 
   const { data: transports = [], isLoading } = useQuery({
     queryKey: ['transports'],

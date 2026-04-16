@@ -29,6 +29,7 @@ export default function Cabins() {
   const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, search: urlParams.get('q') || '' });
   const [view, setView] = useState('grid'); // 'grid' | 'map'
   const [showRequestModal, setShowRequestModal] = useState(false);
+  const [showAllCabins, setShowAllCabins] = useState(false);
 
   const { data: rawCabins = [], isLoading } = useQuery({
     queryKey: ['cabins'],
