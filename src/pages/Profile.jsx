@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -25,29 +25,32 @@ export default function Profile() {
     queryKey: ['user-profile', user?.email],
     queryFn: () => base44.auth.me(),
     enabled: !!user,
-    onSuccess: (data) => {
-      if (!form) setForm({
-        full_name: data.full_name || '',
-        bio: data.bio || '',
-        location: data.location || '',
-        languages: data.languages || '',
-        role_type: data.role_type || 'traveler',
-        avatar_url: data.avatar_url || '',
-        phone: data.phone || '',
-        notification_prefs: data.notification_prefs || 'email',
-      });
-      // Initialize provider form from user data
-      if (!providerForm && data.provider_name) {
-        setProviderForm({
-          provider_name: data.provider_name || '',
-          provider_bio: data.provider_bio || '',
-          provider_location: data.provider_location || '',
-          provider_phone: data.provider_phone || '',
-          provider_avatar: data.provider_avatar || '',
-        });
-      }
-    },
   });
+
+  // Initialize form when data loads (replaces broken onSuccess)
+  useEffect(() => {
+    if (userData && !form) {
+      setForm({
+        full_name: userData.full_name || '',
+        bio: userData.bio || '',
+        location: userData.location || '',
+        languages: userData.languages || '',
+        role_type: userData.role_type || 'traveler',
+        avatar_url: userData.avatar_url || '',
+        phone: userData.phone || '',
+        notification_prefs: userData.notification_prefs || 'email',
+      });
+    }
+    if (userData && !providerForm) {
+      setProviderForm({
+        provider_name: userData.provider_name || '',
+        provider_bio: userData.provider_bio || '',
+        provider_location: userData.provider_location || '',
+        provider_phone: userData.provider_phone || '',
+        provider_avatar: userData.provider_avatar || '',
+      });
+    }
+  }, [userData]);
 
   const { data: myRatingsReceived = [] } = useQuery({
     queryKey: ['my-ratings-received-profile', user?.email],
