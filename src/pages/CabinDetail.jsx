@@ -1,32 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import TransportCard from '@/components/transport/TransportCard';
 import CabinReviews from '@/components/cabins/CabinReviews';
 import CabinAvailabilityCalendar from '@/components/cabins/CabinAvailabilityCalendar';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
+import CabinTransportSection from '@/components/cabins/CabinTransportSection';
 import { MapPin, Users, Anchor, ChevronLeft, Check } from 'lucide-react';
 import CabinImageGallery from '@/components/cabins/CabinImageGallery';
-import { toast } from '@/components/ui/use-toast';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CabinDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const qc = useQueryClient();
 
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(1);
   const [message, setMessage] = useState('');
-  const [wantHostTransport, setWantHostTransport] = useState(false);
+  const [hostTransportCost, setHostTransportCost] = useState(0);
 
   const { data: cabin, isLoading } = useQuery({
     queryKey: ['cabin', id],
@@ -46,15 +43,7 @@ export default function CabinDetail() {
       ),
   });
 
-  // Keep legacy mutation for non-Stripe fallback if needed
-  const bookMutation = useMutation({
-    mutationFn: (data) => base44.entities.Booking.create(data),
-    onSuccess: () => {
-      qc.invalidateQueries(['bookings']);
-      setCheckIn(''); setCheckOut(''); setMessage('');
-    },
-  });
-
+  
   if (isLoading) {
     return (
       <div className="min-h-screen pt-16 flex items-center justify-center">
@@ -78,8 +67,7 @@ export default function CabinDetail() {
       ? Math.max(0, Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000))
       : 0;
   const cabinTotal = nights * cabin.price_per_night;
-  const transportCost = wantHostTransport && cabin.transport_price_per_seat ? cabin.transport_price_per_seat * guests : 0;
-  const total = cabinTotal + transportCost;
+  const total = cabinTotal + hostTransportCost;
 
   const stripePayload = nights > 0 ? {
     bookingType: 'cabin',
@@ -143,71 +131,12 @@ export default function CabinDetail() {
             )}
 
             {/* Transport section */}
-             <div>
-               <h2 className="text-xl font-bold text-foreground mb-2">Getting there</h2>
-               {cabin.host_provides_transport ? (
-                 <div className="bg-primary/5 border border-primary/15 rounded-2xl p-5 mb-4">
-                   <div className="flex items-center gap-2 mb-2">
-                     <Anchor className="w-5 h-5 text-primary" />
-                     <span className="font-semibold text-foreground">Host-provided transport</span>
-                   </div>
-                   <p className="text-sm text-muted-foreground mb-3">
-                     {cabin.host_name || 'Your host'} offers transport from{' '}
-                     <strong>{cabin.transport_route_from || 'the mainland'}</strong> to the cabin.
-                     {cabin.transport_price_per_seat && ` Price: ${cabin.transport_price_per_seat} DKK/seat.`}
-                   </p>
-                   <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                     <input
-                       type="checkbox"
-                       checked={wantHostTransport}
-                       onChange={e => setWantHostTransport(e.target.checked)}
-                       className="w-4 h-4 rounded border-border accent-primary cursor-pointer"
-                     />
-                     <span className="text-sm font-medium text-foreground">Jeg ønsker transport fra hosten</span>
-                   </label>
-
-                   {/* Expanded transport form */}
-                   <AnimatePresence>
-                     {wantHostTransport && (
-                       <motion.div
-                         initial={{ opacity: 0, height: 0 }}
-                         animate={{ opacity: 1, height: 'auto' }}
-                         exit={{ opacity: 0, height: 0 }}
-                         className="mt-4 pt-4 border-t border-primary/20 space-y-3"
-                       >
-                         <div>
-                           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Departing from</label>
-                           <p className="text-sm font-medium text-foreground">{cabin.transport_route_from || 'Main port'}</p>
-                         </div>
-                         <div>
-                           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">Number of passengers</label>
-                           <p className="text-sm font-medium text-foreground">{guests} {guests !== 1 ? 'passengers' : 'passenger'}</p>
-                         </div>
-                         <div className="bg-white rounded-lg p-3 mt-3">
-                           <p className="text-xs text-muted-foreground mb-1.5">Transport price (will be added to total)</p>
-                           <p className="text-sm font-semibold text-accent">{cabin.transport_price_per_seat} DKK × {guests} = {transportCost} DKK</p>
-                         </div>
-                       </motion.div>
-                     )}
-                   </AnimatePresence>
-                 </div>
-               ) : null}
-
-              {transports.length > 0 ? (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground mb-3">Available transport options to {cabin.location}:</p>
-                  {transports.map((t) => (
-                    <TransportCard key={t.id} transport={t} compact={false} />
-                  ))}
-                </div>
-              ) : !cabin.host_provides_transport ? (
-                <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">
-                  No transport listings found for this location yet. Check the{' '}
-                  <a href="/transport" className="text-primary font-medium hover:underline">transport page</a>{' '}
-                  or contact the host directly.
-                </p>
-              ) : null}
-            </div>
+            <CabinTransportSection
+              cabin={cabin}
+              transports={transports}
+              guests={guests}
+              onTransportCostChange={setHostTransportCost}
+            />
 
             {/* Availability Calendar */}
             <CabinAvailabilityCalendar
@@ -267,10 +196,10 @@ export default function CabinDetail() {
                     <span>{cabin.price_per_night} DKK × {nights} nat</span>
                     <span>{cabinTotal} DKK</span>
                   </div>
-                  {transportCost > 0 && (
+                  {hostTransportCost > 0 && (
                     <div className="flex justify-between text-muted-foreground">
-                      <span>Transport ({cabin.transport_price_per_seat} DKK × {guests} gæst{guests !== 1 ? 'er' : ''})</span>
-                      <span>{transportCost} DKK</span>
+                      <span>Transport</span>
+                      <span>{hostTransportCost} DKK</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-foreground pt-1 border-t border-border">
