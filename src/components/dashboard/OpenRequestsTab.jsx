@@ -107,31 +107,34 @@ export default function OpenRequestsTab() {
 
       if (userCoords && r.location && locations.length) {
         const requestLoc = locations.find(l => 
-          l.name_dk?.toLowerCase() === r.location?.toLowerCase() || 
-          l.name_gl?.toLowerCase() === r.location?.toLowerCase() || 
-          l.postal_code === r.location
+          l.name_dk?.toLowerCase().trim() === r.location?.toLowerCase().trim() || 
+          l.name_gl?.toLowerCase().trim() === r.location?.toLowerCase().trim() || 
+          l.postal_code?.trim() === r.location?.trim()
         );
         
         if (requestLoc) {
           if (requestLoc.id === userCoords.id) {
-            // Same location = massive boost
-            relevanceScore = 100000;
+            // Same location = absolute top priority
+            relevanceScore = 1000000;
           } else {
-            // Different location = score by distance (closer = higher score)
+            // Different location = score by distance
             const dist = calculateDistance(
               userCoords.lat,
               userCoords.lon,
               requestLoc.latitude,
               requestLoc.longitude
             );
-            // Penalize distance heavily: 500 km gives ~0 score
-            relevanceScore = Math.max(0, 5000 - dist * 10);
+            // Max 10000 for very close locations, decreases with distance
+            relevanceScore = Math.max(0, 10000 - dist * 20);
           }
+        } else {
+          // Location not found in database
+          relevanceScore = 0;
         }
       }
 
-      // Bonus for pending
-      if (r.status === 'pending') relevanceScore += 500;
+      // Bonus for pending (much lower than location score)
+      if (r.status === 'pending') relevanceScore += 10;
 
       return { ...r, relevanceScore };
     });
