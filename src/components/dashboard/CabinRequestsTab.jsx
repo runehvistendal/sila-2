@@ -267,7 +267,7 @@ export function IncomingCabinRequestsTab() {
             <RatingModal requestId={ratingFor.id} requestType="cabin" toEmail={ratingFor.guest_email} toName={ratingFor.guest_name || 'Gæsten'} onDone={() => setRatingFor(null)} />
           </DialogContent>
         </Dialog>
-        )}
-        </div>
-        );
-        }
+      )}
+    </div>
+  );
+}
