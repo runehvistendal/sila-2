@@ -66,9 +66,11 @@ export default function TransportRequestDetail() {
         price: request.quoted_price_dkk,
         message: request.message,
       }),
-    onSuccess: () => {
+    onSuccess: async (booking) => {
       qc.invalidateQueries({ queryKey: ['transport-request', id] });
       base44.entities.TransportRequest.update(id, { status: 'accepted' });
+      // Send email notification
+      await base44.functions.invoke('sendOfferAcceptedNotification', { booking_id: booking.id, request_type: 'transport' });
     },
   });
 

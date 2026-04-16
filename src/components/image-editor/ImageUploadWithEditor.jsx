@@ -4,29 +4,20 @@ import { Upload, X, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ImageCropper from './ImageCropper';
 
-/**
- * Upload-flow med integreret 16:9 billedtilpasning.
- * Props:
- *   images: string[]          — aktuelle billed-URLs
- *   onChange: (urls) => void  — callback ved ændring
- *   maxImages?: number        — max antal billeder (default 8)
- *   label?: string
- */
 export default function ImageUploadWithEditor({
   images = [],
   onChange,
   maxImages = 8,
   label = 'Billeder',
-  shape = 'rect', // 'rect' | 'circle'
+  shape = 'rect',
   hidePrimaryLabel = false,
 }) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [editingImage, setEditingImage] = useState(null); // data-URL under redigering
-  const [editingIdx, setEditingIdx] = useState(null);     // index hvis vi re-redigerer
+  const [editingImage, setEditingImage] = useState(null);
+  const [editingIdx, setEditingIdx] = useState(null);
   const inputRef = useRef(null);
 
-  // Åbn editor med en fil
   const openEditor = (dataUrl, idx = null) => {
     setEditingImage(dataUrl);
     setEditingIdx(idx);
@@ -40,7 +31,6 @@ export default function ImageUploadWithEditor({
     reader.readAsDataURL(file);
   };
 
-  // Gem beskåret billede
   const handleCropSave = async (croppedDataUrl) => {
     setUploading(true);
     setEditingImage(null);
@@ -51,7 +41,6 @@ export default function ImageUploadWithEditor({
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
       if (editingIdx !== null) {
-        // Erstat eksisterende billede
         const updated = [...images];
         updated[editingIdx] = file_url;
         onChange(updated);
@@ -68,7 +57,6 @@ export default function ImageUploadWithEditor({
     onChange(images.filter((_, i) => i !== idx));
   };
 
-  // Re-edit: hent billed-dataurl fra http url
   const handleReEdit = async (url, idx) => {
     try {
       const res = await fetch(url);
@@ -77,14 +65,12 @@ export default function ImageUploadWithEditor({
       reader.onload = (e) => openEditor(e.target.result, idx);
       reader.readAsDataURL(blob);
     } catch {
-      // Fallback: brug url direkte
       openEditor(url, idx);
     }
   };
 
   const canAdd = images.length < maxImages;
 
-  // EDITOR VIEW
   if (editingImage) {
     return (
       <div className="bg-white rounded-2xl border border-border p-5">
@@ -95,10 +81,9 @@ export default function ImageUploadWithEditor({
           </div>
         </div>
 
-        {/* Live preview label */}
         <div className="mb-3">
           <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60 bg-primary/8 px-2 py-0.5 rounded-full">
-            Live preview — listing format
+            Live preview — {shape === 'circle' ? 'profilbillede' : 'listing'} format
           </span>
         </div>
 
@@ -113,55 +98,44 @@ export default function ImageUploadWithEditor({
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-2">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
         <label className="text-sm font-semibold text-foreground">{label}</label>
         <span className="text-xs text-muted-foreground">{images.length}/{maxImages}</span>
-        {images.length > 0 && shape === 'circle' && (
-          <button
-            type="button"
-            onClick={() => handleRemove(0)}
-            className="text-xs text-destructive hover:underline ml-2"
-          >
-            Slet
-          </button>
-        )}
       </div>
 
-      {/* Thumbnail grid */}
       {images.length > 0 && (
-        <div className={shape === 'circle' ? 'flex justify-center mb-4' : 'grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3'}>
+        <div className={shape === 'circle' ? 'flex justify-center gap-3' : 'grid grid-cols-2 sm:grid-cols-3 gap-2'}>
           {images.map((url, i) => (
             <div
               key={i}
               className={shape === 'circle'
-                ? 'relative group w-28 h-28 rounded-full overflow-hidden border-2 border-border bg-muted'
-                : 'relative group aspect-video rounded-xl overflow-hidden border border-border bg-muted'}
+                ? 'relative w-28 h-28 rounded-full overflow-hidden border-2 border-border bg-muted flex items-center justify-center'
+                : 'relative aspect-video rounded-xl overflow-hidden border border-border bg-muted flex items-center justify-center'}
             >
               <img src={url} alt="" className="w-full h-full object-cover" />
 
-              {/* Overlay controls */}
-              <div className={`absolute inset-0 ${shape === 'circle' ? 'bg-black/0 opacity-0' : 'bg-black/40 opacity-0 group-hover:opacity-100'} transition-opacity flex items-center justify-center gap-2`}>
+              <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
                 <button
                   type="button"
                   title="Rediger udsnit"
                   onClick={() => handleReEdit(url, i)}
-                  className="bg-white/90 hover:bg-white text-foreground rounded-full p-1.5 transition-colors"
+                  className="bg-white hover:bg-white/90 text-foreground rounded-full p-2 transition-colors"
                 >
-                  <Pencil className="w-3.5 h-3.5" />
+                  <Pencil className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
                   title="Fjern"
                   onClick={() => handleRemove(i)}
-                  className="bg-white/90 hover:bg-red-500 hover:text-white text-foreground rounded-full p-1.5 transition-colors"
+                  className="bg-white hover:bg-red-500 hover:text-white text-foreground rounded-full p-2 transition-colors"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               {i === 0 && !hidePrimaryLabel && (
-                <div className="absolute top-1.5 left-1.5 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                <div className="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                   Primær
                 </div>
               )}
@@ -170,7 +144,6 @@ export default function ImageUploadWithEditor({
         </div>
       )}
 
-      {/* Upload zone */}
       {canAdd && (
         <div
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -181,7 +154,7 @@ export default function ImageUploadWithEditor({
             handleFileSelect(e.dataTransfer.files);
           }}
           onClick={() => !uploading && inputRef.current?.click()}
-          className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-colors ${
+          className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-colors ${
             dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40 hover:bg-muted/30'
           }`}
         >

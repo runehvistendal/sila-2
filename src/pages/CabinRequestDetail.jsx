@@ -67,9 +67,11 @@ export default function CabinRequestDetail() {
         price: request.quoted_price_dkk,
         message: request.note,
       }),
-    onSuccess: () => {
+    onSuccess: async (booking) => {
       qc.invalidateQueries({ queryKey: ['cabin-request', id] });
       base44.entities.CabinRequest.update(id, { status: 'accepted' });
+      // Send email notification
+      await base44.functions.invoke('sendOfferAcceptedNotification', { booking_id: booking.id, request_type: 'cabin' });
     },
   });
 
