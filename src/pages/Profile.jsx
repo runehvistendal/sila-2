@@ -13,6 +13,7 @@ import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
 import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
+import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
 
 export default function Profile() {
   const { user } = useAuth();
@@ -35,7 +36,7 @@ export default function Profile() {
       setForm({
         full_name: userData.full_name || '',
         bio: userData.bio || '',
-        location: userData.location || '',
+        location_id: userData.location_id || null,
         languages: userData.languages || '',
         role_type: userData.role_type || 'traveler',
         avatar_url: userData.avatar_url || '',
@@ -47,7 +48,7 @@ export default function Profile() {
       setProviderForm({
         provider_name: userData.provider_name || '',
         provider_bio: userData.provider_bio || '',
-        provider_location: userData.provider_location || '',
+        provider_location_id: userData.provider_location_id || null,
         provider_phone: userData.provider_phone || '',
         provider_avatar: userData.provider_avatar || '',
       });
@@ -125,7 +126,7 @@ export default function Profile() {
   const currentForm = form || {
     full_name: user.full_name || '',
     bio: '',
-    location: '',
+    location_id: null,
     languages: '',
     role_type: 'traveler',
     avatar_url: '',
@@ -164,9 +165,9 @@ export default function Profile() {
                 <div>
                   <h1 className="text-xl font-bold text-foreground">{user.full_name || user.email.split('@')[0]}</h1>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
-                  {currentForm.location && (
+                  {user.location_name && (
                     <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                      <MapPin className="w-3.5 h-3.5" />{currentForm.location}
+                      <MapPin className="w-3.5 h-3.5" />{user.location_name}
                     </p>
                   )}
                 </div>
@@ -215,7 +216,11 @@ export default function Profile() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')}</label>
-                  <Input value={currentForm.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder={t('from_placeholder')} className="h-10 rounded-xl text-sm" />
+                  <LocationAutocomplete 
+                    value={currentForm.location_id ? { id: currentForm.location_id } : null}
+                    onChange={(loc) => setForm(f => ({ ...f, location_id: loc?.id || null }))}
+                    className="h-10"
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('phone_optional')}</label>
@@ -315,11 +320,10 @@ export default function Profile() {
                    </div>
                    <div>
                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')}</label>
-                     <Input
-                       value={providerForm?.provider_location || ''}
-                       onChange={e => setProviderForm(f => ({ ...f, provider_location: e.target.value }))}
-                       placeholder={t('from_placeholder')}
-                       className="h-10 rounded-xl text-sm"
+                     <LocationAutocomplete 
+                       value={providerForm?.provider_location_id ? { id: providerForm.provider_location_id } : null}
+                       onChange={(loc) => setProviderForm(f => ({ ...f, provider_location_id: loc?.id || null }))}
+                       className="h-10"
                      />
                    </div>
                    <div>
