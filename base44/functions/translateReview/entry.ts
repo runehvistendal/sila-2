@@ -6,7 +6,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
 
     if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      return Response.json({ error: 'Unauthorized: LLM translation requires authentication' }, { status: 401 });
     }
 
     const { review_id, original_text, source_language } = await req.json();
