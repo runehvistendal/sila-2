@@ -4,14 +4,30 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Zap, TrendingUp, AlertCircle, CheckCircle, Clock, Eye, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Zap, TrendingUp, AlertCircle, CheckCircle, Eye, ThumbsUp, ThumbsDown, FileSpreadsheet, ExternalLink, Loader } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
 
 export default function GrowthInsights() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const [exporting, setExporting] = useState(false);
+  const [sheetUrl, setSheetUrl] = useState(null);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await base44.functions.invoke('exportBookingsToSheet', {});
+      setSheetUrl(res.data.spreadsheet_url);
+      toast({ title: `✅ Eksporteret ${res.data.rows} bookinger til Google Sheets` });
+    } catch (e) {
+      toast({ title: 'Eksport fejlede', description: e.message, variant: 'destructive' });
+    } finally {
+      setExporting(false);
+    }
+  };
   const [expandedRec, setExpandedRec] = useState(null);
+
 
   // Fetch latest growth report
   const { data: report, isLoading } = useQuery({
@@ -80,8 +96,8 @@ export default function GrowthInsights() {
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         {/* Header */}
-        <div>
-          <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
               <Zap className="w-6 h-6 text-primary" />
             </div>
@@ -91,6 +107,25 @@ export default function GrowthInsights() {
                 Report for {report.period_start} to {report.period_end}
               </p>
             </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {sheetUrl && (
+              <a href={sheetUrl} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <ExternalLink className="w-4 h-4" />
+                  Åbn Sheet
+                </Button>
+              </a>
+            )}
+            <Button
+              onClick={handleExport}
+              disabled={exporting}
+              size="sm"
+              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+            >
+              {exporting ? <Loader className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+              {exporting ? 'Eksporterer...' : 'Eksportér til Sheets'}
+            </Button>
           </div>
         </div>
 
