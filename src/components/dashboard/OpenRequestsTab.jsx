@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -63,10 +63,16 @@ export default function OpenRequestsTab() {
     
     // Find location by exact name match (case-insensitive)
     const userLoc = locations.find(l => 
-      l.name_dk?.toLowerCase() === user.location.toLowerCase() ||
-      l.name_gl?.toLowerCase() === user.location.toLowerCase() ||
-      l.postal_code === user.location
+      l.name_dk?.toLowerCase().trim() === user.location.toLowerCase().trim() ||
+      l.name_gl?.toLowerCase().trim() === user.location.toLowerCase().trim() ||
+      (l.postal_code && l.postal_code.trim() === user.location.trim())
     );
+    
+    if (userLoc) {
+      console.log('✓ User location matched:', userLoc.name_dk, userLoc.id);
+    } else {
+      console.log('✗ No match for user location:', user.location);
+    }
     
     return userLoc ? { lat: userLoc.latitude, lon: userLoc.longitude, id: userLoc.id, name: userLoc.name_dk } : null;
   }, [user?.location, locations]);
@@ -109,13 +115,15 @@ export default function OpenRequestsTab() {
         const requestLoc = locations.find(l => 
           l.name_dk?.toLowerCase().trim() === r.location?.toLowerCase().trim() || 
           l.name_gl?.toLowerCase().trim() === r.location?.toLowerCase().trim() || 
-          l.postal_code?.trim() === r.location?.trim()
+          (l.postal_code && l.postal_code.trim() === r.location?.trim())
         );
         
         if (requestLoc) {
           if (requestLoc.id === userCoords.id) {
             // Same location = absolute top priority
             relevanceScore = 1000000;
+            if (r.type === 'cabin') console.log('🏠 Same-city match:', r.location, '→ Score:', relevanceScore);
+            if (r.type === 'transport') console.log('⛵ Same-city match:', r.location, '→ Score:', relevanceScore);
           } else {
             // Different location = score by distance
             const dist = calculateDistance(
