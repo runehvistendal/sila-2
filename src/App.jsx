@@ -10,7 +10,6 @@ import { LanguageProvider } from '@/lib/LanguageContext';
 import { CurrencyProvider } from '@/lib/CurrencyContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from '@/components/layout/Layout';
-import PasswordGate from '@/components/PasswordGate';
 
 // Pages
 import Home from '@/pages/Home';
@@ -44,10 +43,7 @@ import TransportRequestDetail from '@/pages/TransportRequestDetail';
 import CabinRequestDetail from '@/pages/CabinRequestDetail';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-  const [isLoggedIn, setIsLoggedIn] = React.useState(() => {
-    return localStorage.getItem('sila_authenticated') === 'true';
-  });
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -55,10 +51,6 @@ const AuthenticatedApp = () => {
         <div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin"></div>
       </div>
     );
-  }
-
-  if (!isLoggedIn) {
-    return <PasswordGate onSuccess={() => setIsLoggedIn(true)} />;
   }
 
   if (authError) {

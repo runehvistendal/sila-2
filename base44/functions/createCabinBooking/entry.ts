@@ -3,8 +3,19 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { requestId, guestEmail, guestName, price, message } = body;
+
+    // Only allow users to create bookings for themselves
+    if (user.email !== guestEmail) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     console.log('Creating cabin booking for request:', requestId);
 
