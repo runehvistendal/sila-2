@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CabinCard from '@/components/cabins/CabinCard';
@@ -11,6 +12,7 @@ import { motion } from 'framer-motion';
 
 export default function Home() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
 
   const { data: featuredCabins = [] } = useQuery({
@@ -113,11 +115,11 @@ export default function Home() {
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.08] tracking-tight mb-5">
-              Escape to the<br />real Greenland
+              {t('hero_title')}
             </h1>
 
             <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-10">
-              Remote cabins. Local boat transport. <br className="hidden sm:block" />Book them together, seamlessly.
+              {t('hero_subtitle')}
             </p>
 
             {/* Search bar */}
@@ -125,14 +127,14 @@ export default function Home() {
               <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by location..."
+                  placeholder={t('search_placeholder')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10 h-12 bg-white/95 backdrop-blur-sm rounded-xl border-0 shadow-lg text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <Button type="submit" className="h-12 px-6 bg-primary hover:bg-primary/90 rounded-xl font-semibold shadow-lg">
-                Search
+                {t('search_btn')}
               </Button>
             </form>
           </motion.div>
@@ -143,8 +145,8 @@ export default function Home() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">How Sila works</h2>
-            <p className="text-muted-foreground text-lg max-w-md mx-auto">Book your cabin and transport in one place</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">{t('how_title')}</h2>
+            <p className="text-muted-foreground text-lg max-w-md mx-auto">{t('how_step2_desc')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -152,20 +154,20 @@ export default function Home() {
               {
                 icon: Search,
                 step: '01',
-                title: 'Find your cabin',
-                desc: 'Browse remote cabins across Greenland, filtered by location and price.',
+                title: t('how_step1_title'),
+                desc: t('how_step1_desc'),
               },
               {
                 icon: Anchor,
                 step: '02',
-                title: 'Book transport',
-                desc: "See transport options directly on the cabin page. Some hosts provide it themselves.",
+                title: t('how_step2_title'),
+                desc: t('how_step2_desc'),
               },
               {
                 icon: HomeIcon,
                 step: '03',
-                title: 'Experience it',
-                desc: 'Your host confirms the booking and you head off into the Arctic wilderness.',
+                title: t('how_step3_title'),
+                desc: t('how_step3_desc'),
               },
             ].map((item, i) => (
               <div key={i} className="text-center">
@@ -186,11 +188,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Featured cabins</h2>
-              <p className="text-muted-foreground">Handpicked remote stays in Greenland</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">{t('cabins_title')}</h2>
+              <p className="text-muted-foreground">{t('featured_subtitle')}</p>
             </div>
             <Button variant="ghost" onClick={() => navigate('/cabins')} className="text-primary hover:text-primary/80 hidden sm:flex gap-1 group font-semibold">
-              View all <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              {t('view_details')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
 
@@ -203,8 +205,8 @@ export default function Home() {
           ) : (
             <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-border">
               <HomeIcon className="w-10 h-10 text-muted-foreground/40 mx-auto mb-4" />
-              <p className="text-muted-foreground font-medium mb-2">No cabins listed yet</p>
-              <Button size="sm" onClick={() => navigate('/create-listing')} className="mt-2 bg-primary text-white">Be the first host</Button>
+              <p className="text-muted-foreground font-medium mb-2">{t('no_results')}</p>
+              <Button size="sm" onClick={() => navigate('/create-listing')} className="mt-2 bg-primary text-white">{t('nav_create_listing')}</Button>
             </div>
           )}
 
@@ -292,9 +294,9 @@ export default function Home() {
           <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
-                <Map className="w-7 h-7 text-primary" /> Udforsk på kort
+                <Map className="w-7 h-7 text-primary" /> {t('how_title')}
               </h2>
-              <p className="text-muted-foreground">Se alle hytter geografisk placeret i Grønland</p>
+              <p className="text-muted-foreground">{t('featured_subtitle')}</p>
             </div>
           </div>
           <ImprovedGreenlandMap cabins={featuredCabins} height="450px" />
@@ -307,11 +309,10 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Own a cabin or boat in Greenland?
+                {t('hero_title')}
               </h2>
               <p className="text-white/70 text-lg leading-relaxed mb-8">
-                List it on Sila and connect with travelers from around the world. 
-                Simple, free to start, and you keep control.
+                {t('hero_subtitle')}
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button
@@ -319,7 +320,7 @@ export default function Home() {
                   className="bg-white text-primary hover:bg-white/90 rounded-full px-8 font-semibold"
                   onClick={() => window.location.href = '/create-listing'}
                 >
-                  List your cabin
+                  {t('nav_list')}
                 </Button>
                 <Button
                   size="lg"
@@ -327,7 +328,7 @@ export default function Home() {
                   className="text-white/80 hover:text-white hover:bg-white/10 rounded-full px-8"
                   onClick={() => window.location.href = '/create-listing?type=transport'}
                 >
-                  Offer transport
+                  {t('nav_boats')}
                 </Button>
               </div>
             </div>
