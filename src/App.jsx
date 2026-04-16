@@ -40,6 +40,8 @@ import AdminSupport from '@/pages/AdminSupport';
 import AdminContent from '@/pages/AdminContent';
 import AdminUsers from '@/pages/AdminUsers';
 import UserProfile from '@/pages/UserProfile';
+import TransportRequestDetail from '@/pages/TransportRequestDetail';
+import CabinRequestDetail from '@/pages/CabinRequestDetail';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -96,6 +98,8 @@ const AuthenticatedApp = () => {
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/support" element={<Support />} />
         <Route path="/profile/user" element={<UserProfile />} />
+        <Route path="/request-transport/:id" element={<TransportRequestDetail />} />
+        <Route path="/request-cabin/:id" element={<CabinRequestDetail />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

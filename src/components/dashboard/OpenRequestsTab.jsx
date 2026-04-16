@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Home, Anchor, MapPin, Calendar, Users, X } from 'lucide-react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -302,6 +303,7 @@ export default function OpenRequestsTab() {
 }
 
 function RequestCard({ request, t }) {
+  const navigate = useNavigate();
   const isTransport = request.type === 'transport';
   const statusLabel = {
     pending: 'Afventer',
@@ -320,7 +322,10 @@ function RequestCard({ request, t }) {
   }[request.status] || 'bg-gray-100 text-gray-500';
 
   return (
-    <div className="bg-white rounded-xl border border-border p-4 hover:shadow-md transition-shadow">
+    <button
+      onClick={() => navigate(isTransport ? `/request-transport/${request.id}` : `/request-cabin/${request.id}`)}
+      className="w-full text-left bg-white rounded-xl border border-border p-4 hover:shadow-md transition-shadow"
+    >
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isTransport ? 'bg-accent/10' : 'bg-primary/10'}`}>
@@ -361,6 +366,6 @@ function RequestCard({ request, t }) {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }
