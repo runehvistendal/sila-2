@@ -206,7 +206,8 @@ export default function Navbar() {
                   <Button className="w-full bg-primary text-white" onClick={() => base44.auth.redirectToLogin()}>{t('nav_sign_in')} / {t('nav_get_started')}</Button>
                 </div>
               )}
-              <div className="pt-4 border-t border-border">
+              <div className="pt-4 border-t border-border space-y-3">
+                <CurrencySelector />
                 <LanguageSwitcher />
               </div>
             </div>
