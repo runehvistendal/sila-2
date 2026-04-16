@@ -167,17 +167,28 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
         </div>
       )}
 
-      {/* ── OTHER TRANSPORT LISTINGS ── */}
-      {transports.length > 0 && (
-        <div className="mb-5 space-y-3">
-          <p className="text-sm font-medium text-muted-foreground">{t('other_transport_to')} {cabin.location}:</p>
-          {transports.map((tr) => (
-            <div key={tr.id} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDrawerTransportId(tr.id); }} className="cursor-pointer [&_a]:pointer-events-none">
-              <TransportCard transport={tr} compact={false} />
-            </div>
-          ))}
-        </div>
+      {/* ── NO HOST TRANSPORT ── */}
+      {!cabin.host_provides_transport && (
+        <p className="text-sm text-muted-foreground mb-4">{t('host_no_transport')}</p>
       )}
+
+      {/* ── OTHER TRANSPORT LISTINGS ── */}
+      <div className="mb-5">
+        <p className="text-sm font-medium text-muted-foreground mb-3">{t('other_transport_to')} {cabin.location}:</p>
+        {transports.length > 0 ? (
+          <div className="space-y-3">
+            {transports.map((tr) => (
+              <div key={tr.id} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDrawerTransportId(tr.id); }} className="cursor-pointer [&_a]:pointer-events-none">
+                <TransportCard transport={tr} compact={false} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">
+            {t('no_transport_listings')}
+          </p>
+        )}
+      </div>
 
       {/* Transport Drawer */}
       <AnimatePresence>
@@ -188,13 +199,6 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
           />
         )}
       </AnimatePresence>
-
-      {/* ── NO TRANSPORT AVAILABLE ── */}
-      {!cabin.host_provides_transport && transports.length === 0 && (
-        <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4 mb-4">
-          {t('no_transport_listings')}
-        </p>
-      )}
 
       {/* ── REQUEST TRANSPORT CTA ── */}
       {!showRequest && !reqSent && (
