@@ -256,7 +256,7 @@ export default function TransportDetail() {
                     <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
                       <span className="text-amber-500 mt-0.5 text-base leading-none">⚠️</span>
                       <p className="text-xs text-amber-800">
-                        <strong>Dette er en anmodning — ikke en booking.</strong> Udbyderen modtager din forespørgsel og vender tilbage med tilbud og pris. Du betaler intet nu.
+                        <strong>Hjemrejsen er ikke bekræftet endnu.</strong> Din anmodning sendes til alle udbydere på ruten, som kan svare med et tilbud og en pris. Du betaler intet nu — en hjemrejsebooking oprettes først, når du accepterer et tilbud.
                       </p>
                     </div>
                     <div className="space-y-3">
@@ -304,8 +304,7 @@ export default function TransportDetail() {
                             passengers: Number(reqForm.passengers),
                             guest_name: user.full_name || '',
                             guest_email: user.email,
-                            provider_email: transport.provider_email,
-                            provider_name: transport.provider_name,
+                            // No provider_email — sent to all providers on the route
                             status: 'pending',
                           });
                         }}
