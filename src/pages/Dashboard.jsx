@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -38,6 +39,7 @@ const STATUS_LABELS = {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -103,31 +105,31 @@ export default function Dashboard() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Header */}
-        <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Mit overblik</h1>
-            <p className="text-muted-foreground text-sm mt-1">Hej, {user.full_name || user.email}</p>
-            {avgRating && (
-              <div className="flex items-center gap-1 mt-1.5">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span className="text-sm font-semibold text-foreground">{avgRating}</span>
-                <span className="text-xs text-muted-foreground">({myRatingsReceived.length} bedømmelser)</span>
-              </div>
-            )}
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
-              <MapPin className="w-4 h-4" /> Anmod om hytte
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
-              <Anchor className="w-4 h-4" /> Anmod om transport
-            </Button>
-            <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
-              <PlusCircle className="w-4 h-4" /> Nyt opslag
-            </Button>
+         <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
+           <div>
+             <h1 className="text-2xl font-bold text-foreground">{t('my_dashboard')}</h1>
+             <p className="text-muted-foreground text-sm mt-1">{t('hello')} {user.full_name || user.email}</p>
+             {avgRating && (
+               <div className="flex items-center gap-1 mt-1.5">
+                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                 <span className="text-sm font-semibold text-foreground">{avgRating}</span>
+                 <span className="text-xs text-muted-foreground">({myRatingsReceived.length} {t('ratings_avg')})</span>
+               </div>
+             )}
+           </div>
+           <div className="flex gap-2 flex-wrap">
+             <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
+               <MapPin className="w-4 h-4" /> {t('request_cabin_btn')}
+             </Button>
+             <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
+               <Anchor className="w-4 h-4" /> {t('request_transport_btn')}
+             </Button>
+             <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
+               <PlusCircle className="w-4 h-4" /> {t('new_listing')}
+             </Button>
             {user?.role === 'admin' && (
               <Button variant="outline" onClick={() => navigate('/admin/legal')} className="rounded-xl gap-2 text-sm">
-                Admin
+                {t('admin')}
               </Button>
             )}
           </div>
@@ -135,58 +137,58 @@ export default function Dashboard() {
 
         <Tabs defaultValue={defaultTab}>
           <TabsList className="mb-8 bg-muted rounded-xl p-1 h-auto flex-wrap gap-1">
-            <TabsTrigger value="bookings" className="rounded-lg px-4 py-2 text-sm gap-2">
-              <Calendar className="w-4 h-4" /> Mine bookinger
-              {pendingHostBookings > 0 && (
-                <span className="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {pendingHostBookings}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="requests" className="rounded-lg px-4 py-2 text-sm gap-2">
-              <Clock className="w-4 h-4" /> Mine forespørgsler
-            </TabsTrigger>
-            {isProvider && (
-              <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
-                <Briefcase className="w-4 h-4" /> Udbyder
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="history" className="rounded-lg px-4 py-2 text-sm gap-2">
-              <Clock className="w-4 h-4" /> Historik
-            </TabsTrigger>
-            {isProvider && (
-              <TabsTrigger value="kalender" className="rounded-lg px-4 py-2 text-sm gap-2">
-                <Calendar className="w-4 h-4" /> Kalender
-              </TabsTrigger>
-            )}
-          </TabsList>
+             <TabsTrigger value="bookings" className="rounded-lg px-4 py-2 text-sm gap-2">
+               <Calendar className="w-4 h-4" /> {t('my_bookings')}
+               {pendingHostBookings > 0 && (
+                 <span className="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                   {pendingHostBookings}
+                 </span>
+               )}
+             </TabsTrigger>
+             <TabsTrigger value="requests" className="rounded-lg px-4 py-2 text-sm gap-2">
+               <Clock className="w-4 h-4" /> {t('my_requests')}
+             </TabsTrigger>
+             {isProvider && (
+               <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
+                 <Briefcase className="w-4 h-4" /> {t('provider_tab')}
+               </TabsTrigger>
+             )}
+             <TabsTrigger value="history" className="rounded-lg px-4 py-2 text-sm gap-2">
+               <Clock className="w-4 h-4" /> {t('history')}
+             </TabsTrigger>
+             {isProvider && (
+               <TabsTrigger value="kalender" className="rounded-lg px-4 py-2 text-sm gap-2">
+                 <Calendar className="w-4 h-4" /> {t('calendar')}
+               </TabsTrigger>
+             )}
+           </TabsList>
 
-          {/* MINE BOOKINGER */}
+          {/* MY BOOKINGS */}
           <TabsContent value="bookings">
             <div className="space-y-6">
-              {/* Aktive bookinger som gæst */}
+              {/* Active bookings as guest */}
               <div>
-                <h3 className="font-semibold text-foreground mb-3">Mine bookinger (gæst)</h3>
+                <h3 className="font-semibold text-foreground mb-3">{t('my_bookings_guest')}</h3>
                 {myBookings.length === 0 ? (
-                  <EmptyState icon={Calendar} message="Ingen bookinger endnu" cta="Udforsk hytter" ctaHref="/cabins" />
+                  <EmptyState icon={Calendar} message={t('no_bookings')} cta={t('explore_cabins')} ctaHref="/cabins" />
                 ) : (
                   <div className="space-y-3">
-                    {myBookings.map((b) => <BookingRow key={b.id} booking={b} isHost={false} />)}
+                    {myBookings.map((b) => <BookingRow key={b.id} booking={b} isHost={false} t={t} />)}
                   </div>
                 )}
               </div>
 
-              {/* Bookingforespørgsler som vært/skipper */}
+              {/* Booking requests as host/skipper */}
               {(isProvider) && (
                 <div>
                   <h3 className="font-semibold text-foreground mb-3">
-                    Bookingforespørgsler (udbyder)
+                    {t('booking_requests_provider')}
                     {pendingHostBookings > 0 && (
                       <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs">{pendingHostBookings}</span>
                     )}
                   </h3>
                   {hostBookings.length === 0 ? (
-                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">Ingen bookingforespørgsler endnu.</p>
+                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_booking_requests')}</p>
                   ) : (
                     <div className="space-y-3">
                       {hostBookings.map((b) => (
@@ -194,6 +196,7 @@ export default function Dashboard() {
                           key={b.id}
                           booking={b}
                           isHost
+                          t={t}
                           onConfirm={() => updateBooking.mutate({ id: b.id, status: 'confirmed' })}
                           onDecline={() => updateBooking.mutate({ id: b.id, status: 'declined' })}
                         />
@@ -205,30 +208,30 @@ export default function Dashboard() {
             </div>
           </TabsContent>
 
-          {/* MINE FORESPØRGSLER */}
+          {/* MY REQUESTS */}
           <TabsContent value="requests">
             <div className="space-y-8">
               <div>
-                <h3 className="font-semibold text-foreground mb-3">Transportforespørgsler</h3>
+                <h3 className="font-semibold text-foreground mb-3">{t('transport_requests')}</h3>
                 <MyTransportRequestsTab />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-3">Hytteforespørgsler</h3>
+                <h3 className="font-semibold text-foreground mb-3">{t('cabin_requests')}</h3>
                 <MyCabinRequestsTab />
               </div>
             </div>
           </TabsContent>
 
-          {/* UDBYDER */}
+          {/* PROVIDER */}
           {isProvider && (
             <TabsContent value="provider">
               <div className="space-y-8">
                 {/* Listings */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-foreground">Mine opslag</h3>
+                    <h3 className="font-semibold text-foreground">{t('my_listings')}</h3>
                     <Button variant="ghost" size="sm" onClick={() => navigate('/create-listing')} className="text-primary gap-1">
-                      <PlusCircle className="w-3.5 h-3.5" /> Tilføj
+                      <PlusCircle className="w-3.5 h-3.5" /> {t('add')}
                     </Button>
                   </div>
                   <div className="space-y-3">
@@ -265,37 +268,37 @@ export default function Dashboard() {
                       </div>
                     ))}
                     {myCabins.length === 0 && myTransports.length === 0 && (
-                      <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">Ingen opslag endnu.</p>
+                      <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_listings')}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Incoming requests */}
                 <div>
-                  <h3 className="font-semibold text-foreground mb-3">Hytteforespørgsler (host)</h3>
+                  <h3 className="font-semibold text-foreground mb-3">{t('incoming_cabin_requests')}</h3>
                   <IncomingCabinRequestsTab />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-3">Transportforespørgsler (skipper)</h3>
+                  <h3 className="font-semibold text-foreground mb-3">{t('incoming_transport_requests')}</h3>
                   <IncomingRequestsTab />
                 </div>
 
                 {/* Trust score */}
                 {myTransports.length > 0 && (
                   <div>
-                    <h3 className="font-semibold text-foreground mb-3">Min Trust Score</h3>
+                    <h3 className="font-semibold text-foreground mb-3">{t('my_trust_score')}</h3>
                     <ProviderTrustCard providerEmail={user.email} />
                   </div>
                 )}
 
-                {/* Bedømmelser */}
+                {/* Ratings */}
                 <div>
                   <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> Bedømmelser
-                    {avgRating && <span className="text-sm font-normal text-muted-foreground">— snit {avgRating} ★</span>}
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {t('ratings')}
+                    {avgRating && <span className="text-sm font-normal text-muted-foreground">— {t('avg_rating')} {avgRating} ★</span>}
                   </h3>
                   {myRatingsReceived.length === 0 ? (
-                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">Ingen modtagne bedømmelser endnu.</p>
+                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_received_ratings')}</p>
                   ) : (
                     <div className="space-y-3">
                       {myRatingsReceived.map((r) => <RatingRow key={r.id} rating={r} />)}
@@ -306,17 +309,17 @@ export default function Dashboard() {
             </TabsContent>
           )}
 
-          {/* HISTORIK */}
+          {/* HISTORY */}
           <TabsContent value="history">
             <div className="space-y-4">
-              <h3 className="font-semibold text-foreground mb-3">Købshistorik</h3>
+              <h3 className="font-semibold text-foreground mb-3">{t('purchase_history')}</h3>
               {myBookings.filter(b => ['completed', 'confirmed'].includes(b.status)).length === 0 ? (
-                <EmptyState icon={Clock} message="Ingen historik endnu" cta="Udforsk hytter" ctaHref="/cabins" />
+                <EmptyState icon={Clock} message={t('no_history')} cta={t('explore_cabins')} ctaHref="/cabins" />
               ) : (
                 <div className="space-y-3">
                   {myBookings
                     .filter(b => ['completed', 'confirmed'].includes(b.status))
-                    .map((b) => <BookingRow key={b.id} booking={b} isHost={false} />)
+                    .map((b) => <BookingRow key={b.id} booking={b} isHost={false} t={t} />)
                   }
                 </div>
               )}
@@ -335,7 +338,7 @@ export default function Dashboard() {
   );
 }
 
-function BookingRow({ booking, isHost, onConfirm, onDecline }) {
+function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
   const [expanded, setExpanded] = useState(false);
   return (
     <div className="bg-white rounded-xl border border-border overflow-hidden">
@@ -350,7 +353,7 @@ function BookingRow({ booking, isHost, onConfirm, onDecline }) {
           <div>
             <p className="font-semibold text-sm text-foreground">{booking.listing_title}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {isHost ? `Fra: ${booking.guest_name || booking.guest_email}` : `Booket ${format(new Date(booking.created_date), 'd. MMM yyyy')}`}
+              {isHost ? `${t('from')}: ${booking.guest_name || booking.guest_email}` : `${t('booked')} ${format(new Date(booking.created_date), 'd. MMM yyyy')}`}
             </p>
           </div>
         </div>
@@ -374,8 +377,8 @@ function BookingRow({ booking, isHost, onConfirm, onDecline }) {
                   {booking.check_out && ` – ${format(new Date(booking.check_out), 'd. MMM yyyy')}`}
                 </span>
               )}
-              {booking.guests && <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{booking.guests} gæst{booking.guests !== 1 ? 'er' : ''}</span>}
-              {booking.seats && <span className="flex items-center gap-1"><Anchor className="w-3.5 h-3.5" />{booking.seats} plads{booking.seats !== 1 ? 'er' : ''}</span>}
+              {booking.guests && <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{booking.guests} {t('guests')}</span>}
+              {booking.seats && <span className="flex items-center gap-1"><Anchor className="w-3.5 h-3.5" />{booking.seats} {t('seats_plural')}</span>}
             </div>
           )}
 
@@ -388,10 +391,10 @@ function BookingRow({ booking, isHost, onConfirm, onDecline }) {
           {isHost && booking.status === 'pending' && (
             <div className="flex gap-2">
               <Button size="sm" onClick={onConfirm} className="bg-primary text-white hover:bg-primary/90 rounded-lg gap-1.5">
-                <Check className="w-3.5 h-3.5" /> Bekræft
+                <Check className="w-3.5 h-3.5" /> {t('confirm')}
               </Button>
               <Button size="sm" variant="outline" onClick={onDecline} className="rounded-lg gap-1.5 text-destructive border-destructive/30 hover:bg-destructive hover:text-white">
-                <X className="w-3.5 h-3.5" /> Afvis
+                <X className="w-3.5 h-3.5" /> {t('decline')}
               </Button>
             </div>
           )}
@@ -401,15 +404,15 @@ function BookingRow({ booking, isHost, onConfirm, onDecline }) {
   );
 }
 
-function RatingRow({ rating, showTo }) {
-  return (
-    <div className="bg-white rounded-xl border border-border p-4">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div>
-          <p className="text-xs text-muted-foreground">
-            {showTo ? `Til: ${rating.to_email}` : `Fra: ${rating.from_email}`}
-            {' · '}{rating.request_type === 'transport' ? 'Transport' : 'Hytte'}
-          </p>
+function RatingRow({ rating, showTo, t = () => '' }) {
+   return (
+     <div className="bg-white rounded-xl border border-border p-4">
+       <div className="flex items-center justify-between gap-2 flex-wrap">
+         <div>
+           <p className="text-xs text-muted-foreground">
+             {showTo ? `${t('to')}: ${rating.to_email}` : `${t('from')}: ${rating.from_email}`}
+             {' · '}{rating.request_type === 'transport' ? t('transport_label') : t('cabin')}
+           </p>
           <div className="flex gap-0.5 mt-1">
             {[1,2,3,4,5].map(n => (
               <Star key={n} className={`w-4 h-4 ${n <= rating.stars ? 'fill-amber-400 text-amber-400' : 'text-muted'}`} />
@@ -423,11 +426,20 @@ function RatingRow({ rating, showTo }) {
 }
 
 function EmptyState({ icon: IconComponent, message, cta, ctaHref }) {
-  return (
-    <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-border">
-      <IconComponent className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-      <p className="text-muted-foreground font-medium mb-4">{message}</p>
-      <Button variant="outline" onClick={() => window.location.href = ctaHref} className="rounded-xl px-6">{cta}</Button>
-    </div>
-  );
-}
+   return (
+     <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-border">
+       <IconComponent className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+       <p className="text-muted-foreground font-medium mb-4">{message}</p>
+       <Button variant="outline" onClick={() => window.location.href = ctaHref} className="rounded-xl px-6">{cta}</Button>
+     </div>
+   );
+ }
+
+const STATUS_LABELS_TRANSLATED = {
+  pending: 'labels.pending',
+  on_hold: 'labels.on_hold',
+  confirmed: 'labels.confirmed',
+  declined: 'labels.declined',
+  cancelled: 'labels.cancelled',
+  completed: 'labels.completed',
+};
