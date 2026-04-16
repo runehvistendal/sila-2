@@ -214,7 +214,7 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
       </div>
 
       {/* Canvas */}
-      <div className="relative rounded-xl overflow-hidden bg-black select-none"
+      <div className="relative rounded-xl overflow-hidden select-none"
            style={{ aspectRatio: shape === 'circle' ? '1/1' : '16/9', width: shape === 'circle' ? '280px' : '100%', margin: '0 auto' }}>
         <canvas
           ref={canvasRef}
