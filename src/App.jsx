@@ -39,6 +39,7 @@ import Support from '@/pages/Support';
 import AdminSupport from '@/pages/AdminSupport';
 import AdminContent from '@/pages/AdminContent';
 import AdminUsers from '@/pages/AdminUsers';
+import UserProfile from '@/pages/UserProfile';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -94,6 +95,7 @@ const AuthenticatedApp = () => {
         <Route path="/admin/content" element={<AdminContent />} />
         <Route path="/admin/users" element={<AdminUsers />} />
         <Route path="/support" element={<Support />} />
+        <Route path="/profile/user" element={<UserProfile />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

@@ -1,23 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { MapPin, Users, Anchor } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { MapPin, Users, Anchor, Star } from 'lucide-react';
 import { useCurrency } from '@/lib/CurrencyContext';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default function CabinCard({ cabin }) {
   const [imageError, setImageError] = useState(false);
-  const [imageUrl, setImageUrl] = useState(null);
   const { formatPrice } = useCurrency();
+  const navigate = useNavigate();
   const coverImage = cabin.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=600&h=400&fit=crop&q=80';
   const fallbackImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80';
+  const imageUrl = imageError ? fallbackImage : coverImage;
 
-  React.useEffect(() => {
-    if (imageError) {
-      setImageUrl(fallbackImage);
-    } else {
-      setImageUrl(coverImage);
-    }
-  }, [coverImage, fallbackImage, imageError]);
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['cabin-card-reviews', cabin.id],
+    queryFn: () => base44.entities.Review.filter({ listing_id: cabin.id, listing_type: 'cabin' }, null, 50),
+    enabled: !!cabin.id,
+  });
+
+  const avgRating = reviews.length > 0
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : null;
 
   return (
     <Link to={`/cabins/${cabin.id}`} className="group block">
@@ -60,18 +65,22 @@ export default function CabinCard({ cabin }) {
             {formatPrice(cabin.price_per_night)} <span className="font-normal text-muted-foreground text-xs">/nat</span>
           </span>
         </div>
-        <div className="flex items-center gap-1 text-muted-foreground text-xs mb-2">
+        <div className="flex items-center gap-1 text-muted-foreground text-xs mb-1.5">
           <MapPin className="w-3 h-3" />
           <span>{cabin.location}</span>
         </div>
-        {cabin.max_guests && (
-          <div className="flex items-center gap-1 text-muted-foreground text-xs mb-2">
-            <Users className="w-3 h-3" />
-            <span>Up to {cabin.max_guests} guests</span>
+        {avgRating && (
+          <div className="flex items-center gap-1 mb-1.5">
+            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+            <span className="text-xs font-semibold text-foreground">{avgRating}</span>
+            <span className="text-xs text-muted-foreground">({reviews.length})</span>
           </div>
         )}
         {cabin.host_name && (
-          <div className="flex items-center gap-1.5">
+          <button
+            onClick={(e) => { e.preventDefault(); navigate(`/profile/user?email=${encodeURIComponent(cabin.host_email)}&type=host`); }}
+            className="flex items-center gap-1.5 hover:opacity-75 transition-opacity mt-1"
+          >
             <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
               {cabin.host_avatar ? (
                 <img src={cabin.host_avatar} alt="" className="w-full h-full object-cover" />
@@ -79,8 +88,8 @@ export default function CabinCard({ cabin }) {
                 <span className="text-xs font-semibold text-muted-foreground">{cabin.host_name.charAt(0)}</span>
               )}
             </div>
-            <span className="text-xs text-muted-foreground">{cabin.host_name}</span>
-          </div>
+            <span className="text-xs text-muted-foreground underline-offset-2 hover:underline">{cabin.host_name}</span>
+          </button>
         )}
       </div>
     </Link>

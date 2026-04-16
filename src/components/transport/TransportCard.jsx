@@ -1,38 +1,27 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, Calendar, Clock, Users, Anchor, Home, Shield, AlertTriangle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Calendar, Clock, Users, Anchor, Home, Star } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function TransportCard({ transport, returnTrip = null, compact = false }) {
-  const { data: providerTrust } = useQuery({
-    queryKey: ['provider-trust', transport.provider_email],
-    queryFn: () => base44.entities.ProviderTrust.filter({ provider_email: transport.provider_email }, null, 1).then(r => r[0]),
-    enabled: !!transport.provider_email,
+  const navigate = useNavigate();
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['transport-card-reviews', transport.id],
+    queryFn: () => base44.entities.Review.filter({ listing_id: transport.id }, null, 50),
+    enabled: !!transport.id,
   });
 
-  const getTrustBadgeColor = (status) => {
-    if (!status) return 'bg-muted text-muted-foreground';
-    if (status === 'active') return 'bg-green-100 text-green-700';
-    if (status === 'warning') return 'bg-muted text-muted-foreground';
-    if (status === 'suspended_temp' || status === 'suspended_perm') return 'bg-red-100 text-red-700';
-    return 'bg-muted text-muted-foreground';
-  };
-
-  const getTrustLabel = (status, score) => {
-    if (!status) return `${score || 0}/100`;
-    if (status === 'active') return `${score || 0}/100 - Verificeret`;
-    if (status === 'warning') return `${score || 0}/100`;
-    if (status === 'suspended_temp') return 'Midlertidigt suspenderet';
-    if (status === 'suspended_perm') return 'Permanent suspenderet';
-    return `${score || 0}/100`;
-  };
+  const avgRating = reviews.length > 0
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : null;
 
   const content = (
-    <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 ${compact ? '' : 'hover:border-primary/30'}`}>
+    <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col ${compact ? '' : 'hover:border-primary/30'}`}>
       {/* Route */}
       <div className="flex items-center gap-3 mb-4">
         {transport.provider_avatar && (
@@ -46,9 +35,23 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
             <ArrowRight className="w-4 h-4 text-primary shrink-0" />
             <span className="truncate">{transport.to_location}</span>
           </div>
-          {transport.provider_name && (
-            <p className="text-xs text-muted-foreground mt-0.5">by {transport.provider_name}</p>
-          )}
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            {transport.provider_name && (
+              <button
+                onClick={(e) => { e.stopPropagation(); navigate(`/profile/user?email=${encodeURIComponent(transport.provider_email)}&type=host`); }}
+                className="text-xs text-muted-foreground hover:underline hover:text-foreground transition-colors"
+              >
+                by {transport.provider_name}
+              </button>
+            )}
+            {avgRating && (
+              <span className="flex items-center gap-0.5">
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                <span className="text-xs font-semibold text-foreground">{avgRating}</span>
+                <span className="text-xs text-muted-foreground">({reviews.length})</span>
+              </span>
+            )}
+          </div>
         </div>
         <div className="text-right shrink-0">
           <p className="font-bold text-foreground text-sm">{transport.round_trip_price} DKK</p>
@@ -90,23 +93,27 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
         </span>
       </div>
 
-      {/* Return trip badge */}
-      {returnTrip && (
-        <div className="mb-4 bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2">
-          <ArrowLeft className="w-3.5 h-3.5 text-accent shrink-0" />
-          <span className="text-xs font-medium text-accent">
-            Hjemrejse tilgængelig: {returnTrip.to_location} → {returnTrip.from_location} · {format(new Date(returnTrip.departure_date), 'd. MMM yyyy')}
-          </span>
-        </div>
-      )}
+      {/* Return trip badge — takes up space even when absent to keep card height consistent */}
+      <div className="mb-4 min-h-[2rem]">
+        {returnTrip && (
+          <div className="bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2">
+            <ArrowLeft className="w-3.5 h-3.5 text-accent shrink-0" />
+            <span className="text-xs font-medium text-accent">
+              Hjemrejse tilgængelig: {returnTrip.to_location} → {returnTrip.from_location} · {format(new Date(returnTrip.departure_date), 'd. MMM')}
+            </span>
+          </div>
+        )}
+      </div>
 
-      {!compact && (
-        <Link to={`/transport/${transport.id}`}>
-          <Button size="sm" variant="outline" className="w-full rounded-xl border-primary/30 text-primary hover:bg-primary hover:text-white transition-colors">
-            Se & Book
-          </Button>
-        </Link>
-      )}
+      <div className="mt-auto">
+        {!compact && (
+          <Link to={`/transport/${transport.id}`}>
+            <Button size="sm" variant="outline" className="w-full rounded-xl border-primary/30 text-primary hover:bg-primary hover:text-white transition-colors">
+              Se & Book
+            </Button>
+          </Link>
+        )}
+      </div>
     </div>
   );
 
