@@ -301,9 +301,9 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
                     {t('message_optional')}
                   </label>
                   <Textarea
-                  value={reqForm.message}
-                  onChange={(e) => setReqForm((p) => ({ ...p, message: e.target.value }))}
-                  placeholder={t('request_placeholder')}
+                    value={reqForm.message}
+                    onChange={(e) => setReqForm((p) => ({ ...p, message: e.target.value }))}
+                    placeholder={t('request_placeholder')}
                     rows={2}
                     className="resize-none bg-white"
                   />

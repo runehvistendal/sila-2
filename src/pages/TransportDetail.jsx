@@ -121,7 +121,7 @@ export default function TransportDetail() {
                 <ArrowRight className="w-5 h-5 text-primary" />
                 <span>{transport.to_location}</span>
               </div>
-              {transport.provider_name && <p className="text-sm text-muted-foreground">{t('skipper')} {transport.provider_name}</p>}
+              {transport.provider_name && <p className="text-sm text-muted-foreground">{t('provider')} {transport.provider_name}</p>}
             </div>
           </div>
 
@@ -244,7 +244,7 @@ export default function TransportDetail() {
                           <div>
                             <p className="text-sm font-semibold text-foreground">{rt.to_location} → {rt.from_location}</p>
                             <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} {t('seats_plural')}</p>
-                            {rt.provider_name && <p className="text-xs text-primary font-medium mt-0.5">{t('skipper')} {rt.provider_name}</p>}
+                            {rt.provider_name && <p className="text-xs text-primary font-medium mt-0.5">{t('provider')} {rt.provider_name}</p>}
                           </div>
                           <div className="text-right shrink-0">
                             <p className="text-sm font-bold text-primary">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
@@ -405,7 +405,7 @@ export default function TransportDetail() {
           {/* Provider profile */}
           {transport.provider_name && (
           <div className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6">
-            <h2 className="text-base font-bold text-foreground mb-3">{t('skipper_heading')}</h2>
+            <h2 className="text-base font-bold text-foreground mb-3">{t('provider_heading')}</h2>
             <button
               onClick={() => navigate(`/profile/user?email=${encodeURIComponent(transport.provider_email)}&type=host`)}
               className="flex items-center gap-4 p-4 bg-muted/40 rounded-2xl hover:bg-muted transition-colors w-full text-left"

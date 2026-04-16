@@ -226,7 +226,7 @@ export default function TransportDrawer({ transportId, onClose }) {
                             <div>
                               <p className="text-sm font-semibold">{rt.to_location} → {rt.from_location}</p>
                               <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} {t('seats_plural')}</p>
-                              {rt.provider_name && <p className="text-xs text-muted-foreground/70 mt-0.5">{t('skipper')} {rt.provider_name}</p>}
+                              {rt.provider_name && <p className="text-xs text-muted-foreground/70 mt-0.5">{t('provider')} {rt.provider_name}</p>}
                             </div>
                             <div className="text-right">
                               <p className="text-sm font-bold text-accent">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
@@ -366,6 +366,12 @@ export default function TransportDrawer({ transportId, onClose }) {
                   </div>
                 </div>
 
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 mb-4">
+                  <p className="text-xs text-amber-800">
+                    <strong>Bemærk:</strong> {t('payment_covers_only')}
+                  </p>
+                </div>
+
                 {transport.seats_available === 0 ? (
                   <Button disabled className="w-full h-11 rounded-xl font-semibold">{t('fully_booked')}</Button>
                 ) : !user ? (
@@ -383,7 +389,7 @@ export default function TransportDrawer({ transportId, onClose }) {
                 <p className="text-xs text-muted-foreground text-center mt-2">{t('secure_payment')}</p>
               </div>
 
-              {/* Reviews */}
+              {/* Anmeldelser */}
               <TransportReviews transportId={transport.id} providerEmail={transport.provider_email} providerName={transport.provider_name} />
             </div>
           )}
