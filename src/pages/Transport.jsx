@@ -77,6 +77,39 @@ export default function Transport() {
 
   return (
     <div className="min-h-screen pt-16">
+      {/* CTA Section */}
+      <section className="py-20 bg-accent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                {t('cant_find_transport') || 'Kan du ikke finde den perfekte transportrute?'}
+              </h2>
+              <p className="text-white/70 text-lg leading-relaxed mb-8">
+                {t('request_transport_cta') || 'Anmod om særlig transport til alle hytter og rejsedestinationer i Grønland.'}
+              </p>
+              <Button
+                onClick={() => user ? setShowRequestModal(true) : base44.auth.redirectToLogin()}
+                size="lg"
+                className="bg-white text-accent hover:bg-white/90 rounded-full px-8 font-semibold gap-2"
+              >
+                {t('request_transport_btn')} <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden aspect-[4/3] shadow-card-hover">
+                <img
+                  src="https://images.unsplash.com/photo-1551727170-e209f2d8c1b4?w=900&h=700&fit=crop&q=85"
+                  alt="Grønlandsk sejltur"
+                  className="w-full h-full object-cover"
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between mb-6">
@@ -128,23 +161,6 @@ export default function Transport() {
             <p className="text-muted-foreground text-sm">{t('try_another_search')}</p>
           </div>
         )}
-
-        {/* CTA Section */}
-        <div className="mt-16 bg-gradient-to-br from-accent/5 to-accent/10 rounded-3xl border border-accent/20 p-8 text-center">
-         <div className="w-16 h-16 bg-accent/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
-           <Calendar className="w-8 h-8 text-accent" />
-         </div>
-         <h3 className="text-2xl font-bold text-foreground mb-2">{t('cant_find_transport') || 'Kan du ikke finde den perfekte transportrute?'}</h3>
-         <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-           {t('request_transport_cta') || 'Anmod om særlig transport til alle hytter og rejsedestinationer i Grønland.'}
-         </p>
-         <Button
-           onClick={() => user ? setShowRequestModal(true) : base44.auth.redirectToLogin()}
-           className="bg-accent text-white hover:bg-accent/90 rounded-xl h-11 gap-2 font-semibold mx-auto"
-         >
-           {t('request_transport_btn')} <ArrowRight className="w-4 h-4" />
-         </Button>
-        </div>
         </div>
 
         {/* Request Transport Modal */}
