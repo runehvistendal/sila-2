@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import TransportCard from '@/components/transport/TransportCard';
 import TransportFilters from '@/components/transport/TransportFilters';
 import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Anchor, Grid, Map } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Anchor, Grid, Map, Calendar, ArrowRight } from 'lucide-react';
 
 const PRICE_EXAMPLES = {
   'Nuuk': 1500,
@@ -32,9 +34,11 @@ const DEFAULT_FILTERS = {
 };
 
 export default function Transport() {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [view, setView] = useState('grid'); // 'grid' | 'map'
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
   const { data: transports = [], isLoading } = useQuery({
     queryKey: ['transports'],
@@ -124,7 +128,113 @@ export default function Transport() {
             <p className="text-muted-foreground text-sm">{t('try_another_search')}</p>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
+
+        {/* CTA Section */}
+        <div className="mt-16 bg-gradient-to-br from-accent/5 to-accent/10 rounded-3xl border border-accent/20 p-8 text-center">
+         <div className="w-16 h-16 bg-accent/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+           <Calendar className="w-8 h-8 text-accent" />
+         </div>
+         <h3 className="text-2xl font-bold text-foreground mb-2">{t('cant_find_transport') || 'Kan du ikke finde den perfekte transportrute?'}</h3>
+         <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
+           {t('request_transport_cta') || 'Anmod om særlig transport til alle hytter og rejsedestinationer i Grønland.'}
+         </p>
+         <Button
+           onClick={() => user ? setShowRequestModal(true) : base44.auth.redirectToLogin()}
+           className="bg-accent text-white hover:bg-accent/90 rounded-xl h-11 gap-2 font-semibold mx-auto"
+         >
+           {t('request_transport_btn')} <ArrowRight className="w-4 h-4" />
+         </Button>
+        </div>
+        </div>
+
+        {/* Request Transport Modal */}
+        {showRequestModal && (
+        <TransportRequestModal onClose={() => setShowRequestModal(false)} />
+        )}
+        </div>
+        );
+        }
+
+        function TransportRequestModal({ onClose }) {
+        const { user } = useAuth();
+        const { t } = useLanguage();
+        const [form, setForm] = useState({ from_location: '', to_location: '', travel_date: '', passengers: 1, message: '' });
+        const [done, setDone] = useState(false);
+
+        const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!form.from_location || !form.to_location || !form.travel_date) return;
+        await base44.entities.TransportRequest.create({
+        ...form,
+        passengers: Number(form.passengers),
+        guest_name: user.full_name || '',
+        guest_email: user.email,
+        status: 'pending',
+        });
+        setDone(true);
+        };
+
+        const locations = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Aasiaat', 'Tasiilaq', 'Qaqortoq', 'Maniitsoq'];
+
+        return (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6">
+        {done ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Anchor className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2">{t('request_sent_exclaim')}</h2>
+            <p className="text-muted-foreground text-sm mb-6">{t('request_sent_desc')}</p>
+            <Button onClick={onClose} className="bg-primary text-white rounded-xl">
+              {t('close') || 'Luk'}
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('request_transport_title')}</h2>
+              <p className="text-muted-foreground text-sm">{t('request_transport_desc')}</p>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1">{t('from')}</label>
+                  <select value={form.from_location} onChange={e => setForm(f => ({ ...f, from_location: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input bg-transparent text-sm" required>
+                    <option value="">{t('select_departure')}</option>
+                    {locations.map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1">{t('to')}</label>
+                  <select value={form.to_location} onChange={e => setForm(f => ({ ...f, to_location: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input bg-transparent text-sm" required>
+                    <option value="">{t('select_destination')}</option>
+                    {locations.map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1">{t('date')}</label>
+                  <input type="date" value={form.travel_date} onChange={e => setForm(f => ({ ...f, travel_date: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input text-sm" required min={new Date().toISOString().split('T')[0]} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1">{t('passengers')}</label>
+                  <input type="number" min="1" max="20" value={form.passengers} onChange={e => setForm(f => ({ ...f, passengers: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input text-sm" />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={onClose} className="flex-1 rounded-lg">
+                  {t('cancel') || 'Annuller'}
+                </Button>
+                <Button type="submit" disabled={!form.from_location || !form.to_location || !form.travel_date} className="flex-1 bg-primary text-white rounded-lg">
+                  {t('send_request')}
+                </Button>
+              </div>
+            </form>
+          </>
+        )}
+        </div>
+        </div>
+        );
+        }

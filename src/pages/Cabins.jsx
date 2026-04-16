@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import CabinCard from '@/components/cabins/CabinCard';
 import CabinFilters from '@/components/cabins/CabinFilters';
 import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Home, Map, Grid } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Home, Map, Grid, MapPin, ArrowRight } from 'lucide-react';
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -21,10 +23,12 @@ const DEFAULT_FILTERS = {
 };
 
 export default function Cabins() {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const urlParams = new URLSearchParams(window.location.search);
   const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, search: urlParams.get('q') || '' });
   const [view, setView] = useState('grid'); // 'grid' | 'map'
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
   const { data: rawCabins = [], isLoading } = useQuery({
     queryKey: ['cabins'],
@@ -104,6 +108,107 @@ export default function Cabins() {
             <p className="text-lg font-medium text-foreground mb-1">{t('no_cabins_found')}</p>
             <p className="text-muted-foreground text-sm">{t('adjust_filters')}</p>
           </div>
+        )}
+
+        {/* CTA Section */}
+        <div className="mt-16 bg-gradient-to-br from-primary/5 to-primary/10 rounded-3xl border border-primary/20 p-8 text-center">
+          <div className="w-16 h-16 bg-primary/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <MapPin className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-2xl font-bold text-foreground mb-2">{t('cant_find_cabin') || 'Kan du ikke finde din drømmehytte?'}</h3>
+          <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
+            {t('request_cabin_cta') || 'Fortæl os hvad du leder efter, og vi matcher dig med de bedste hytter i Grønland.'}
+          </p>
+          <Button
+            onClick={() => user ? setShowRequestModal(true) : base44.auth.redirectToLogin()}
+            className="bg-primary text-white hover:bg-primary/90 rounded-xl h-11 gap-2 font-semibold mx-auto"
+          >
+            {t('request_cabin_btn')} <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Request Cabin Modal */}
+      {showRequestModal && (
+        <CabinRequestModal onClose={() => setShowRequestModal(false)} />
+      )}
+    </div>
+  );
+}
+
+function CabinRequestModal({ onClose }) {
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const [form, setForm] = useState({ location: '', check_in: '', check_out: '', guests: 2, note: '' });
+  const [done, setDone] = useState(false);
+
+  const { mutate, isPending } = base44.entities.CabinRequest.useMutation?.create || {};
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.location || !form.check_in || !form.check_out) return;
+    await base44.entities.CabinRequest.create({
+      ...form,
+      guests: Number(form.guests),
+      guest_name: user.full_name || '',
+      guest_email: user.email,
+      status: 'pending',
+    });
+    setDone(true);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6">
+        {done ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MapPin className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2">{t('request_sent_exclaim')}</h2>
+            <p className="text-muted-foreground text-sm mb-6">{t('request_desc')}</p>
+            <Button onClick={onClose} className="bg-primary text-white rounded-xl">
+              {t('close') || 'Luk'}
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('request_cabin_btn')}</h2>
+              <p className="text-muted-foreground text-sm">{t('request_cabin_cta')}</p>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">{t('location')}</label>
+                <select value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input bg-transparent text-sm">
+                  <option value="">{t('select_destination')}</option>
+                  {['Nuuk', 'Ilulissat', 'Sisimiut', 'Aasiaat', 'Tasiilaq'].map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1">{t('check_in')}</label>
+                  <input type="date" value={form.check_in} onChange={e => setForm(f => ({ ...f, check_in: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input text-sm" required />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground block mb-1">{t('check_out')}</label>
+                  <input type="date" value={form.check_out} onChange={e => setForm(f => ({ ...f, check_out: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input text-sm" required />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground block mb-1">{t('guests')}</label>
+                <input type="number" min="1" max="20" value={form.guests} onChange={e => setForm(f => ({ ...f, guests: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input text-sm" />
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={onClose} className="flex-1 rounded-lg">
+                  {t('cancel') || 'Annuller'}
+                </Button>
+                <Button type="submit" disabled={isPending || !form.location || !form.check_in || !form.check_out} className="flex-1 bg-primary text-white rounded-lg">
+                  {isPending ? t('sending_dots') : t('send_request')}
+                </Button>
+              </div>
+            </form>
+          </>
         )}
       </div>
     </div>
