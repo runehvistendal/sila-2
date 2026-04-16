@@ -39,7 +39,53 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+
+          {/* Aurora Borealis animation */}
+          <div className="absolute top-0 left-0 right-0 h-[55%] overflow-hidden pointer-events-none">
+            <div className="aurora-band aurora-1" />
+            <div className="aurora-band aurora-2" />
+            <div className="aurora-band aurora-3" />
+          </div>
         </div>
+
+        <style>{`
+          .aurora-band {
+            position: absolute;
+            left: -20%;
+            width: 140%;
+            border-radius: 50%;
+            filter: blur(48px);
+            mix-blend-mode: screen;
+            opacity: 0;
+          }
+          .aurora-1 {
+            top: -10%;
+            height: 220px;
+            background: linear-gradient(180deg, rgba(0,220,160,0.28) 0%, rgba(0,180,255,0.18) 60%, transparent 100%);
+            animation: aurora-drift 12s ease-in-out infinite;
+          }
+          .aurora-2 {
+            top: 5%;
+            height: 180px;
+            background: linear-gradient(180deg, rgba(80,255,200,0.18) 0%, rgba(120,60,255,0.14) 60%, transparent 100%);
+            animation: aurora-drift 16s ease-in-out infinite reverse;
+            animation-delay: -4s;
+          }
+          .aurora-3 {
+            top: 15%;
+            height: 140px;
+            background: linear-gradient(180deg, rgba(0,240,255,0.12) 0%, rgba(0,200,120,0.10) 60%, transparent 100%);
+            animation: aurora-drift 20s ease-in-out infinite;
+            animation-delay: -8s;
+          }
+          @keyframes aurora-drift {
+            0%   { opacity: 0; transform: translateX(-8%) scaleY(0.9); }
+            20%  { opacity: 1; }
+            50%  { opacity: 0.85; transform: translateX(6%) scaleY(1.1); }
+            80%  { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-8%) scaleY(0.9); }
+          }
+        `}</style>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-16">
           <motion.div
@@ -151,6 +197,68 @@ export default function Home() {
 
           <div className="mt-8 text-center sm:hidden">
             <Button variant="outline" onClick={() => navigate('/cabins')} className="rounded-xl px-6">View all cabins</Button>
+          </div>
+        </div>
+      </section>
+
+      {/* UNIQUE TO SILA */}
+      <section className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 text-primary/70 text-xs font-bold tracking-widest uppercase mb-5">
+                <Anchor className="w-4 h-4" /> Unikt for Sila
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 leading-tight">
+                Lokale sejlture —<br />
+                <em className="font-normal text-primary">del båden</em>
+              </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed mb-8">
+                En grønlænder på vej til sin hytte tilbyder en ledig plads i sin båd. 
+                Det er sådan, folk her altid har bevæget sig — og nu kan besøgende rejse med. 
+                Autentisk, overkommeligt og den eneste rigtige måde at se det ægte Grønland.
+              </p>
+              <div className="flex flex-wrap gap-6 mb-8">
+                {[
+                  { label: 'Delte pladser', desc: 'Betal per plads' },
+                  { label: 'Fleksibel afgang', desc: 'Afgang når klar' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <Users className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button
+                size="lg"
+                onClick={() => navigate('/transport')}
+                className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 gap-2 font-semibold"
+              >
+                Find en bådtur <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden aspect-[4/3] shadow-card-hover">
+                <img
+                  src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=900&h=700&fit=crop&q=85"
+                  alt="Grønlandsk sejltur"
+                  className="w-full h-full object-cover"
+                  onError={(e) => e.target.style.display = 'none'}
+                />
+              </div>
+              {/* Floating card */}
+              <div className="absolute bottom-5 left-5 bg-white rounded-xl shadow-card p-3.5 max-w-[180px]">
+                <p className="text-xs text-muted-foreground mb-0.5">Næste afgang</p>
+                <p className="text-sm font-bold text-foreground">Nuuk → Kapisillit</p>
+                <p className="text-xs text-muted-foreground mt-0.5">2 pladser · 150 DKK/plads</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

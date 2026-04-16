@@ -1,27 +1,65 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare, X } from 'lucide-react';
 import { format } from 'date-fns';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import TransportReviews from '@/components/transport/TransportReviews';
+import { toast } from '@/components/ui/use-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const LOCATIONS = [
+  'Nuuk', 'Ilulissat', 'Sisimiut', 'Qaqortoq', 'Aasiaat',
+  'Maniitsoq', 'Tasiilaq', 'Paamiut', 'Nanortalik', 'Uummannaq',
+  'Ilimanaq', 'Qeqertarsuaq',
+];
 
 export default function TransportDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [seats, setSeats] = useState(1);
-  const [tripType, setTripType] = useState('round-trip'); // 'outbound', 'return', 'round-trip'
   const [message, setMessage] = useState('');
+  const [addReturn, setAddReturn] = useState(false);
+  const [showRequestForm, setShowRequestForm] = useState(false);
+
+  // Request form state
+  const [reqForm, setReqForm] = useState({
+    from_location: '', to_location: '', travel_date: '', passengers: 1, message: '',
+  });
 
   const { data: transport, isLoading } = useQuery({
     queryKey: ['transport', id],
     queryFn: () => base44.entities.Transport.filter({ id }, null, 1).then((r) => r[0]),
+  });
+
+  // Find return trip: same provider, reverse route, future date
+  const { data: returnTrips = [] } = useQuery({
+    queryKey: ['return-trips', transport?.to_location, transport?.from_location, transport?.provider_email],
+    queryFn: () => base44.entities.Transport.filter({
+      from_location: transport.to_location,
+      to_location: transport.from_location,
+      provider_email: transport.provider_email,
+      status: 'scheduled',
+    }, 'departure_date', 5),
+    enabled: !!transport,
+  });
+
+  const [selectedReturn, setSelectedReturn] = useState(null);
+
+  const requestMutation = useMutation({
+    mutationFn: (data) => base44.entities.TransportRequest.create(data),
+    onSuccess: () => {
+      toast({ title: 'Anmodning sendt!', description: 'Udbyderen vil vende tilbage hurtigst muligt.' });
+      setShowRequestForm(false);
+      setReqForm({ from_location: '', to_location: '', travel_date: '', passengers: 1, message: '' });
+    },
   });
 
   if (isLoading) return (
@@ -37,29 +75,31 @@ export default function TransportDetail() {
     </div>
   );
 
-  // Calculate price based on trip type
   const oneWayPrice = Math.round(transport.round_trip_price * 0.6);
-  const pricePerSeat = tripType === 'round-trip' ? transport.round_trip_price : oneWayPrice;
-  const total = seats * pricePerSeat;
+  const returnPrice = selectedReturn ? Math.round(selectedReturn.round_trip_price * 0.6) : 0;
+  const outboundTotal = seats * oneWayPrice;
+  const returnTotal = addReturn && selectedReturn ? seats * returnPrice : 0;
+  const total = outboundTotal + returnTotal;
 
   const stripePayload = {
     bookingType: 'transport',
     listingId: transport.id,
-    listingTitle: `${transport.from_location} → ${transport.to_location} (${tripType === 'round-trip' ? 'Tur/retur' : tripType === 'outbound' ? 'Afgang' : 'Retur'})`,
+    listingTitle: `${transport.from_location} → ${transport.to_location}${addReturn && selectedReturn ? ` + retur ${format(new Date(selectedReturn.departure_date), 'd. MMM')}` : ''} (Enkeltbillet)`,
     checkIn: transport.departure_date,
     seats,
     totalPrice: total,
     hostEmail: transport.provider_email || '',
-    message: `[${tripType.toUpperCase()}] ${message}`,
+    message,
   };
 
   return (
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button onClick={() => navigate('/transport')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ChevronLeft className="w-4 h-4" /> Back to transport
+          <ChevronLeft className="w-4 h-4" /> Tilbage til transport
         </button>
 
+        {/* Info card */}
         <div className="bg-white rounded-2xl border border-border shadow-card p-6 sm:p-8 mb-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
@@ -71,28 +111,28 @@ export default function TransportDetail() {
                 <ArrowRight className="w-5 h-5 text-primary" />
                 <span>{transport.to_location}</span>
               </div>
-              {transport.provider_name && <p className="text-sm text-muted-foreground">by {transport.provider_name}</p>}
+              {transport.provider_name && <p className="text-sm text-muted-foreground">Skipper: {transport.provider_name}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
             <div className="bg-muted rounded-xl p-3">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Calendar className="w-3.5 h-3.5" />Date</div>
-              <p className="font-semibold text-sm">{format(new Date(transport.departure_date), 'MMM d, yyyy')}</p>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Calendar className="w-3.5 h-3.5" />Dato</div>
+              <p className="font-semibold text-sm">{format(new Date(transport.departure_date), 'd. MMM yyyy')}</p>
             </div>
             {transport.departure_time && (
               <div className="bg-muted rounded-xl p-3">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Clock className="w-3.5 h-3.5" />Departure</div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Clock className="w-3.5 h-3.5" />Afgang</div>
                 <p className="font-semibold text-sm">{transport.departure_time}</p>
               </div>
             )}
             <div className="bg-muted rounded-xl p-3">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Users className="w-3.5 h-3.5" />Seats left</div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Users className="w-3.5 h-3.5" />Ledige pladser</div>
               <p className="font-semibold text-sm">{transport.seats_available}</p>
             </div>
             {transport.boat_type && (
               <div className="bg-muted rounded-xl p-3">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Anchor className="w-3.5 h-3.5" />Boat</div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Anchor className="w-3.5 h-3.5" />Båd</div>
                 <p className="font-semibold text-sm">{transport.boat_type}</p>
               </div>
             )}
@@ -105,66 +145,117 @@ export default function TransportDetail() {
           )}
         </div>
 
-        {/* Booking card */}
+        {/* BOOKING CARD */}
         <div className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6">
-          <h2 className="text-lg font-bold text-foreground mb-5">Book dine pladser</h2>
-          
-          {/* Trip type selector */}
-          <div className="mb-5 pb-5 border-b border-border">
-            <p className="text-sm font-semibold text-foreground mb-3">Jeg ønsker:</p>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { key: 'outbound', label: 'Afgang', desc: 'Enkelt vej' },
-                { key: 'return', label: 'Retur', desc: 'Enkelt vej' },
-                { key: 'round-trip', label: 'Tur/retur', desc: 'Begge veje' },
-              ].map((opt) => (
-                <button
-                  key={opt.key}
-                  onClick={() => setTripType(opt.key)}
-                  className={`p-3 rounded-lg text-sm font-medium transition-colors border text-center ${
-                    tripType === opt.key
-                      ? 'bg-primary/10 border-primary text-primary'
-                      : 'bg-muted border-border text-muted-foreground hover:border-primary/30'
-                  }`}
-                >
-                  <div className="font-semibold">{opt.label}</div>
-                  <div className="text-xs text-muted-foreground">{opt.desc}</div>
-                </button>
-              ))}
+          <h2 className="text-lg font-bold text-foreground mb-5">Book din plads</h2>
+
+          {/* Outbound info */}
+          <div className="bg-primary/5 border border-primary/15 rounded-xl p-4 mb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <ArrowRight className="w-4 h-4 text-primary" />
+              <span className="font-semibold text-sm text-foreground">Udrejse (enkeltbillet)</span>
             </div>
-          </div>
-          
-          <div className="space-y-4 mb-5">
-            <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Number of seats</label>
-              <Input
-                type="number"
-                min={1}
-                max={transport.seats_available}
-                value={seats}
-                onChange={(e) => setSeats(Number(e.target.value))}
-                className="rounded-xl w-32"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Message (optional)</label>
-              <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Any questions for the provider?" rows={3} className="rounded-xl resize-none" />
-            </div>
+            <p className="text-sm text-muted-foreground ml-6">
+              {transport.from_location} → {transport.to_location} · {format(new Date(transport.departure_date), 'd. MMM yyyy')}
+            </p>
+            <p className="text-sm font-semibold text-primary ml-6 mt-1">{oneWayPrice} DKK/plads</p>
           </div>
 
-          <div className="bg-muted rounded-xl p-4 mb-5 text-sm space-y-1.5">
-            <div className="flex justify-between text-muted-foreground">
-              <span>{pricePerSeat} DKK × {seats} plads{seats !== 1 ? 'er' : ''}</span>
-              <span>{total} DKK</span>
-            </div>
-            {tripType === 'round-trip' && (
-              <div className="text-xs text-muted-foreground pt-1 border-t border-border">
-                Fuld rejse begge veje ({transport.round_trip_price} DKK tur/retur)
+          {/* Return trip section */}
+          <div className="mb-5">
+            {returnTrips.length > 0 ? (
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4 text-accent" />
+                  Tilkøb returbillet
+                </p>
+                <div className="space-y-2">
+                  {returnTrips.map((rt) => (
+                    <button
+                      key={rt.id}
+                      onClick={() => {
+                        if (selectedReturn?.id === rt.id && addReturn) {
+                          setAddReturn(false);
+                          setSelectedReturn(null);
+                        } else {
+                          setSelectedReturn(rt);
+                          setAddReturn(true);
+                        }
+                      }}
+                      className={`w-full text-left p-3 rounded-xl border transition-colors ${
+                        addReturn && selectedReturn?.id === rt.id
+                          ? 'bg-accent/10 border-accent text-foreground'
+                          : 'bg-muted border-border hover:border-accent/40'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold">{rt.to_location} → {rt.from_location}</p>
+                          <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} pladser</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-accent">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
+                          {addReturn && selectedReturn?.id === rt.id && (
+                            <Badge className="bg-accent/20 text-accent border-0 text-xs mt-1">Valgt</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-muted rounded-xl p-4">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Passer datoen ikke? Eller ønsker du transport tilbage?
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowRequestForm(true);
+                    setReqForm(prev => ({
+                      ...prev,
+                      from_location: transport.to_location,
+                      to_location: transport.from_location,
+                    }));
+                  }}
+                  className="gap-2 rounded-lg text-sm"
+                >
+                  <MessageSquare className="w-4 h-4" /> Anmod om returtransport
+                </Button>
               </div>
             )}
-            {tripType !== 'round-trip' && (
-              <div className="text-xs text-muted-foreground pt-1 border-t border-border">
-                Enkelt vej (60% af tur/retur-pris)
+          </div>
+
+          {/* Seats */}
+          <div className="mb-5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Antal pladser</label>
+            <Input
+              type="number"
+              min={1}
+              max={transport.seats_available}
+              value={seats}
+              onChange={(e) => setSeats(Number(e.target.value))}
+              className="rounded-xl w-32"
+            />
+          </div>
+
+          <div className="mb-5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Besked (valgfri)</label>
+            <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Spørgsmål til udbyderen?" rows={2} className="rounded-xl resize-none" />
+          </div>
+
+          {/* Price summary */}
+          <div className="bg-muted rounded-xl p-4 mb-5 text-sm space-y-1.5">
+            <div className="flex justify-between text-muted-foreground">
+              <span>Udrejse: {oneWayPrice} DKK × {seats} plads{seats !== 1 ? 'er' : ''}</span>
+              <span>{outboundTotal} DKK</span>
+            </div>
+            {addReturn && selectedReturn && (
+              <div className="flex justify-between text-muted-foreground">
+                <span>Hjemrejse: {returnPrice} DKK × {seats} plads{seats !== 1 ? 'er' : ''}</span>
+                <span>{returnTotal} DKK</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-foreground pt-1 border-t border-border">
@@ -174,7 +265,7 @@ export default function TransportDetail() {
           </div>
 
           {transport.seats_available === 0 ? (
-            <Button disabled className="w-full h-12 rounded-xl font-semibold">Fully booked</Button>
+            <Button disabled className="w-full h-12 rounded-xl font-semibold">Fuldt booket</Button>
           ) : !user ? (
             <Button onClick={() => base44.auth.redirectToLogin()} className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold">
               Log ind for at booke
@@ -188,6 +279,81 @@ export default function TransportDetail() {
           )}
           <p className="text-xs text-muted-foreground text-center mt-3">Sikker betaling via Stripe</p>
         </div>
+
+        {/* Inline transport request form */}
+        <AnimatePresence>
+          {showRequestForm && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-foreground text-base">Anmod om transport</h3>
+                <button onClick={() => setShowRequestForm(false)} className="text-muted-foreground hover:text-foreground">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Fra</label>
+                    <select
+                      value={reqForm.from_location}
+                      onChange={e => setReqForm(p => ({ ...p, from_location: e.target.value }))}
+                      className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    >
+                      {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Til</label>
+                    <select
+                      value={reqForm.to_location}
+                      onChange={e => setReqForm(p => ({ ...p, to_location: e.target.value }))}
+                      className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    >
+                      {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Ønsket dato</label>
+                    <Input type="date" value={reqForm.travel_date} onChange={e => setReqForm(p => ({ ...p, travel_date: e.target.value }))} min={new Date().toISOString().split('T')[0]} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Passagerer</label>
+                    <Input type="number" min={1} max={20} value={reqForm.passengers} onChange={e => setReqForm(p => ({ ...p, passengers: Number(e.target.value) }))} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Besked (valgfri)</label>
+                  <Textarea value={reqForm.message} onChange={e => setReqForm(p => ({ ...p, message: e.target.value }))} rows={2} placeholder="Beskriv din rejse..." className="resize-none" />
+                </div>
+                <Button
+                  onClick={() => {
+                    if (!user) { base44.auth.redirectToLogin(); return; }
+                    requestMutation.mutate({
+                      ...reqForm,
+                      passengers: Number(reqForm.passengers),
+                      guest_name: user.full_name || '',
+                      guest_email: user.email,
+                      provider_email: transport.provider_email,
+                      provider_name: transport.provider_name,
+                      status: 'pending',
+                    });
+                  }}
+                  disabled={!reqForm.travel_date || requestMutation.isPending}
+                  className="w-full bg-primary text-white rounded-xl h-11 font-semibold"
+                >
+                  {requestMutation.isPending ? 'Sender...' : 'Send anmodning'}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Reviews */}
         <TransportReviews transportId={transport.id} providerEmail={transport.provider_email} providerName={transport.provider_name} />

@@ -44,7 +44,7 @@ export default function CabinCard({ cabin }) {
         {cabin.host_provides_transport && (
           <div className="absolute top-3 left-3">
             <span className="inline-flex items-center gap-1 bg-white text-primary shadow-sm text-xs font-semibold px-2.5 py-0.5 rounded-md">
-              <Anchor className="w-3 h-3" /> Transport included
+              <Anchor className="w-3 h-3" /> Transport tilbydes
             </span>
           </div>
         )}
