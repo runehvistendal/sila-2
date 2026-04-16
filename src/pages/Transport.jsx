@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useLanguage } from '@/lib/LanguageContext';
 import TransportCard from '@/components/transport/TransportCard';
 import TransportFilters from '@/components/transport/TransportFilters';
 import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
@@ -31,6 +32,7 @@ const DEFAULT_FILTERS = {
 };
 
 export default function Transport() {
+  const { t } = useLanguage();
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [view, setView] = useState('grid'); // 'grid' | 'map'
 
@@ -74,10 +76,10 @@ export default function Transport() {
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-1">Bådtransport</h1>
-              <p className="text-muted-foreground">Lokale tilbyder ledige pladser på deres ruter i Grønland</p>
-            </div>
+             <div>
+               <h1 className="text-3xl font-bold text-foreground mb-1">{t('boats_title')}</h1>
+               <p className="text-muted-foreground">{t('local_offers')}</p>
+             </div>
             <div className="flex gap-1 bg-muted rounded-xl p-1">
               <button onClick={() => setView('grid')} className={`p-2 rounded-lg transition-colors ${view === 'grid' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground'}`}>
                 <Grid className="w-4 h-4" />
@@ -100,7 +102,7 @@ export default function Transport() {
           <ImprovedGreenlandMap transports={filtered} height="600px" />
         ) : filtered.length > 0 ? (
           <>
-            <p className="text-sm text-muted-foreground mb-6">{filtered.length} rute{filtered.length !== 1 ? 'r' : ''} fundet</p>
+            <p className="text-sm text-muted-foreground mb-6">{filtered.length} {t('routes_found')}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                {filtered.map((t) => (
                  <div key={t.id}>
@@ -118,8 +120,8 @@ export default function Transport() {
         ) : (
           <div className="text-center py-24">
             <Anchor className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-lg font-medium text-foreground mb-1">Ingen transport fundet</p>
-            <p className="text-muted-foreground text-sm">Prøv en anden søgning</p>
+            <p className="text-lg font-medium text-foreground mb-1">{t('no_transport_found')}</p>
+            <p className="text-muted-foreground text-sm">{t('try_another_search')}</p>
           </div>
         )}
       </div>

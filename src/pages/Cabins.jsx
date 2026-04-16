@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useLanguage } from '@/lib/LanguageContext';
 import CabinCard from '@/components/cabins/CabinCard';
 import CabinFilters from '@/components/cabins/CabinFilters';
 import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
@@ -20,6 +21,7 @@ const DEFAULT_FILTERS = {
 };
 
 export default function Cabins() {
+  const { t } = useLanguage();
   const urlParams = new URLSearchParams(window.location.search);
   const [filters, setFilters] = useState({ ...DEFAULT_FILTERS, search: urlParams.get('q') || '' });
   const [view, setView] = useState('grid'); // 'grid' | 'map'
@@ -60,7 +62,7 @@ export default function Cabins() {
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold text-foreground">Hytter i Grønland</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t('cabins_title')}</h1>
             <div className="flex gap-1 bg-muted rounded-xl p-1">
               <button onClick={() => setView('grid')} className={`p-2 rounded-lg transition-colors ${view === 'grid' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground'}`}>
                 <Grid className="w-4 h-4" />
@@ -89,7 +91,7 @@ export default function Cabins() {
           <ImprovedGreenlandMap cabins={filtered.filter(c => c && c.id)} height="600px" />
         ) : filtered.length > 0 ? (
           <>
-            <p className="text-sm text-muted-foreground mb-6">{filtered.length} hytte{filtered.length !== 1 ? 'r' : ''} fundet</p>
+            <p className="text-sm text-muted-foreground mb-6">{filtered.length} {t('cabins_found')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.filter(c => c && c.id).map((cabin) => (
                 <CabinCard key={cabin.id} cabin={cabin} />
@@ -99,8 +101,8 @@ export default function Cabins() {
         ) : (
           <div className="text-center py-24">
             <Home className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-lg font-medium text-foreground mb-1">Ingen hytter fundet</p>
-            <p className="text-muted-foreground text-sm">Prøv at justere dine filtre</p>
+            <p className="text-lg font-medium text-foreground mb-1">{t('no_cabins_found')}</p>
+            <p className="text-muted-foreground text-sm">{t('adjust_filters')}</p>
           </div>
         )}
       </div>

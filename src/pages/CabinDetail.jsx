@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,6 +19,7 @@ export default function CabinDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
@@ -55,8 +57,8 @@ export default function CabinDetail() {
   if (!cabin) {
     return (
       <div className="min-h-screen pt-16 flex flex-col items-center justify-center gap-4">
-        <p className="text-lg text-muted-foreground">Cabin not found</p>
-        <Button onClick={() => navigate('/cabins')}>Back to cabins</Button>
+        <p className="text-lg text-muted-foreground">{t('cabin_not_found')}</p>
+        <Button onClick={() => navigate('/cabins')}>{t('back_to_cabins')}</Button>
       </div>
     );
   }
@@ -86,7 +88,7 @@ export default function CabinDetail() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back */}
         <button onClick={() => navigate('/cabins')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
-          <ChevronLeft className="w-4 h-4" /> Back to cabins
+          <ChevronLeft className="w-4 h-4" /> {t('back_to_cabins')}
         </button>
 
         {/* Title row */}
@@ -94,10 +96,10 @@ export default function CabinDetail() {
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{cabin.title}</h1>
           <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1"><MapPin className="w-4 h-4" />{cabin.location}</span>
-            {cabin.max_guests && <span className="flex items-center gap-1"><Users className="w-4 h-4" />Up to {cabin.max_guests} guests</span>}
+            {cabin.max_guests && <span className="flex items-center gap-1"><Users className="w-4 h-4" />{t('up_to_guests')} {cabin.max_guests}</span>}
             {cabin.host_provides_transport && (
               <Badge className="bg-primary/10 text-primary border-0 gap-1">
-                <Anchor className="w-3 h-3" /> Host provides transport
+                <Anchor className="w-3 h-3" /> {t('host_provides_transport')}
               </Badge>
             )}
           </div>
@@ -110,15 +112,15 @@ export default function CabinDetail() {
           {/* Left — details */}
           <div className="lg:col-span-2 space-y-8">
             {/* Description */}
-            <div>
-              <h2 className="text-xl font-bold text-foreground mb-3">About this cabin</h2>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{cabin.description || 'No description provided.'}</p>
-            </div>
+             <div>
+               <h2 className="text-xl font-bold text-foreground mb-3">{t('about_cabin')}</h2>
+               <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{cabin.description || t('no_description')}</p>
+             </div>
 
             {/* Amenities */}
             {cabin.amenities?.length > 0 && (
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-4">What's included</h2>
+                <h2 className="text-xl font-bold text-foreground mb-4">{t('included')}</h2>
                 <div className="grid grid-cols-2 gap-3">
                   {cabin.amenities.map((a, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm text-foreground">
@@ -150,7 +152,7 @@ export default function CabinDetail() {
             {/* Host profile */}
             {cabin.host_name && (
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-3">Din vært</h2>
+                <h2 className="text-xl font-bold text-foreground mb-3">{t('your_host')}</h2>
                 <button
                   onClick={() => navigate(`/profile/user?email=${encodeURIComponent(cabin.host_email)}&type=host`)}
                   className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-border hover:border-primary/30 hover:shadow-card transition-all w-full text-left"
@@ -164,7 +166,7 @@ export default function CabinDetail() {
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{cabin.host_name}</p>
-                    <p className="text-sm text-primary underline-offset-2">Se profil →</p>
+                    <p className="text-sm text-primary underline-offset-2">{t('view_profile')} →</p>
                   </div>
                 </button>
               </div>
@@ -183,21 +185,21 @@ export default function CabinDetail() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-2xl border border-border shadow-card p-6 sticky top-24">
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-2xl font-bold text-foreground">{cabin.price_per_night}</span>
-                <span className="text-muted-foreground text-sm">DKK / night</span>
-              </div>
+                 <span className="text-2xl font-bold text-foreground">{cabin.price_per_night}</span>
+                 <span className="text-muted-foreground text-sm">{t('per_night_short')}</span>
+               </div>
 
               <div className="space-y-3 mb-4">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Check-in</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{t('check_in')}</label>
                   <Input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="rounded-xl" min={new Date().toISOString().split('T')[0]} />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Check-out</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{t('check_out')}</label>
                   <Input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="rounded-xl" min={checkIn || new Date().toISOString().split('T')[0]} />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Guests</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{t('guests')}</label>
                   <Input
                     type="number"
                     min={1}
@@ -208,25 +210,25 @@ export default function CabinDetail() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Message to host (optional)</label>
-                  <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Tell the host about your trip..." rows={3} className="rounded-xl resize-none" />
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{t('message_host_optional')}</label>
+                  <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t('tell_host')} rows={3} className="rounded-xl resize-none" />
                 </div>
               </div>
 
               {nights > 0 && (
                 <div className="bg-muted rounded-xl p-4 mb-4 text-sm space-y-1.5">
                   <div className="flex justify-between text-muted-foreground">
-                    <span>{cabin.price_per_night} DKK × {nights} nat</span>
+                    <span>{cabin.price_per_night} DKK × {nights} {t('nights_label').split('DKK')[1]}</span>
                     <span>{cabinTotal} DKK</span>
                   </div>
                   {hostTransportCost > 0 && (
                     <div className="flex justify-between text-muted-foreground">
-                      <span>Transport</span>
+                      <span>{t('transport')}</span>
                       <span>{hostTransportCost} DKK</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-foreground pt-1 border-t border-border">
-                    <span>Total</span>
+                    <span>{t('total')}</span>
                     <span>{total} DKK</span>
                   </div>
                 </div>
@@ -234,16 +236,16 @@ export default function CabinDetail() {
 
               {!user ? (
                 <Button onClick={() => base44.auth.redirectToLogin()} className="w-full h-12 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold text-base">
-                  Log ind for at booke
+                  {t('login_to_book')}
                 </Button>
               ) : (
                 <StripeCheckoutButton
                   payload={stripePayload}
                   disabled={!stripePayload}
-                  label={nights > 0 ? `Betal ${total} DKK` : 'Vælg datoer for at booke'}
+                  label={nights > 0 ? `Betal ${total} DKK` : t('select_dates_to_book')}
                 />
               )}
-              <p className="text-xs text-muted-foreground text-center mt-3">Sikker betaling via Stripe</p>
+              <p className="text-xs text-muted-foreground text-center mt-3">{t('secure_payment')}</p>
             </div>
           </div>
         </div>
