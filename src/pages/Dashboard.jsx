@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   PlusCircle, Home, Anchor, Calendar, MapPin, Users, Check, X,
-  ArrowRight, Eye, Star, ChevronRight, Briefcase, Clock, Ship
+  ArrowRight, Eye, Star, ChevronRight, Briefcase, Clock, Ship, ChevronDown
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
@@ -37,15 +37,63 @@ const STATUS_LABELS = {
   completed: 'Afsluttet',
 };
 
+// City coordinates for distance calculation
+const CITY_COORDS = {
+  'Nuuk': { lat: 64.175, lon: -51.739 },
+  'Ilulissat': { lat: 69.218, lon: -51.098 },
+  'Sisimiut': { lat: 66.940, lon: -53.673 },
+  'Aasiaat': { lat: 68.708, lon: -52.891 },
+  'Tasiilaq': { lat: 65.614, lon: -37.636 },
+  'Qaqortoq': { lat: 60.716, lon: -46.034 },
+  'Maniitsoq': { lat: 65.414, lon: -52.897 },
+  'Disko Bay': { lat: 69.5, lon: -52.5 },
+  'Kangerlussuaq': { lat: 66.996, lon: -50.621 },
+  'Upernavik': { lat: 72.786, lon: -56.148 },
+  'Narsaq': { lat: 60.912, lon: -46.059 },
+};
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
 export default function Dashboard() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [requestType, setRequestType] = useState('transport'); // 'transport' or 'cabin'
-  const [selectedCity, setSelectedCity] = useState(''); // empty string means all cities
+  const [searchInput, setSearchInput] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const CITIES = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Aasiaat', 'Tasiilaq', 'Qaqortoq', 'Maniitsoq', 'Disko Bay', 'Kangerlussuaq', 'Upernavik', 'Narsaq'];
+  const CITIES = Object.keys(CITY_COORDS);
+
+  // Get user's home city (or set as default)
+  const userHomeCity = user?.location || '';
+  const [selectedCity, setSelectedCity] = useState(userHomeCity);
+
+  // Find matching cities based on search input
+  const matchingCities = searchInput.trim() === '' 
+    ? CITIES
+    : CITIES.filter(city =>
+        city.toLowerCase().includes(searchInput.toLowerCase())
+      );
+
+  // Sort cities by distance from user's home city
+  const sortedCities = matchingCities.sort((a, b) => {
+    if (!userHomeCity) return 0;
+    const homeCoords = CITY_COORDS[userHomeCity];
+    if (!homeCoords) return 0;
+    const distA = calculateDistance(homeCoords.lat, homeCoords.lon, CITY_COORDS[a].lat, CITY_COORDS[a].lon);
+    const distB = calculateDistance(homeCoords.lat, homeCoords.lon, CITY_COORDS[b].lat, CITY_COORDS[b].lon);
+    return distA - distB;
+  });
 
   const { data: myBookings = [] } = useQuery({
     queryKey: ['my-bookings', user?.email],
@@ -275,21 +323,70 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {/* City filter dropdown */}
-                <div className="max-w-xs">
-                  <select
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl border border-input bg-white text-sm"
-                  >
-                    <option value="">Alle byer</option>
-                    {CITIES.map((city) => (
-                      <option key={city} value={city}>
-                        {city}
-                      </option>
-                    ))}
-                  </select>
+                {/* City filter autocomplete dropdown */}
+                <div className="max-w-xs relative">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder={selectedCity || 'Søg efter by eller postnr...'}
+                      value={searchInput}
+                      onChange={(e) => {
+                        setSearchInput(e.target.value);
+                        setDropdownOpen(true);
+                      }}
+                      onFocus={() => setDropdownOpen(true)}
+                      className="w-full px-4 py-2 pr-9 rounded-xl border border-input bg-white text-sm"
+                    />
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                  
+                  {dropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-input rounded-xl shadow-lg z-10 max-h-64 overflow-y-auto">
+                      {selectedCity && (
+                        <button
+                          onClick={() => {
+                            setSelectedCity('');
+                            setSearchInput('');
+                            setDropdownOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:bg-muted border-b border-border"
+                        >
+                          Alle byer
+                        </button>
+                      )}
+                      {sortedCities.map((city) => (
+                        <button
+                          key={city}
+                          onClick={() => {
+                            setSelectedCity(city);
+                            setSearchInput('');
+                            setDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                            selectedCity === city
+                              ? 'bg-primary/10 text-primary font-medium'
+                              : 'hover:bg-muted text-foreground'
+                          }`}
+                        >
+                          {city}
+                        </button>
+                      ))}
+                      {sortedCities.length === 0 && (
+                        <div className="px-4 py-3 text-sm text-muted-foreground text-center">
+                          Ingen byer fundet
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
+                {selectedCity && (
+                  <button
+                    onClick={() => setSelectedCity('')}
+                    className="text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    Ryd filter
+                  </button>
+                )}
 
                 {/* Display transport or cabin requests */}
                 <div className="space-y-3">
