@@ -21,6 +21,19 @@ export default function Home() {
     },
   });
 
+  const { data: nextTransport } = useQuery({
+    queryKey: ['next-transport-home'],
+    queryFn: () => base44.entities.Transport.filter({ status: 'scheduled' }, 'departure_date', 3),
+    staleTime: 60_000,
+    select: (data) => {
+      if (!data || data.length === 0) return null;
+      // Sort by departure_date ascending, pick soonest future departure
+      const today = new Date().toISOString().split('T')[0];
+      const future = data.filter(t => t.departure_date >= today);
+      return future.length > 0 ? future[0] : data[0];
+    },
+  });
+
   const handleSearch = (e) => {
     e.preventDefault();
     navigate(`/cabins${search ? `?q=${encodeURIComponent(search)}` : ''}`);
@@ -202,7 +215,7 @@ export default function Home() {
       </section>
 
       {/* UNIQUE TO SILA */}
-      <section className="py-20 bg-background">
+      <section className="pt-20 pb-28 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -220,12 +233,12 @@ export default function Home() {
               </p>
               <div className="flex flex-wrap gap-6 mb-8">
                 {[
-                  { label: 'Delte pladser', desc: 'Betal per plads' },
-                  { label: 'Fleksibel afgang', desc: 'Afgang når klar' },
+                  { label: 'Delte pladser', desc: 'Betal per plads', icon: Users },
+                  { label: 'Drevet af lokale', desc: 'Autentiske oplevelser', icon: Anchor },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Users className="w-4 h-4 text-primary" />
+                      <item.icon className="w-4 h-4 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">{item.label}</p>
@@ -252,12 +265,22 @@ export default function Home() {
                   onError={(e) => e.target.style.display = 'none'}
                 />
               </div>
-              {/* Floating card */}
-              <div className="absolute bottom-5 left-5 bg-white rounded-xl shadow-card p-3.5 max-w-[180px]">
-                <p className="text-xs text-muted-foreground mb-0.5">Næste afgang</p>
-                <p className="text-sm font-bold text-foreground">Nuuk → Kapisillit</p>
-                <p className="text-xs text-muted-foreground mt-0.5">2 pladser · 150 DKK/plads</p>
-              </div>
+              {/* Floating card — overlaps bottom-left edge of image */}
+              {nextTransport && (
+                <div
+                  className="absolute bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.18)] p-4 w-[175px] cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.22)] transition-shadow"
+                  style={{ bottom: '-18px', left: '-18px' }}
+                  onClick={() => navigate('/transport')}
+                >
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Next available</p>
+                  <p className="text-sm font-bold text-foreground leading-snug">
+                    {nextTransport.from_location} → {nextTransport.to_location}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {nextTransport.seats_available} pladser · {Math.round(nextTransport.round_trip_price * 0.6)} DKK/plads
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
