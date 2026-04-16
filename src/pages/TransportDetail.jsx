@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare, X } from 'lucide-react';
+import ListingImageGallery from '@/components/shared/ListingImageGallery';
 import { format } from 'date-fns';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import TransportReviews from '@/components/transport/TransportReviews';
@@ -98,6 +99,11 @@ export default function TransportDetail() {
         <button onClick={() => navigate('/transport')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
           <ChevronLeft className="w-4 h-4" /> Tilbage til transport
         </button>
+
+        {/* Images */}
+        {transport.images?.length > 0 && (
+          <ListingImageGallery images={transport.images} title={`${transport.from_location} → ${transport.to_location}`} />
+        )}
 
         {/* Info card */}
         <div className="bg-white rounded-2xl border border-border shadow-card p-6 sm:p-8 mb-6">

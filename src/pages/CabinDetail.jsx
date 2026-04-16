@@ -116,7 +116,7 @@ export default function CabinDetail() {
         </div>
 
         {/* Images */}
-        <CabinImageGallery images={cabin.images} />
+        <CabinImageGallery images={cabin.images} title={cabin.title} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Left — details */}

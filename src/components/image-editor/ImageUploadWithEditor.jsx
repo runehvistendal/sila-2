@@ -1,59 +1,64 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Upload, X, ImageIcon } from 'lucide-react';
+import { Upload, X, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ImageCropper from './ImageCropper';
 
 /**
- * Upload-flow med integreret billedtilpasning
+ * Upload-flow med integreret 16:9 billedtilpasning.
  * Props:
  *   images: string[]          — aktuelle billed-URLs
  *   onChange: (urls) => void  — callback ved ændring
- *   maxImages?: number        — max antal billeder (default 10)
+ *   maxImages?: number        — max antal billeder (default 8)
  *   label?: string
- *   shape?: 'circle' | 'rect' — crop-form (default 'rect')
- *   aspectRatio?: number      — for rect (fx 16/9, 4/3)
  */
 export default function ImageUploadWithEditor({
   images = [],
   onChange,
-  maxImages = 10,
+  maxImages = 8,
   label = 'Billeder',
-  shape = 'rect',
-  aspectRatio = 16 / 9,
 }) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [editingImage, setEditingImage] = useState(null);
+  const [editingImage, setEditingImage] = useState(null); // data-URL under redigering
+  const [editingIdx, setEditingIdx] = useState(null);     // index hvis vi re-redigerer
   const inputRef = useRef(null);
+
+  // Åbn editor med en fil
+  const openEditor = (dataUrl, idx = null) => {
+    setEditingImage(dataUrl);
+    setEditingIdx(idx);
+  };
 
   const handleFileSelect = (files) => {
     const file = files[0];
     if (!file) return;
-
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setEditingImage(e.target.result);
-    };
+    reader.onload = (e) => openEditor(e.target.result, null);
     reader.readAsDataURL(file);
   };
 
+  // Gem beskåret billede
   const handleCropSave = async (croppedDataUrl) => {
     setUploading(true);
+    setEditingImage(null);
     try {
-      // Billed-data-URL konverteres til blob
-      const response = await fetch(croppedDataUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
-
-      // Upload optimeret billede
+      const res = await fetch(croppedDataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      onChange([...images, file_url]);
-      setEditingImage(null);
-    } catch (error) {
-      console.error('Upload fejl:', error);
+
+      if (editingIdx !== null) {
+        // Erstat eksisterende billede
+        const updated = [...images];
+        updated[editingIdx] = file_url;
+        onChange(updated);
+      } else {
+        onChange([...images, file_url]);
+      }
     } finally {
       setUploading(false);
+      setEditingIdx(null);
     }
   };
 
@@ -61,18 +66,44 @@ export default function ImageUploadWithEditor({
     onChange(images.filter((_, i) => i !== idx));
   };
 
+  // Re-edit: hent billed-dataurl fra http url
+  const handleReEdit = async (url, idx) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const reader = new FileReader();
+      reader.onload = (e) => openEditor(e.target.result, idx);
+      reader.readAsDataURL(blob);
+    } catch {
+      // Fallback: brug url direkte
+      openEditor(url, idx);
+    }
+  };
+
   const canAdd = images.length < maxImages;
 
+  // EDITOR VIEW
   if (editingImage) {
     return (
-      <div className="bg-white rounded-2xl border border-border p-6">
-        <h3 className="font-semibold text-foreground mb-4">Tilpas billede</h3>
+      <div className="bg-white rounded-2xl border border-border p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-foreground">Tilpas billede</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Juster udsnit til 16:9 — dette er præcis hvordan billedet vises i listingen</p>
+          </div>
+        </div>
+
+        {/* Live preview label */}
+        <div className="mb-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60 bg-primary/8 px-2 py-0.5 rounded-full">
+            Live preview — listing format
+          </span>
+        </div>
+
         <ImageCropper
           image={editingImage}
-          shape={shape}
-          aspectRatio={aspectRatio}
           onSave={handleCropSave}
-          onCancel={() => setEditingImage(null)}
+          onCancel={() => { setEditingImage(null); setEditingIdx(null); }}
         />
       </div>
     );
@@ -80,30 +111,52 @@ export default function ImageUploadWithEditor({
 
   return (
     <div>
-      {/* Billed-galleri */}
+      <div className="flex items-center justify-between mb-2">
+        <label className="text-sm font-semibold text-foreground">{label}</label>
+        <span className="text-xs text-muted-foreground">{images.length}/{maxImages}</span>
+      </div>
+
+      {/* Thumbnail grid */}
       {images.length > 0 && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
           {images.map((url, i) => (
             <div
               key={i}
-              className={`relative group overflow-hidden rounded-xl border border-border bg-muted ${
-                shape === 'circle' ? 'aspect-square rounded-full' : 'aspect-video'
-              }`}
+              className="relative group aspect-video rounded-xl overflow-hidden border border-border bg-muted"
             >
               <img src={url} alt="" className="w-full h-full object-cover" />
-              <button
-                type="button"
-                onClick={() => handleRemove(i)}
-                className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="w-3 h-3" />
-              </button>
+
+              {/* Overlay controls */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  title="Rediger udsnit"
+                  onClick={() => handleReEdit(url, i)}
+                  className="bg-white/90 hover:bg-white text-foreground rounded-full p-1.5 transition-colors"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  title="Fjern"
+                  onClick={() => handleRemove(i)}
+                  className="bg-white/90 hover:bg-red-500 hover:text-white text-foreground rounded-full p-1.5 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {i === 0 && (
+                <div className="absolute top-1.5 left-1.5 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  Primær
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* Upload område */}
+      {/* Upload zone */}
       {canAdd && (
         <div
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -113,9 +166,9 @@ export default function ImageUploadWithEditor({
             setDragging(false);
             handleFileSelect(e.dataTransfer.files);
           }}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => !uploading && inputRef.current?.click()}
           className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-colors ${
-            dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-muted/40'
+            dragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40 hover:bg-muted/30'
           }`}
         >
           <input
@@ -123,22 +176,20 @@ export default function ImageUploadWithEditor({
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
+            onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files)}
           />
           {uploading ? (
             <div className="flex flex-col items-center gap-2">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-muted-foreground">Uploader og behandler...</p>
+              <p className="text-sm text-muted-foreground">Uploader...</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                <Upload className="w-5 h-5 text-muted-foreground" />
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <Upload className="w-5 h-5 text-primary" />
               </div>
               <p className="text-sm font-medium text-foreground">Træk billede hertil eller klik for at vælge</p>
-              <p className="text-xs text-muted-foreground">
-                Du kan tilpasse billedet efter upload. {images.length}/{maxImages}
-              </p>
+              <p className="text-xs text-muted-foreground">Du kan justere udsnit (16:9) inden billedet gemmes</p>
             </div>
           )}
         </div>
