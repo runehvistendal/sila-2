@@ -11,6 +11,7 @@ import TransportCard from '@/components/transport/TransportCard';
 import TransportDrawer from '@/components/transport/TransportDrawer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Anchor, ArrowRight, RefreshCw, MessageSquare, ChevronDown, X, Check } from 'lucide-react';
+import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
 
 const LOCATIONS = [
