@@ -57,20 +57,19 @@ export default function OpenRequestsTab() {
     enabled: !!user,
   });
 
-  // Get user's location coordinates from user profile (match by ID or by location name)
+  // Get user's location coordinates from user profile
   const userCoords = useMemo(() => {
-    if (!locations.length) return null;
+    if (!user?.location || !locations.length) return null;
     
-    let userLoc = null;
-    if (user?.location_id) {
-      userLoc = locations.find(l => l.id === user.location_id);
-    } else if (user?.location) {
-      // Match by location name if no location_id
-      userLoc = locations.find(l => l.name_dk?.toLowerCase() === user.location.toLowerCase());
-    }
+    // Find location by exact name match (case-insensitive)
+    const userLoc = locations.find(l => 
+      l.name_dk?.toLowerCase() === user.location.toLowerCase() ||
+      l.name_gl?.toLowerCase() === user.location.toLowerCase() ||
+      l.postal_code === user.location
+    );
     
     return userLoc ? { lat: userLoc.latitude, lon: userLoc.longitude, id: userLoc.id, name: userLoc.name_dk } : null;
-  }, [user?.location_id, user?.location, locations]);
+  }, [user?.location, locations]);
 
   // Combine and process all requests
   const allRequests = useMemo(() => {
@@ -106,32 +105,33 @@ export default function OpenRequestsTab() {
     filtered = filtered.map(r => {
       let relevanceScore = 0;
 
-      // Priority 1: requests from user's own location (highest)
       if (userCoords && r.location && locations.length) {
         const requestLoc = locations.find(l => 
           l.name_dk?.toLowerCase() === r.location?.toLowerCase() || 
+          l.name_gl?.toLowerCase() === r.location?.toLowerCase() || 
           l.postal_code === r.location
         );
         
         if (requestLoc) {
           if (requestLoc.id === userCoords.id) {
-            // Same location = highest score
-            relevanceScore = 10000;
+            // Same location = massive boost
+            relevanceScore = 100000;
           } else {
-            // Different location = score based on distance
+            // Different location = score by distance (closer = higher score)
             const dist = calculateDistance(
               userCoords.lat,
               userCoords.lon,
               requestLoc.latitude,
               requestLoc.longitude
             );
-            relevanceScore = Math.max(0, 1000 - dist);
+            // Penalize distance heavily: 500 km gives ~0 score
+            relevanceScore = Math.max(0, 5000 - dist * 10);
           }
         }
       }
 
-      // Priority 2: Pending requests get bonus
-      if (r.status === 'pending') relevanceScore += 100;
+      // Bonus for pending
+      if (r.status === 'pending') relevanceScore += 500;
 
       return { ...r, relevanceScore };
     });
