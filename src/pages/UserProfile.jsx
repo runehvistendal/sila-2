@@ -157,38 +157,42 @@ export default function UserProfile() {
         )}
 
         {/* Reviews received (as host/provider) */}
-        {hostReviews.length > 0 && (
+        {isProvider && (
           <div className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6">
             <h2 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
               <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-              Anmeldelser modtaget ({hostReviews.length})
+              Anmeldelser modtaget {hostReviews.length > 0 && `(${hostReviews.length})`}
             </h2>
-            <div className="space-y-4">
-              {hostReviews.map(r => (
-                <div key={r.id} className="border-b border-border last:border-0 pb-4 last:pb-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
-                        {(r.reviewer_name || '?').charAt(0)}
+            {hostReviews.length > 0 ? (
+              <div className="space-y-4">
+                {hostReviews.map(r => (
+                  <div key={r.id} className="border-b border-border last:border-0 pb-4 last:pb-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                          {(r.reviewer_name || '?').charAt(0)}
+                        </div>
+                        <span className="text-sm font-semibold text-foreground">{r.reviewer_name || 'Anonym'}</span>
                       </div>
-                      <span className="text-sm font-semibold text-foreground">{r.reviewer_name || 'Anonym'}</span>
+                      <StarRow rating={r.rating} />
                     </div>
-                    <StarRow rating={r.rating} />
+                    {r.listing_title && (
+                      <p className="text-xs text-muted-foreground mb-1 ml-9">om {r.listing_title}</p>
+                    )}
+                    {r.comment && <p className="text-sm text-muted-foreground leading-relaxed ml-9">{r.comment}</p>}
                   </div>
-                  {r.listing_title && (
-                    <p className="text-xs text-muted-foreground mb-1 ml-9">om {r.listing_title}</p>
-                  )}
-                  {r.comment && <p className="text-sm text-muted-foreground leading-relaxed ml-9">{r.comment}</p>}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Endnu ingen anmeldelser modtaget.</p>
+            )}
           </div>
         )}
 
         {/* Reviews written (as guest) */}
-        {guestReviews.length > 0 && (
-          <div className="bg-white rounded-2xl border border-border shadow-card p-6">
-            <h2 className="text-base font-bold text-foreground mb-4">Anmeldelser skrevet ({guestReviews.length})</h2>
+        <div className="bg-white rounded-2xl border border-border shadow-card p-6">
+          <h2 className="text-base font-bold text-foreground mb-4">Anmeldelser skrevet {guestReviews.length > 0 && `(${guestReviews.length})`}</h2>
+          {guestReviews.length > 0 ? (
             <div className="space-y-4">
               {guestReviews.map(r => (
                 <div key={r.id} className="border-b border-border last:border-0 pb-4 last:pb-0">
@@ -200,8 +204,10 @@ export default function UserProfile() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-sm text-muted-foreground">Endnu ingen anmeldelser skrevet.</p>
+          )}
+        </div>
 
         {hostReviews.length === 0 && guestReviews.length === 0 && cabins.length === 0 && transports.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
