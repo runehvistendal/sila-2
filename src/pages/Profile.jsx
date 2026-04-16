@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Copy } from 'lucide-react';
+import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
@@ -93,18 +93,18 @@ export default function Profile() {
     },
   });
 
-  const syncProviderDataToUser = () => {
-    if (providerForm) {
+  // Auto-sync provider data to user on mount
+  useEffect(() => {
+    if (currentRole === 'user' && providerForm?.provider_name && form && !form.full_name) {
       setForm(f => ({
         ...f,
         full_name: providerForm.provider_name || f.full_name,
         phone: providerForm.provider_phone || f.phone,
-        location: providerForm.provider_location || f.location,
+        location_id: providerForm.provider_location_id || f.location_id,
         avatar_url: providerForm.provider_avatar || f.avatar_url,
       }));
-      toast({ title: t('sync_provider_data') });
     }
-  };
+  }, [providerForm, currentRole]);
 
   if (!user) {
     return (
@@ -274,15 +274,7 @@ export default function Profile() {
                 />
               </div>
 
-              {/* Provider sync button for user role */}
-              {currentRole === 'user' && providerForm && (
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
-                  <p className="text-xs text-blue-900 mb-3">{t('sync_provider_data')}</p>
-                  <Button type="button" onClick={syncProviderDataToUser} variant="outline" className="w-full rounded-lg text-sm gap-2">
-                    <Copy className="w-4 h-4" /> {t('sync_provider_data')}
-                  </Button>
-                </div>
-              )}
+
 
               <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-primary text-white rounded-xl gap-2">
                 <Check className="w-4 h-4" />
