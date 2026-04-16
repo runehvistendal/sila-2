@@ -178,25 +178,20 @@ export default function Dashboard() {
              )}
            </div>
            <div className="flex gap-2 flex-wrap">
+              {isProvider && (
+                <Button variant="outline" onClick={() => setRequestType('transport')} className="rounded-xl gap-2 text-sm">
+                  <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
+                </Button>
+              )}
               <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
                 <MapPin className="w-4 h-4" /> {t('request_cabin_btn')}
               </Button>
               <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
                 <Anchor className="w-4 h-4" /> {t('request_transport_btn')}
               </Button>
-              {isProvider && (
-                <Button variant="outline" onClick={() => setRequestType('transport')} className="rounded-xl gap-2 text-sm">
-                  <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
-                </Button>
-              )}
               <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
                 <PlusCircle className="w-4 h-4" /> {t('new_listing')}
               </Button>
-            {user?.role === 'admin' && (
-              <Button variant="outline" onClick={() => navigate('/admin/legal')} className="rounded-xl gap-2 text-sm">
-                {t('admin')}
-              </Button>
-            )}
           </div>
         </div>
 
