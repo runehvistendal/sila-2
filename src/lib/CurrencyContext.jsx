@@ -21,18 +21,21 @@ export function CurrencyProvider({ children }) {
 
   const convertPrice = (priceInDKK) => {
     const rate = CURRENCIES[currency].rate;
-    return Math.round(priceInDKK * rate * 100) / 100;
+    const converted = priceInDKK * rate;
+    // Round up to nearest whole number for non-DKK currencies
+    return currency === 'DKK' ? Math.round(converted * 100) / 100 : Math.ceil(converted);
   };
 
   const formatPrice = (priceInDKK, showCurrency = true) => {
     const converted = convertPrice(priceInDKK);
     const symbol = CURRENCIES[currency].symbol;
+    const displayPrice = currency === 'DKK' ? converted : Math.round(converted);
     
     if (currency === 'DKK') {
-      return showCurrency ? `${converted} ${symbol}` : converted.toString();
+      return showCurrency ? `${displayPrice} ${symbol}` : displayPrice.toString();
     }
     
-    return showCurrency ? `${symbol}${converted}` : converted.toString();
+    return showCurrency ? `${symbol}${displayPrice}` : displayPrice.toString();
   };
 
   return (
