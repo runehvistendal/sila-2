@@ -3,11 +3,22 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { customer_email, customer_name, subject, message, booking_id } = await req.json();
 
-    if (!customer_email || !message) {
+    // Require authenticated user — prevents unauthenticated ticket creation and spam
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized: Authentication required' }, { status: 401 });
+    }
+
+    const { subject, message, booking_id } = await req.json();
+
+    if (!message) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
+
+    // Use authenticated user's identity — cannot be spoofed via request body
+    const customer_email = user.email;
+    const customer_name = user.full_name || user.email;
 
     // Fetch booking details if provided
     let bookingStatus = null;
@@ -26,7 +37,6 @@ Deno.serve(async (req) => {
     let escalationReason = null;
 
     if (isFaq) {
-      // Simple FAQ responses
       if (message.toLowerCase().includes('cancel')) {
         response = `You can cancel your booking up to 7 days before the scheduled date for a full refund. To cancel, go to your dashboard and select "Cancel Booking". The refund will be processed within 5-7 business days.`;
       } else if (message.toLowerCase().includes('change') || message.toLowerCase().includes('modify')) {
@@ -37,7 +47,6 @@ Deno.serve(async (req) => {
         response = `Thank you for your inquiry. We're here to help! Based on your question, we recommend visiting our FAQ page or contacting the provider directly for the most accurate information.`;
       }
     } else {
-      // Complex issue - escalate
       escalationReason = 'Requires detailed review or special handling';
       response = `Thank you for reaching out. Your inquiry has been escalated to our support team. We'll review your message and get back to you within 24 hours.`;
     }
