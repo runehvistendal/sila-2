@@ -5,9 +5,14 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
     
-    // Verify this is an internal entity automation (not external)
-    if (!payload.event || payload.event.type !== 'create') {
+    // Verify this is a trusted internal entity automation event
+    if (!payload.event || !payload.event.type || !payload.event.entity_name) {
       return Response.json({ error: 'Invalid event source' }, { status: 400 });
+    }
+
+    // Only accept create events from the Booking entity
+    if (payload.event.type !== 'create' || payload.event.entity_name !== 'Booking') {
+      return Response.json({ status: 'skipped', reason: 'Invalid event type or entity' }, { status: 400 });
     }
 
     const booking = payload.data;
