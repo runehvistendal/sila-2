@@ -26,6 +26,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const isHome = location.pathname === '/';
   
+  // Get user role_type from user object to determine menu visibility
+  const userRoleType = user?.role_type || 'traveler'; // traveler, provider, or both
+  const isProvider = userRoleType === 'provider' || userRoleType === 'both';
+  const isTraveler = userRoleType === 'traveler' || userRoleType === 'both';
+  
 
 
   useEffect(() => {
@@ -101,20 +106,17 @@ export default function Navbar() {
                      </button>
                    </DropdownMenuTrigger>
                    <DropdownMenuContent align="end" className="w-48">
-                     {currentRole === 'provider' ? (
+                     {isProvider && (
                        <>
                          <DropdownMenuItem asChild>
-                           <Link to="/create-listing?type=cabin" className="flex items-center gap-2 cursor-pointer">
-                             <Home className="w-4 h-4" /> Opret hytte
+                           <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
+                             <Plus className="w-4 h-4" /> {t('nav_create_listing')}
                            </Link>
                          </DropdownMenuItem>
-                         <DropdownMenuItem asChild>
-                           <Link to="/create-listing?type=transport" className="flex items-center gap-2 cursor-pointer">
-                             <Waves className="w-4 h-4" /> Opret transport
-                           </Link>
-                         </DropdownMenuItem>
+                         {isTraveler && <DropdownMenuSeparator />}
                        </>
-                     ) : (
+                     )}
+                     {isTraveler && (
                        <>
                          <DropdownMenuItem asChild>
                            <Link to="/request-cabin" className="flex items-center gap-2 cursor-pointer">
@@ -210,7 +212,7 @@ export default function Navbar() {
             <div className="px-4 py-4 space-y-1">
                <Link to="/cabins" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_cabins')}</Link>
                <Link to="/transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_boats')}</Link>
-               {user && currentRole === 'provider' && (
+               {user && isProvider && (
                  <Link to="/create-listing" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-primary hover:bg-primary/5 font-semibold border-l-2 border-primary">+ {t('nav_create_listing')}</Link>
                )}
               {user ? (
