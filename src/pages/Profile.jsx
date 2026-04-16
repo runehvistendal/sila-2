@@ -271,6 +271,7 @@ export default function Profile() {
                   onChange={(urls) => setForm(f => ({ ...f, avatar_url: urls[0] || '' }))}
                   maxImages={1}
                   shape="circle"
+                  hidePrimaryLabel
                 />
               </div>
 

@@ -18,6 +18,7 @@ export default function ImageUploadWithEditor({
   maxImages = 8,
   label = 'Billeder',
   shape = 'rect', // 'rect' | 'circle'
+  hidePrimaryLabel = false,
 }) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -150,7 +151,7 @@ export default function ImageUploadWithEditor({
                 </button>
               </div>
 
-              {i === 0 && (
+              {i === 0 && !hidePrimaryLabel && (
                 <div className="absolute top-1.5 left-1.5 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   Primær
                 </div>
