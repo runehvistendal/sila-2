@@ -16,6 +16,7 @@ import { toast } from '@/components/ui/use-toast';
 import { IncomingRequestsTab, MyTransportRequestsTab } from '@/components/dashboard/TransportRequestsTab';
 import { IncomingCabinRequestsTab, MyCabinRequestsTab } from '@/components/dashboard/CabinRequestsTab';
 import HostCalendarTab from '@/components/dashboard/HostCalendarTab';
+import OpenRequestsTab from '@/components/dashboard/OpenRequestsTab';
 import BookingReviewButton from '@/components/bookings/BookingReviewButton';
 import ProviderTrustCard from '@/components/provider/ProviderTrustCard';
 import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
@@ -179,7 +180,10 @@ export default function Dashboard() {
            </div>
            <div className="flex gap-2 flex-wrap">
               {isProvider && (
-                <Button variant="outline" onClick={() => setRequestType('transport')} className="rounded-xl gap-2 text-sm">
+                <Button variant="outline" onClick={() => {
+                  const tab = document.querySelector('[value="open-requests"]');
+                  if (tab) tab.click();
+                }} className="rounded-xl gap-2 text-sm">
                   <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
                 </Button>
               )}
@@ -210,8 +214,8 @@ export default function Dashboard() {
              </TabsTrigger>
              {isProvider && (
                <>
-                 <TabsTrigger value="all-requests" className="rounded-lg px-4 py-2 text-sm gap-2 hidden">
-                   <Users className="w-4 h-4" /> {t('all_requests') || 'Anmodninger'}
+                 <TabsTrigger value="open-requests" className="rounded-lg px-4 py-2 text-sm gap-2">
+                   <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
                  </TabsTrigger>
                  <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
                    <Briefcase className="w-4 h-4" /> {t('provider_tab')}
@@ -287,9 +291,16 @@ export default function Dashboard() {
              </div>
            </TabsContent>
 
-          {/* ALL REQUESTS — for providers */}
+          {/* OPEN REQUESTS — for providers */}
           {isProvider && (
-            <TabsContent value="all-requests">
+            <TabsContent value="open-requests">
+              <OpenRequestsTab />
+            </TabsContent>
+          )}
+
+          {/* OLD ALL REQUESTS — hidden */}
+          {isProvider && (
+            <TabsContent value="all-requests" className="hidden">
               <div className="space-y-6">
                 {/* Toggle buttons */}
                 <div className="flex gap-2 bg-muted rounded-xl p-1 w-fit">
