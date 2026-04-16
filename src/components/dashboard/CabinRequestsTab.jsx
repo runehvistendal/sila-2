@@ -268,7 +268,6 @@ export function IncomingCabinRequestsTab() {
           </DialogContent>
         </Dialog>
       )}
-      )}
     </div>
   );
 }
