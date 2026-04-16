@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +16,7 @@ import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEdit
 
 export default function Profile() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { currentRole } = useRole();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
@@ -107,9 +109,9 @@ export default function Profile() {
     return (
       <div className="min-h-screen pt-20 flex flex-col items-center justify-center gap-4 px-4">
         <User className="w-12 h-12 text-muted-foreground/30" />
-        <p className="text-muted-foreground font-medium">Log ind for at se din profil</p>
+        <p className="text-muted-foreground font-medium">{t('login_to_see_profile')}</p>
         <Button onClick={() => base44.auth.redirectToLogin()} className="bg-primary text-white rounded-xl px-8">
-          Log ind
+          {t('login_btn')}
         </Button>
       </div>
     );
@@ -170,7 +172,7 @@ export default function Profile() {
                 </div>
                 <Button variant="outline" size="sm" onClick={() => { setEditing(!editing); setForm({ ...currentForm }); }} className="rounded-xl gap-1.5">
                   <Edit2 className="w-3.5 h-3.5" />
-                  {editing ? 'Annuller' : 'Rediger'}
+                  {editing ? t('cancel') : t('edit')}
                 </Button>
               </div>
 
@@ -184,12 +186,12 @@ export default function Profile() {
                 {avgRating && (
                   <Badge className="bg-amber-50 text-amber-700 border-0 text-xs gap-1">
                     <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                    {avgRating} ({allRatingValues.length} bedømmelser)
+                    {avgRating} ({allRatingValues.length} {t('ratings_avg')})
                   </Badge>
                 )}
                 {myCabins.length > 0 && (
                   <Badge className="bg-green-50 text-green-700 border-0 text-xs gap-1">
-                    <Home className="w-3 h-3" /> {myCabins.length} hytte{myCabins.length !== 1 ? 'r' : ''}
+                    <Home className="w-3 h-3" /> {myCabins.length} {t('cabins_count')}{myCabins.length !== 1 ? 's' : ''}
                   </Badge>
                 )}
               </div>
@@ -198,7 +200,7 @@ export default function Profile() {
                 <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{currentForm.bio}</p>
               )}
               {currentForm.languages && !editing && (
-                <p className="text-xs text-muted-foreground mt-1.5">Sprog: {currentForm.languages}</p>
+                <p className="text-xs text-muted-foreground mt-1.5">{t('languages')}: {currentForm.languages}</p>
               )}
             </div>
           </div>
@@ -208,50 +210,49 @@ export default function Profile() {
             <div className="mt-6 space-y-4 border-t border-border pt-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Fulde navn</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('full_name')}</label>
                   <Input value={currentForm.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} className="h-10 rounded-xl text-sm" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">By / Sted</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')}</label>
                   <Input value={currentForm.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="f.eks. Nuuk, Grønland" className="h-10 rounded-xl text-sm" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Telefon (valgfri)</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('phone_optional')}</label>
                   <Input value={currentForm.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+299 ..." className="h-10 rounded-xl text-sm" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Sprog</label>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('languages')}</label>
                   <Input value={currentForm.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} placeholder="f.eks. Dansk, Kalaallisut, Engelsk" className="h-10 rounded-xl text-sm" />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Jeg er...</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('i_am')}</label>
                 <Select value={currentForm.role_type} onValueChange={v => setForm(f => ({ ...f, role_type: v }))}>
                   <SelectTrigger className="h-10 rounded-xl text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                     <SelectItem value="traveler">Rejsende – jeg leder efter hytter og transport</SelectItem>
-                     <SelectItem value="provider">Udbyder – jeg tilbyder hytter eller transport</SelectItem>
-                     <SelectItem value="both">Begge – jeg udbyder og rejser selv</SelectItem>
+                     <SelectItem value="traveler">{t('traveler_desc')}</SelectItem>
+                     <SelectItem value="provider">{t('provider_desc')}</SelectItem>
+                     <SelectItem value="both">{t('both_desc')}</SelectItem>
                    </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Notifikationer</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('notifications')}</label>
                 <Select value={currentForm.notification_prefs} onValueChange={v => setForm(f => ({ ...f, notification_prefs: v }))}>
                   <SelectTrigger className="h-10 rounded-xl text-sm"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="email">Kun e-mail</SelectItem>
-                    <SelectItem value="sms">Kun SMS</SelectItem>
-                    <SelectItem value="both">Både e-mail og SMS</SelectItem>
-                    <SelectItem value="none">Ingen notifikationer</SelectItem>
+                    <SelectItem value="email">{t('email_only')}</SelectItem>
+                    <SelectItem value="sms">{t('sms_only')}</SelectItem>
+                    <SelectItem value="both">{t('both_email_sms')}</SelectItem>
+                    <SelectItem value="none">{t('no_notifications')}</SelectItem>
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground mt-1">Bruges til påmindelser om f.eks. kommende sejladser.</p>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Om mig</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('about_me')}</label>
                 <Textarea
                   value={currentForm.bio}
                   onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
@@ -260,7 +261,7 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Profilbillede (valgfri)</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('profile_picture')}</label>
                 <ImageUploadWithEditor
                   images={currentForm.avatar_url ? [currentForm.avatar_url] : []}
                   onChange={(urls) => setForm(f => ({ ...f, avatar_url: urls[0] || '' }))}
@@ -272,16 +273,16 @@ export default function Profile() {
               {/* Provider sync button for user role */}
               {currentRole === 'user' && providerForm && (
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
-                  <p className="text-xs text-blue-900 mb-3">Har du udbyder-data? Synkroniser det til din brugerprofil:</p>
+                  <p className="text-xs text-blue-900 mb-3">{t('sync_provider_data')}:</p>
                   <Button type="button" onClick={syncProviderDataToUser} variant="outline" className="w-full rounded-lg text-sm gap-2">
-                    <Copy className="w-4 h-4" /> Synkroniser udbyder-data
+                    <Copy className="w-4 h-4" /> {t('sync_provider_data')}
                   </Button>
                 </div>
               )}
 
               <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-primary text-white rounded-xl gap-2">
                 <Check className="w-4 h-4" />
-                {saveMutation.isPending ? 'Gemmer...' : 'Gem profil'}
+                {saveMutation.isPending ? t('saving') : t('save_profile')}
               </Button>
               </div>
               )}
@@ -291,7 +292,7 @@ export default function Profile() {
          {currentRole === 'provider' && (
            <div className="bg-white rounded-2xl border border-border p-6 mb-6">
              <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
-               <Anchor className="w-4 h-4 text-primary" /> Udbyder-profil
+               <Anchor className="w-4 h-4 text-primary" /> {t('provider_profile')}
              </h2>
              {!editing ? (
                <div className="space-y-3">
@@ -299,14 +300,14 @@ export default function Profile() {
                    {providerForm?.provider_name || 'Intet navn indstillet'}
                  </p>
                  <Button variant="outline" size="sm" onClick={() => { setEditing(true); setForm({ ...currentForm }); }} className="rounded-xl">
-                   Rediger udbyder-profil
+                   {t('edit_provider_profile')}
                  </Button>
                </div>
              ) : (
                <div className="space-y-4 border-t border-border pt-6">
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                    <div>
-                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Udbyder navn</label>
+                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('provider_name')}</label>
                      <Input
                        value={providerForm?.provider_name || ''}
                        onChange={e => setProviderForm(f => ({ ...f, provider_name: e.target.value }))}
@@ -315,7 +316,7 @@ export default function Profile() {
                      />
                    </div>
                    <div>
-                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">By / Sted</label>
+                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')}</label>
                      <Input
                        value={providerForm?.provider_location || ''}
                        onChange={e => setProviderForm(f => ({ ...f, provider_location: e.target.value }))}
@@ -324,7 +325,7 @@ export default function Profile() {
                      />
                    </div>
                    <div>
-                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Telefon</label>
+                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('phone_optional')}</label>
                      <Input
                        value={providerForm?.provider_phone || ''}
                        onChange={e => setProviderForm(f => ({ ...f, provider_phone: e.target.value }))}
@@ -342,7 +343,7 @@ export default function Profile() {
          {myCabins.length > 0 && (
           <div className="bg-white rounded-2xl border border-border p-6 mb-6">
             <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
-              <Home className="w-4 h-4 text-primary" /> Mine hytter
+              <Home className="w-4 h-4 text-primary" /> {t('my_cabins')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {myCabins.map(c => (
@@ -362,11 +363,11 @@ export default function Profile() {
         <div className="bg-white rounded-2xl border border-border p-6">
           <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
             <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-            Bedømmelser
-            {avgRating && <span className="text-sm font-normal text-muted-foreground ml-1">{avgRating} ★ gennemsnit</span>}
+            {t('ratings')}
+            {avgRating && <span className="text-sm font-normal text-muted-foreground ml-1">{avgRating} ★ {t('avg_rating')}</span>}
           </h2>
           {allRatingValues.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Ingen bedømmelser endnu.</p>
+            <p className="text-sm text-muted-foreground">{t('no_ratings')}</p>
           ) : (
             <div className="space-y-3">
               {myRatingsReceived.map(r => (

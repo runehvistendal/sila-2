@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Loader2, CalendarDays, ArrowRight } from 'lucide-react';
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const urlParams = new URLSearchParams(window.location.search);
   const bookingId = urlParams.get('booking_id');
   const [booking, setBooking] = useState(null);
@@ -42,14 +44,14 @@ export default function BookingSuccess() {
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 className="w-9 h-9 text-green-600" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">Booking bekræftet!</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-2">{t('booked')}</h1>
         {booking && (
           <p className="text-muted-foreground text-sm mb-1">
             <strong>{booking.listing_title}</strong>
           </p>
         )}
         <p className="text-muted-foreground text-sm mb-6">
-          Din betaling er gennemført. Du vil modtage en bekræftelse på e-mail.
+          {t('booking_confirmation') || 'Din betaling er gennemført. Du vil modtage en bekræftelse på e-mail.'}
         </p>
 
         {/* CTA */}
@@ -58,18 +60,18 @@ export default function BookingSuccess() {
             <CalendarDays className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-foreground">Dine bookinger er klar</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Se alle detaljer, kommunikér med udbyderen og hold styr på din rejse fra dit dashboard.</p>
+            <p className="text-sm font-semibold text-foreground">{t('bookings_ready') || 'Dine bookinger er klar'}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('booking_details') || 'Se alle detaljer, kommunikér med udbyderen og hold styr på din rejse fra dit dashboard.'}</p>
           </div>
         </div>
 
         <Button onClick={() => navigate('/dashboard')} className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 gap-2 h-11 font-semibold">
           <CalendarDays className="w-4 h-4" />
-          Se mine bookinger
+          {t('my_bookings')}
           <ArrowRight className="w-4 h-4 ml-auto" />
         </Button>
         <button onClick={() => navigate('/')} className="w-full mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          Tilbage til forsiden
+          {t('homepage_return')}
         </button>
       </div>
     </div>

@@ -2,12 +2,14 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Link } from 'react-router-dom';
 import { Heart, Home, Anchor, MapPin, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function Favourites() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const qc = useQueryClient();
 
   const { data: favs = [], isLoading } = useQuery({
@@ -24,8 +26,8 @@ export default function Favourites() {
   if (!user) return (
     <div className="min-h-screen pt-24 flex flex-col items-center justify-center gap-4">
       <Heart className="w-12 h-12 text-muted-foreground/30" />
-      <p className="text-muted-foreground">Log ind for at se dine favoritter</p>
-      <Button onClick={() => base44.auth.redirectToLogin()}>Log ind</Button>
+      <p className="text-muted-foreground">{t('login_to_see_profile')}</p>
+      <Button onClick={() => base44.auth.redirectToLogin()}>{t('login_btn')}</Button>
     </div>
   );
 
@@ -33,11 +35,11 @@ export default function Favourites() {
     <div className="min-h-screen pt-16 bg-background">
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <Heart className="w-7 h-7 fill-red-500 text-red-500" /> Mine favoritter
-          </h1>
-          <p className="text-muted-foreground mt-1">{favs.length} gemte opslag</p>
-        </div>
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+              <Heart className="w-7 h-7 fill-red-500 text-red-500" /> {t('nav_favourites')}
+            </h1>
+            <p className="text-muted-foreground mt-1">{favs.length} {t('saved') || 'gemte opslag'}</p>
+          </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {isLoading ? (
@@ -47,9 +49,9 @@ export default function Favourites() {
         ) : favs.length === 0 ? (
           <div className="text-center py-24">
             <Heart className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-            <p className="text-lg font-medium text-foreground mb-1">Ingen favoritter endnu</p>
-            <p className="text-muted-foreground text-sm mb-6">Tryk på hjertet på hytter og transport for at gemme dem her</p>
-            <Button variant="outline" onClick={() => window.location.href = '/cabins'} className="rounded-xl">Udforsk hytter</Button>
+            <p className="text-lg font-medium text-foreground mb-1">{t('no_favourites') || 'Ingen favoritter endnu'}</p>
+            <p className="text-muted-foreground text-sm mb-6">{t('save_on_heart') || 'Tryk på hjertet på hytter og transport for at gemme dem her'}</p>
+            <Button variant="outline" onClick={() => window.location.href = '/cabins'} className="rounded-xl">{t('explore_cabins')}</Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
