@@ -11,7 +11,8 @@ import TransportCard from '@/components/transport/TransportCard';
 import CabinReviews from '@/components/cabins/CabinReviews';
 import CabinAvailabilityCalendar from '@/components/cabins/CabinAvailabilityCalendar';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
-import { MapPin, Users, Anchor, ChevronLeft, Star, Check, ChevronDown } from 'lucide-react';
+import { MapPin, Users, Anchor, ChevronLeft, Check } from 'lucide-react';
+import CabinImageGallery from '@/components/cabins/CabinImageGallery';
 import { toast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -25,7 +26,6 @@ export default function CabinDetail() {
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(1);
   const [message, setMessage] = useState('');
-  const [activeImage, setActiveImage] = useState(0);
   const [wantHostTransport, setWantHostTransport] = useState(false);
 
   const { data: cabin, isLoading } = useQuery({
@@ -72,10 +72,6 @@ export default function CabinDetail() {
     );
   }
 
-  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=900&h=600&fit=crop';
-  const images = (cabin.images?.filter(img => img && img.startsWith('http'))?.length)
-    ? cabin.images.filter(img => img && img.startsWith('http'))
-    : [FALLBACK_IMAGE];
 
   const nights =
     checkIn && checkOut
@@ -120,25 +116,7 @@ export default function CabinDetail() {
         </div>
 
         {/* Images */}
-        <div className="grid grid-cols-4 gap-2 mb-8 rounded-2xl overflow-hidden h-[320px] sm:h-[420px]">
-          <div className="col-span-4 sm:col-span-2 row-span-2">
-            <img src={images[activeImage] || images[0]} alt="" className="w-full h-full object-cover" />
-          </div>
-          {images.slice(1, 5).map((img, i) => (
-            <div key={i} className="hidden sm:block cursor-pointer" onClick={() => setActiveImage(i + 1)}>
-              <img src={img} alt="" className="w-full h-full object-cover hover:opacity-90 transition-opacity" />
-            </div>
-          ))}
-        </div>
-        {images.length > 1 && (
-          <div className="flex gap-2 mb-8 sm:hidden">
-            {images.map((img, i) => (
-              <button key={i} onClick={() => setActiveImage(i)} className={`w-12 h-12 rounded-xl overflow-hidden border-2 transition-colors ${activeImage === i ? 'border-primary' : 'border-transparent'}`}>
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        )}
+        <CabinImageGallery images={cabin.images} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Left — details */}
