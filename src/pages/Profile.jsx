@@ -144,7 +144,7 @@ export default function Profile() {
           <div className="flex items-start gap-5 flex-wrap">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center overflow-hidden">
+              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                 {currentForm.avatar_url ? (
                   <img src={currentForm.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (

@@ -17,6 +17,7 @@ export default function ImageUploadWithEditor({
   onChange,
   maxImages = 8,
   label = 'Billeder',
+  shape = 'rect', // 'rect' | 'circle'
 }) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -104,6 +105,7 @@ export default function ImageUploadWithEditor({
           image={editingImage}
           onSave={handleCropSave}
           onCancel={() => { setEditingImage(null); setEditingIdx(null); }}
+          shape={shape}
         />
       </div>
     );
@@ -118,11 +120,13 @@ export default function ImageUploadWithEditor({
 
       {/* Thumbnail grid */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+        <div className={shape === 'circle' ? 'flex justify-center mb-4' : 'grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3'}>
           {images.map((url, i) => (
             <div
               key={i}
-              className="relative group aspect-video rounded-xl overflow-hidden border border-border bg-muted"
+              className={shape === 'circle'
+                ? 'relative group w-28 h-28 rounded-full overflow-hidden border-2 border-border bg-muted'
+                : 'relative group aspect-video rounded-xl overflow-hidden border border-border bg-muted'}
             >
               <img src={url} alt="" className="w-full h-full object-cover" />
 

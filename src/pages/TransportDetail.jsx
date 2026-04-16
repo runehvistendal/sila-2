@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare, User } from 'lucide-react';
 import ListingImageGallery from '@/components/shared/ListingImageGallery';
 import { format } from 'date-fns';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
@@ -385,6 +385,29 @@ export default function TransportDetail() {
           )}
           <p className="text-xs text-muted-foreground text-center mt-3">Sikker betaling via Stripe</p>
         </div>
+
+        {/* Provider profile */}
+        {transport.provider_name && (
+          <div className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6">
+            <h2 className="text-base font-bold text-foreground mb-3">Din skipper</h2>
+            <button
+              onClick={() => navigate(`/profile/user?email=${encodeURIComponent(transport.provider_email)}&type=host`)}
+              className="flex items-center gap-4 p-4 bg-muted/40 rounded-2xl hover:bg-muted transition-colors w-full text-left"
+            >
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                {transport.provider_avatar ? (
+                  <img src={transport.provider_avatar} alt={transport.provider_name} className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-6 h-6 text-primary" />
+                )}
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">{transport.provider_name}</p>
+                <p className="text-sm text-primary">Se profil →</p>
+              </div>
+            </button>
+          </div>
+        )}
 
         {/* Reviews */}
         <TransportReviews transportId={transport.id} providerEmail={transport.provider_email} providerName={transport.provider_name} />

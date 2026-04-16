@@ -11,7 +11,7 @@ import CabinReviews from '@/components/cabins/CabinReviews';
 import CabinAvailabilityCalendar from '@/components/cabins/CabinAvailabilityCalendar';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import CabinTransportSection from '@/components/cabins/CabinTransportSection';
-import { MapPin, Users, Anchor, ChevronLeft, Check } from 'lucide-react';
+import { MapPin, Users, Anchor, ChevronLeft, Check, User } from 'lucide-react';
 import CabinImageGallery from '@/components/cabins/CabinImageGallery';
 
 export default function CabinDetail() {
@@ -146,6 +146,29 @@ export default function CabinDetail() {
               onCheckInChange={setCheckIn}
               onCheckOutChange={setCheckOut}
             />
+
+            {/* Host profile */}
+            {cabin.host_name && (
+              <div>
+                <h2 className="text-xl font-bold text-foreground mb-3">Din vært</h2>
+                <button
+                  onClick={() => navigate(`/profile/user?email=${encodeURIComponent(cabin.host_email)}&type=host`)}
+                  className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-border hover:border-primary/30 hover:shadow-card transition-all w-full text-left"
+                >
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                    {cabin.host_avatar ? (
+                      <img src={cabin.host_avatar} alt={cabin.host_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-6 h-6 text-primary" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">{cabin.host_name}</p>
+                    <p className="text-sm text-primary underline-offset-2">Se profil →</p>
+                  </div>
+                </button>
+              </div>
+            )}
 
             {/* Reviews */}
             <CabinReviews

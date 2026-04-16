@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button';
  *   onSave: (dataUrl) => void
  *   onCancel: () => void
  */
-export default function ImageCropper({ image, onSave, onCancel }) {
-  const ASPECT = 16 / 9;
+export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }) {
+  const ASPECT = shape === 'circle' ? 1 : 16 / 9;
   const CANVAS_W = 640;
-  const CANVAS_H = Math.round(CANVAS_W / ASPECT); // 360
+  const CANVAS_H = Math.round(CANVAS_W / ASPECT);
 
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -53,32 +53,45 @@ export default function ImageCropper({ image, onSave, onCancel }) {
     ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
     ctx.restore();
 
-    // Semi-dark overlay outside a centered 16:9 zone (already full canvas = 16:9, so just draw guides)
-    // Draw 16:9 crop guides — rule of thirds
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 1;
-    for (let i = 1; i < 3; i++) {
+    if (shape === 'circle') {
+      // Dark overlay outside the circle
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+      ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
-      ctx.moveTo((CANVAS_W / 3) * i, 0);
-      ctx.lineTo((CANVAS_W / 3) * i, CANVAS_H);
-      ctx.stroke();
+      ctx.arc(CANVAS_W / 2, CANVAS_H / 2, Math.min(CANVAS_W, CANVAS_H) / 2 - 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      // Circle border
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(0, (CANVAS_H / 3) * i);
-      ctx.lineTo(CANVAS_W, (CANVAS_H / 3) * i);
+      ctx.arc(CANVAS_W / 2, CANVAS_H / 2, Math.min(CANVAS_W, CANVAS_H) / 2 - 4, 0, Math.PI * 2);
       ctx.stroke();
+    } else {
+      // Rule of thirds guides
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx.lineWidth = 1;
+      for (let i = 1; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo((CANVAS_W / 3) * i, 0);
+        ctx.lineTo((CANVAS_W / 3) * i, CANVAS_H);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, (CANVAS_H / 3) * i);
+        ctx.lineTo(CANVAS_W, (CANVAS_H / 3) * i);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, CANVAS_W - 2, CANVAS_H - 2);
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      ctx.fillRect(8, 8, 44, 18);
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('16:9', 12, 21);
     }
-
-    // Border
-    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(1, 1, CANVAS_W - 2, CANVAS_H - 2);
-
-    // 16:9 label
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    ctx.fillRect(8, 8, 44, 18);
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.fillText('16:9', 12, 21);
   }, []);
 
   // Animate loop
@@ -174,13 +187,13 @@ export default function ImageCropper({ image, onSave, onCancel }) {
     <div className="space-y-4">
       {/* Preview label */}
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tilpas billedet til 16:9 rammen</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{shape === 'circle' ? 'Tilpas profilbillede' : 'Tilpas billedet til 16:9 rammen'}</span>
         <span className="text-xs text-muted-foreground">Træk for at panorere · Scroll for zoom</span>
       </div>
 
       {/* Canvas */}
       <div className="relative rounded-xl overflow-hidden bg-black select-none"
-           style={{ aspectRatio: '16/9', width: '100%' }}>
+           style={{ aspectRatio: shape === 'circle' ? '1/1' : '16/9', width: shape === 'circle' ? '280px' : '100%', margin: '0 auto' }}>
         <canvas
           ref={canvasRef}
           width={CANVAS_W}
