@@ -261,13 +261,15 @@ export function IncomingCabinRequestsTab() {
       ))}
 
       {ratingFor && (
-        <Dialog open onOpenChange={() => setRatingFor(null)}>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Bedøm gæsten</DialogTitle></DialogHeader>
-            <RatingModal requestId={ratingFor.id} requestType="cabin" toEmail={ratingFor.guest_email} toName={ratingFor.guest_name || 'Gæsten'} onDone={() => setRatingFor(null)} />
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
-  );
-}
+         <Dialog open onOpenChange={() => setRatingFor(null)}>
+           <DialogContent>
+             <DialogHeader><DialogTitle>Bedøm gæsten</DialogTitle></DialogHeader>
+             <RatingModal requestId={ratingFor.id} requestType="cabin" toEmail={ratingFor.guest_email} toName={ratingFor.guest_name || 'Gæsten'} onDone={() => setRatingFor(null)} />
+           </DialogContent>
+         </Dialog>
+       )}
+       </div>
+       )}
+      </div>
+      );
+      }
