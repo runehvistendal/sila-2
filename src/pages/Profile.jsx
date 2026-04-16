@@ -88,7 +88,7 @@ export default function Profile() {
     onSuccess: () => {
       qc.invalidateQueries(['user-profile']);
       setEditing(false);
-      toast({ title: 'Profil opdateret' });
+      toast({ title: t('saved') });
     },
   });
 
@@ -101,7 +101,7 @@ export default function Profile() {
         location: providerForm.provider_location || f.location,
         avatar_url: providerForm.provider_avatar || f.avatar_url,
       }));
-      toast({ title: 'Udbyder-data synkroniseret til bruger-profil' });
+      toast({ title: t('sync_provider_data') });
     }
   };
 
@@ -134,10 +134,10 @@ export default function Profile() {
   };
 
   const roleLabels = {
-    traveler: 'Rejsende',
-    host: 'Udbyder',
-    provider: 'Udbyder',
-    both: 'Udbyder & Rejsende',
+    traveler: t('traveler_desc'),
+    host: t('provider_desc'),
+    provider: t('provider_desc'),
+    both: t('both_desc'),
   };
 
   return (
@@ -215,7 +215,7 @@ export default function Profile() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')}</label>
-                  <Input value={currentForm.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="f.eks. Nuuk, Grønland" className="h-10 rounded-xl text-sm" />
+                  <Input value={currentForm.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder={t('from_placeholder')} className="h-10 rounded-xl text-sm" />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('phone_optional')}</label>
@@ -223,7 +223,7 @@ export default function Profile() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('languages')}</label>
-                  <Input value={currentForm.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} placeholder="f.eks. Dansk, Kalaallisut, Engelsk" className="h-10 rounded-xl text-sm" />
+                  <Input value={currentForm.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} className="h-10 rounded-xl text-sm" />
                 </div>
               </div>
               <div>
@@ -256,7 +256,6 @@ export default function Profile() {
                 <Textarea
                   value={currentForm.bio}
                   onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
-                  placeholder="Fortæl andre om dig selv – din erfaring med Grønland, hvad du tilbyder, osv."
                   className="h-24 resize-none text-sm rounded-xl"
                 />
               </div>
@@ -273,7 +272,7 @@ export default function Profile() {
               {/* Provider sync button for user role */}
               {currentRole === 'user' && providerForm && (
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
-                  <p className="text-xs text-blue-900 mb-3">{t('sync_provider_data')}:</p>
+                  <p className="text-xs text-blue-900 mb-3">{t('sync_provider_data')}</p>
                   <Button type="button" onClick={syncProviderDataToUser} variant="outline" className="w-full rounded-lg text-sm gap-2">
                     <Copy className="w-4 h-4" /> {t('sync_provider_data')}
                   </Button>
@@ -297,7 +296,7 @@ export default function Profile() {
              {!editing ? (
                <div className="space-y-3">
                  <p className="text-sm text-muted-foreground">
-                   {providerForm?.provider_name || 'Intet navn indstillet'}
+                   {providerForm?.provider_name || t('no_description_provided')}
                  </p>
                  <Button variant="outline" size="sm" onClick={() => { setEditing(true); setForm({ ...currentForm }); }} className="rounded-xl">
                    {t('edit_provider_profile')}
@@ -311,7 +310,6 @@ export default function Profile() {
                      <Input
                        value={providerForm?.provider_name || ''}
                        onChange={e => setProviderForm(f => ({ ...f, provider_name: e.target.value }))}
-                       placeholder="f.eks. Arctic Explorer"
                        className="h-10 rounded-xl text-sm"
                      />
                    </div>
@@ -320,7 +318,7 @@ export default function Profile() {
                      <Input
                        value={providerForm?.provider_location || ''}
                        onChange={e => setProviderForm(f => ({ ...f, provider_location: e.target.value }))}
-                       placeholder="f.eks. Nuuk, Grønland"
+                       placeholder={t('from_placeholder')}
                        className="h-10 rounded-xl text-sm"
                      />
                    </div>
