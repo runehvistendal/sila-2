@@ -380,7 +380,7 @@ export default function CreateListing() {
             <Field label={t('boat_images') || 'Billeder af båden *'}>
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5 mb-3">
                 <p className="text-sm text-blue-900">
-                  <strong>{t('important') || 'Vigtigt'}}:</strong> {t('boat_image_instructions') || 'Upload mindst ét billede af hele båden udefra, så gæster kan se bådtype og størrelse. Billeder af interiør eller detaljer alene accepteres ikke.'}
+                  <strong>{t('important') || 'Vigtigt'}:</strong> {t('boat_image_instructions') || 'Upload mindst ét billede af hele båden udefra, så gæster kan se bådtype og størrelse. Billeder af interiør eller detaljer alene accepteres ikke.'}
                 </p>
               </div>
               <ImageUploadWithEditor
