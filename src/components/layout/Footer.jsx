@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Waves } from 'lucide-react';
 
 export default function Footer() {
+  const { t } = useLanguage();
+  
   return (
     <footer className="bg-foreground text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -15,21 +18,21 @@ export default function Footer() {
               <span className="text-lg font-bold">Sila</span>
             </div>
             <p className="text-white/50 text-sm leading-relaxed">
-              Greenland's marketplace for remote cabins and local boat transport.
+              {t('footer_desc')}
             </p>
           </div>
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Explore</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer_explore')}</h4>
             <div className="space-y-2.5">
-              <Link to="/cabins" className="block text-sm text-white/60 hover:text-white transition-colors">Browse Cabins</Link>
-              <Link to="/transport" className="block text-sm text-white/60 hover:text-white transition-colors">Find Transport</Link>
+              <Link to="/cabins" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_browse_cabins')}</Link>
+              <Link to="/transport" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_find_transport')}</Link>
             </div>
           </div>
           <div>
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Hosts</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer_hosts')}</h4>
             <div className="space-y-2.5">
-              <Link to="/create-listing" className="block text-sm text-white/60 hover:text-white transition-colors">List your cabin</Link>
-              <Link to="/create-listing?type=transport" className="block text-sm text-white/60 hover:text-white transition-colors">Offer transport</Link>
+              <Link to="/create-listing" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_list_cabin')}</Link>
+              <Link to="/create-listing?type=transport" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_offer_transport')}</Link>
             </div>
           </div>
         </div>
@@ -37,26 +40,26 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Learn</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer_learn')}</h4>
               <div className="space-y-2.5">
-                <Link to="/trust-score" className="block text-sm text-white/60 hover:text-white transition-colors">Trust Score</Link>
-                <Link to="/verified-safety" className="block text-sm text-white/60 hover:text-white transition-colors">Verified Safety</Link>
-                <Link to="/community-guidelines" className="block text-sm text-white/60 hover:text-white transition-colors">Community Guidelines</Link>
+                <Link to="/trust-score" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_trust_score')}</Link>
+                <Link to="/verified-safety" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_verified_safety')}</Link>
+                <Link to="/community-guidelines" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_community_guidelines')}</Link>
               </div>
             </div>
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Legal</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer_legal')}</h4>
               <div className="space-y-2.5">
-                <Link to="/legal/privacy_policy" className="block text-sm text-white/60 hover:text-white transition-colors">Privacy Policy</Link>
-                <Link to="/legal/terms_of_service" className="block text-sm text-white/60 hover:text-white transition-colors">Terms of Service</Link>
-                <Link to="/legal/cookies_consent" className="block text-sm text-white/60 hover:text-white transition-colors">Cookies & Consent</Link>
+                <Link to="/legal/privacy_policy" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_privacy_policy')}</Link>
+                <Link to="/legal/terms_of_service" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_terms')}</Link>
+                <Link to="/legal/cookies_consent" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_cookies')}</Link>
               </div>
             </div>
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">Support</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer_support')}</h4>
               <div className="space-y-2.5">
-                <Link to="/privacy-center" className="block text-sm text-white/60 hover:text-white transition-colors">Privacy Center</Link>
-                <Link to="/support" className="block text-sm text-white/60 hover:text-white transition-colors">Contact Support</Link>
+                <Link to="/privacy-center" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_privacy_center')}</Link>
+                <Link to="/support" className="block text-sm text-white/60 hover:text-white transition-colors">{t('footer_contact_support')}</Link>
               </div>
             </div>
           </div>

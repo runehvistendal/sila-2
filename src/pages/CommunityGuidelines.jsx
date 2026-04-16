@@ -3,7 +3,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { Users, Heart, AlertCircle, Handshake } from 'lucide-react';
 
 export default function CommunityGuidelines() {
-  const { language } = useLanguage();
+  const { lang } = useLanguage();
 
   const content = {
     en: {
@@ -107,19 +107,19 @@ export default function CommunityGuidelines() {
     }
   };
 
-  const t = content[language] || content.en;
+  const c = content[lang] || content.en;
 
   return (
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-4xl font-bold mb-4">{t.title}</h1>
-        <p className="text-lg text-muted-foreground mb-12">{t.intro}</p>
+        <h1 className="text-4xl font-bold mb-4">{c.title}</h1>
+        <p className="text-lg text-muted-foreground mb-12">{c.intro}</p>
 
         <h2 className="text-2xl font-semibold mb-8">
-          {language === 'en' ? 'Core Principles' : language === 'da' ? 'Kerneprincipper' : 'Inerniarner Asigissarneq'}
+          {lang === 'en' ? 'Core Principles' : lang === 'da' ? 'Kerneprincipper' : 'Inerniarner Asigissarneq'}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {t.guidelines.map((guideline, idx) => {
+          {c.guidelines.map((guideline, idx) => {
             const Icon = guideline.icon;
             return (
               <div key={idx} className="bg-white rounded-2xl border border-border p-6">
@@ -139,10 +139,10 @@ export default function CommunityGuidelines() {
 
         <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
           <h3 className="font-semibold text-red-900 mb-4">
-            {language === 'en' ? 'Prohibited Behavior' : language === 'da' ? 'Forbudt adfærd' : 'Ataasunnguinneri Aput'}
+            {lang === 'en' ? 'Prohibited Behavior' : lang === 'da' ? 'Forbudt adfærd' : 'Ataasunnguinneri Aput'}
           </h3>
           <ul className="space-y-2">
-            {t.violations.map((violation, idx) => (
+            {c.violations.map((violation, idx) => (
               <li key={idx} className="flex items-start gap-3 text-red-800">
                 <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <span>{violation}</span>

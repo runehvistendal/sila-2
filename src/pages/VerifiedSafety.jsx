@@ -3,7 +3,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { Shield, CheckCircle, AlertTriangle, BookOpen } from 'lucide-react';
 
 export default function VerifiedSafety() {
-  const { language } = useLanguage();
+  const { lang } = useLanguage();
 
   const content = {
     en: {
@@ -86,16 +86,16 @@ export default function VerifiedSafety() {
     }
   };
 
-  const t = content[language] || content.en;
+  const c = content[lang] || content.en;
 
   return (
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-4xl mx-auto px-4 py-10">
-        <h1 className="text-4xl font-bold mb-4">{t.title}</h1>
-        <p className="text-lg text-muted-foreground mb-12">{t.intro}</p>
+        <h1 className="text-4xl font-bold mb-4">{c.title}</h1>
+        <p className="text-lg text-muted-foreground mb-12">{c.intro}</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {t.requirements.map((req, idx) => {
+          {c.requirements.map((req, idx) => {
             const Icon = req.icon;
             return (
               <div key={idx} className="bg-white rounded-2xl border border-border p-6">

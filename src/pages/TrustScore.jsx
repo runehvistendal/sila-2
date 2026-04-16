@@ -3,7 +3,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import { Shield, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
 
 export default function TrustScore() {
-  const { language } = useLanguage();
+  const { lang } = useLanguage();
 
   const content = {
     en: {
@@ -92,15 +92,15 @@ export default function TrustScore() {
     }
   };
 
-  const t = content[language] || content.en;
+  const c = content[lang] || content.en;
 
   return (
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-4xl font-bold mb-2">{t.title}</h1>
-        <p className="text-muted-foreground mb-8">{t.description}</p>
+        <h1 className="text-4xl font-bold mb-2">{c.title}</h1>
+        <p className="text-muted-foreground mb-8">{c.description}</p>
 
-        {t.sections.map((section, idx) => (
+        {c.sections.map((section, idx) => (
           <div key={idx} className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">{section.title}</h2>
             {section.text && <p className="text-muted-foreground mb-4">{section.text}</p>}
