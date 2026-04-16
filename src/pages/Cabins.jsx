@@ -69,10 +69,10 @@ export default function Cabins() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                {t('cant_find_cabin') || 'Kan du ikke finde din drømmehytte?'}
-              </h2>
-              <p className="text-white/70 text-lg leading-relaxed mb-8">
-                {t('request_cabin_cta') || 'Fortæl os hvad du leder efter, og vi matcher dig med de bedste hytter i Grønland.'}
+                {t('cant_find_cabin')}
+                </h2>
+                <p className="text-white/70 text-lg leading-relaxed mb-8">
+                  {t('request_cabin_cta')}
               </p>
               <Button
                 onClick={() => user ? setShowRequestModal(true) : base44.auth.redirectToLogin()}
