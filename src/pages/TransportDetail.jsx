@@ -29,6 +29,7 @@ export default function TransportDetail() {
   const [message, setMessage] = useState('');
   const [addReturn, setAddReturn] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
 
   // Request form state
   const [reqForm, setReqForm] = useState({
@@ -57,8 +58,8 @@ export default function TransportDetail() {
   const requestMutation = useMutation({
     mutationFn: (data) => base44.entities.TransportRequest.create(data),
     onSuccess: () => {
-      toast({ title: 'Anmodning sendt!', description: 'Udbyderen vil vende tilbage hurtigst muligt.' });
       setShowRequestForm(false);
+      setRequestSent(true);
       setReqForm({ from_location: '', to_location: '', travel_date: '', passengers: 1, message: '' });
     },
   });
@@ -167,6 +168,19 @@ export default function TransportDetail() {
             <p className="text-sm font-semibold text-primary ml-6 mt-1">{oneWayPrice} DKK/plads</p>
           </div>
 
+          {/* Seats — shown before return section so passenger count is set first */}
+          <div className="mb-5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Antal pladser</label>
+            <Input
+              type="number"
+              min={1}
+              max={transport.seats_available}
+              value={seats}
+              onChange={(e) => setSeats(Number(e.target.value))}
+              className="rounded-xl w-32"
+            />
+          </div>
+
           {/* Return trip section */}
           <div className="mb-5">
             <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
@@ -214,7 +228,8 @@ export default function TransportDetail() {
                     setShowRequestForm(!showRequestForm);
                     setAddReturn(false);
                     setSelectedReturn(null);
-                    setReqForm(prev => ({ ...prev, from_location: transport.to_location, to_location: transport.from_location }));
+                    setRequestSent(false);
+                    setReqForm(prev => ({ ...prev, from_location: transport.to_location, to_location: transport.from_location, passengers: seats }));
                   }}
                   className="w-full text-left p-3 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
                 >
@@ -227,7 +242,8 @@ export default function TransportDetail() {
                 <button
                   onClick={() => {
                     setShowRequestForm(!showRequestForm);
-                    setReqForm(prev => ({ ...prev, from_location: transport.to_location, to_location: transport.from_location }));
+                    setRequestSent(false);
+                    setReqForm(prev => ({ ...prev, from_location: transport.to_location, to_location: transport.from_location, passengers: seats }));
                   }}
                   className={`w-full text-left p-3 rounded-xl border transition-colors ${
                     showRequestForm ? 'bg-primary/5 border-primary/30 text-foreground' : 'bg-muted border-border hover:border-primary/40'
@@ -252,11 +268,21 @@ export default function TransportDetail() {
                   className="overflow-hidden"
                 >
                   <div className="mt-3 pt-4 border-t border-border">
+                    {requestSent ? (
+                      <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
+                        <span className="text-green-500 text-lg leading-none">✓</span>
+                        <div>
+                          <p className="text-sm font-semibold text-green-800">Anmodning sendt!</p>
+                          <p className="text-xs text-green-700 mt-0.5">Din transportanmodning er sendt til udbyderne. Du hører fra dem hurtigst muligt.</p>
+                        </div>
+                      </div>
+                    ) : (
+                    <>
                     {/* "Only a request" notice */}
                     <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
                       <span className="text-amber-500 mt-0.5 text-base leading-none">⚠️</span>
                       <p className="text-xs text-amber-800">
-                        <strong>Hjemrejsen er ikke bekræftet endnu.</strong> Din anmodning sendes til alle udbydere på ruten, som kan svare med et tilbud og en pris. Du betaler intet nu — en hjemrejsebooking oprettes først, når du accepterer et tilbud.
+                        <strong>Hjemrejsen er ikke bekræftet endnu.</strong> Din anmodning sendes til lokale udbydere, som vender tilbage med tilbud og pris. Du betaler intet nu.
                       </p>
                     </div>
                     <div className="space-y-3">
@@ -304,7 +330,6 @@ export default function TransportDetail() {
                             passengers: Number(reqForm.passengers),
                             guest_name: user.full_name || '',
                             guest_email: user.email,
-                            // No provider_email — sent to all providers on the route
                             status: 'pending',
                           });
                         }}
@@ -314,23 +339,12 @@ export default function TransportDetail() {
                         {requestMutation.isPending ? 'Sender...' : 'Send anmodning'}
                       </Button>
                     </div>
+                    </>
+                    )}
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-
-          {/* Seats */}
-          <div className="mb-5">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Antal pladser</label>
-            <Input
-              type="number"
-              min={1}
-              max={transport.seats_available}
-              value={seats}
-              onChange={(e) => setSeats(Number(e.target.value))}
-              className="rounded-xl w-32"
-            />
           </div>
 
           <div className="mb-5">
