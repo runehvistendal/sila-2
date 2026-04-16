@@ -214,6 +214,9 @@ export default function Dashboard() {
              </TabsTrigger>
              {isProvider && (
                <>
+                 <TabsTrigger value="open-requests" className="rounded-lg px-4 py-2 text-sm gap-2 hidden">
+                   <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
+                 </TabsTrigger>
                  <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
                    <Briefcase className="w-4 h-4" /> {t('provider_tab')}
                  </TabsTrigger>
@@ -287,6 +290,13 @@ export default function Dashboard() {
                </div>
              </div>
            </TabsContent>
+
+          {/* OPEN REQUESTS — for providers */}
+          {isProvider && (
+            <TabsContent value="open-requests">
+              <OpenRequestsTab />
+            </TabsContent>
+          )}
 
           {/* OLD ALL REQUESTS — hidden */}
           {isProvider && (
