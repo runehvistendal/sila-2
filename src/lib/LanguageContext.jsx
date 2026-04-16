@@ -401,6 +401,10 @@ const translations = {
     footer_support: 'Support',
     footer_privacy_center: 'Privacy Center',
     footer_contact_support: 'Contact Support',
+    cant_find_cabin: 'Can\'t find your dream cabin?',
+    request_cabin_cta: 'Tell us what you\'re looking for, and we\'ll match you with the best cabins in Greenland.',
+    cant_find_transport: 'Can\'t find the perfect transport route?',
+    request_transport_cta: 'Request special transport to any cabin and travel destination in Greenland.',
   },
   da: {
     nav_experiences: 'Oplevelser',
@@ -797,6 +801,10 @@ const translations = {
     footer_support: 'Support',
     footer_privacy_center: 'Privatlivscenter',
     footer_contact_support: 'Kontakt support',
+    cant_find_cabin: 'Kan du ikke finde din drømmehytte?',
+    request_cabin_cta: 'Fortæl os hvad du leder efter, og vi matcher dig med de bedste hytter i Grønland.',
+    cant_find_transport: 'Kan du ikke finde den perfekte transportrute?',
+    request_transport_cta: 'Anmod om særlig transport til alle hytter og rejsedestinationer i Grønland.',
   },
   kl: {
     nav_experiences: 'Suliffinneqarnerit',
@@ -1001,8 +1009,12 @@ const translations = {
     footer_support: 'Ikioqataaseriaat',
     footer_privacy_center: 'Privatlivscenter',
     footer_contact_support: 'Ikioqataaseriaat nassiuguk',
-  },
-};
+    cant_find_cabin: 'Illuk takunngitsumit?',
+    request_cabin_cta: 'Suliliaq ataasiguk, inuk suliartortitsioruk innilissinnagu illumut.',
+    cant_find_transport: 'Umiarsuit rutiinnik takunngitsumit?',
+    request_transport_cta: 'Umiarsuit ujarlerit tamarmik illut attut innilissinnagu.',
+    },
+    };
 
 const LanguageContext = createContext();
 
