@@ -15,14 +15,19 @@ import { Menu, X, User, LayoutDashboard, LogOut, Plus, Waves, UserCircle, Heart,
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
 import CurrencySelector from '@/components/shared/CurrencySelector';
+import { useRole } from '@/lib/RoleContext';
 
 export default function Navbar() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { currentRole } = useRole();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const isHome = location.pathname === '/';
+  
+  // Check if user can create listings (not just traveler)
+  const canCreateListings = currentRole === 'provider';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -62,8 +67,6 @@ export default function Navbar() {
             {[
               { to: '/cabins', label: 'nav_cabins' },
               { to: '/transport', label: 'nav_boats' },
-              { to: '/request-transport', label: 'nav_request_transport' },
-              { to: '/request-cabin', label: 'nav_request_cabin' },
             ].map((link) => (
               <Link
                 key={link.to}
@@ -90,27 +93,29 @@ export default function Navbar() {
             <LanguageSwitcher transparent={transparent} />
             {user ? (
               <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                      transparent ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-muted hover:bg-secondary text-foreground'
-                    }`}>
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link to="/create-listing?type=cabin" className="flex items-center gap-2 cursor-pointer">
-                        <Home className="w-4 h-4" /> Opret hytte
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/create-listing?type=transport" className="flex items-center gap-2 cursor-pointer">
-                        <Waves className="w-4 h-4" /> Opret transport
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {canCreateListings && (
+                  <DropdownMenu>
+                     <DropdownMenuTrigger asChild>
+                       <button className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                         transparent ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-muted hover:bg-secondary text-foreground'
+                       }`}>
+                         <Plus className="w-4 h-4" />
+                       </button>
+                     </DropdownMenuTrigger>
+                     <DropdownMenuContent align="end" className="w-48">
+                       <DropdownMenuItem asChild>
+                         <Link to="/create-listing?type=cabin" className="flex items-center gap-2 cursor-pointer">
+                           <Home className="w-4 h-4" /> Opret hytte
+                         </Link>
+                       </DropdownMenuItem>
+                       <DropdownMenuItem asChild>
+                         <Link to="/create-listing?type=transport" className="flex items-center gap-2 cursor-pointer">
+                           <Waves className="w-4 h-4" /> Opret transport
+                         </Link>
+                       </DropdownMenuItem>
+                     </DropdownMenuContent>
+                   </DropdownMenu>
+                )}
 
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm" className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
@@ -189,13 +194,11 @@ export default function Navbar() {
             className="md:hidden bg-white border-b border-border overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
-              <Link to="/cabins" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_cabins')}</Link>
-              <Link to="/transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_boats')}</Link>
-              <Link to="/request-transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_request_transport')}</Link>
-              <Link to="/request-cabin" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_request_cabin')}</Link>
-              {user && (
-                <Link to="/create-listing" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-primary hover:bg-primary/5 font-semibold border-l-2 border-primary">+ {t('nav_create_listing')}</Link>
-              )}
+               <Link to="/cabins" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_cabins')}</Link>
+               <Link to="/transport" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_boats')}</Link>
+               {user && canCreateListings && (
+                 <Link to="/create-listing" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-primary hover:bg-primary/5 font-semibold border-l-2 border-primary">+ {t('nav_create_listing')}</Link>
+               )}
               {user ? (
                 <>
                   <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_dashboard')}</Link>
