@@ -171,6 +171,23 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
               <span className="text-muted-foreground/60">({lang === 'da' ? 'lægges til bookingprisen' : 'added to booking total'})</span>
             </div>
           )}
+
+          {/* Return transport info */}
+          {cabin.host_provides_return_transport && cabin.return_transport_date && (
+            <div className="mt-3 bg-accent/8 border border-accent/25 rounded-xl px-3 py-2.5 flex items-start gap-2">
+              <ArrowRight className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5 rotate-180" />
+              <div>
+                <p className="text-xs font-semibold text-accent">
+                  {lang === 'da' ? 'Hjemrejse inkluderet' : 'Return trip available'}
+                </p>
+                <p className="text-xs text-accent/80 mt-0.5">
+                  {cabin.location} → {cabin.transport_route_from || '...'} · {format(new Date(cabin.return_transport_date), 'd. MMM')}
+                  {cabin.return_transport_time && ` kl. ${cabin.return_transport_time}`}
+                  {cabin.return_transport_seats && ` · ${cabin.return_transport_seats} ${lang === 'da' ? 'pladser' : 'seats'}`}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

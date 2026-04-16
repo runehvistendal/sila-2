@@ -76,6 +76,19 @@
       },
       "description": "Optional add-on services available during the trip"
     },
+    "return_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the return trip (from to_location back to from_location)"
+    },
+    "return_time": {
+      "type": "string",
+      "description": "Departure time of the return trip (HH:MM)"
+    },
+    "return_seats": {
+      "type": "number",
+      "description": "Available seats on the return trip"
+    },
     "status": {
       "type": "string",
       "enum": [

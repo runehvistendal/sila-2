@@ -27,7 +27,7 @@ const LOCATIONS = {
   'Narsaq': [60.912, -46.059]
 };
 
-// Standard Leaflet marker icon (blue pin)
+// Cabin icon — blue house pin
 const createCabinIcon = () => new L.Icon({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -38,12 +38,35 @@ const createCabinIcon = () => new L.Icon({
   shadowSize: [41, 41],
 });
 
-const createTransportIcon = () => new L.Icon({
-  iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iNDIiIHZpZXdCb3g9IjAgMCAzMiA0MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iNDIiIHJ4PSI4IiBmaWxsPSIjYWQyNjJjIi8+PHBhdGggZD0iTTEyIDE0SzEyIDEwIDE2IDEwSzIwIDEwIDIwIDE0TTEyIDE4SzEyIDE0TDIwIDE0SzIwIDE4TTEyIDI0TDIwIDI0TTExIDI0UzEwIDI2IDExIDI4UzEzIDMwIDE1IDMwUzE3IDI4IDE4IDI2UzE3IDI0IDE2IDI0IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWxsPSJub25lIi8+PC9zdmc+',
-  iconSize: [32, 42],
-  iconAnchor: [16, 42],
-  popupAnchor: [0, -42]
-});
+// Departure icon — teal anchor circle
+const createDepartureIcon = () => {
+  const svg = `<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="18" r="17" fill="#1a5276" stroke="white" stroke-width="2"/>
+    <text x="18" y="24" text-anchor="middle" font-size="16" fill="white">⚓</text>
+  </svg>`;
+  return new L.DivIcon({
+    html: svg,
+    className: '',
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -20],
+  });
+};
+
+// Destination icon — green flag circle
+const createDestinationIcon = () => {
+  const svg = `<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="18" r="17" fill="#1e8449" stroke="white" stroke-width="2"/>
+    <text x="18" y="24" text-anchor="middle" font-size="16" fill="white">🏁</text>
+  </svg>`;
+  return new L.DivIcon({
+    html: svg,
+    className: '',
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -20],
+  });
+};
 
 const CabinPopup = ({ cabin }) => {
   const [imageError, setImageError] = React.useState(false);
@@ -70,27 +93,33 @@ const CabinPopup = ({ cabin }) => {
 
 };
 
-const TransportHubPopup = ({ location, transports }) => {
+const TransportHubPopup = ({ location, transports, type = 'departure' }) => {
   const { formatPrice } = useCurrency();
   const count = transports.length;
-  const avgPrice = transports.length > 0 ?
-  Math.round(transports.reduce((s, t) => s + (t.round_trip_price || 0), 0) / count) :
-  0;
+  const avgPrice = transports.length > 0
+    ? Math.round(transports.reduce((s, t) => s + (t.round_trip_price || 0), 0) / count)
+    : 0;
+
+  const isDeparture = type === 'departure';
+  const label = isDeparture ? 'Afgangshavn' : 'Destination';
+  const icon = isDeparture ? '⚓' : '🏁';
+  const linkParam = isDeparture ? `from=${encodeURIComponent(location)}` : `to=${encodeURIComponent(location)}`;
 
   return (
     <div className="text-sm w-48">
-      <p className="font-bold text-foreground flex items-center gap-2">
-        <Anchor className="w-4 h-4" /> {location}
+      <p className="font-bold text-foreground flex items-center gap-1.5">
+        <span>{icon}</span> {location}
       </p>
-      <p className="text-muted-foreground text-xs mb-2">{count} sejltur tilgængelig</p>
-      {avgPrice > 0 &&
-      <p className="text-primary font-semibold text-xs">Gennemsnit: {formatPrice(avgPrice)}</p>
-      }
-      <a href={`/transport?from=${encodeURIComponent(location)}`} className="text-primary text-xs mt-2 font-semibold hover:underline block">
+      <p className="text-muted-foreground text-xs mb-1">{label}</p>
+      <p className="text-muted-foreground text-xs mb-2">{count} rute{count !== 1 ? 'r' : ''} tilgængelig</p>
+      {avgPrice > 0 && (
+        <p className="text-primary font-semibold text-xs">Gns. tur/retur: {formatPrice(avgPrice)}</p>
+      )}
+      <a href={`/transport?${linkParam}`} className="text-primary text-xs mt-2 font-semibold hover:underline block">
         Se alle ruter →
       </a>
-    </div>);
-
+    </div>
+  );
 };
 
 /**
@@ -103,65 +132,94 @@ const TransportHubPopup = ({ location, transports }) => {
 export default function ImprovedGreenlandMap({ cabins = [], transports = [], height = '500px' }) {
   const [layers, setLayers] = React.useState({
     cabins: true,
-    transports: true
+    departures: true,
+    destinations: true,
   });
-
-  // Aggregér transport-data til havne
-  const transportHubs = useMemo(() => {
-    if (!layers.transports) return {};
-
-    const hubs = {};
-    (transports || []).forEach((t) => {
-      const from = t.from_location;
-      if (!from) return;
-      if (!hubs[from]) hubs[from] = [];
-      hubs[from].push(t);
-    });
-    return hubs;
-  }, [transports, layers.transports]);
 
   const cabinPins = useMemo(() => {
     if (!layers.cabins) return [];
-    return (cabins || []).
-    filter((c) => c && c.id && c.location).
-    map((c) => ({
-      ...c,
-      coords: LOCATIONS[c.location]
-    })).
-    filter((c) => c.coords);
+    return (cabins || [])
+      .filter((c) => c && c.id && c.location)
+      .map((c) => ({ ...c, coords: LOCATIONS[c.location] }))
+      .filter((c) => c.coords);
   }, [cabins, layers.cabins]);
 
-  const transportPins = useMemo(() => {
-    return Object.entries(transportHubs).map(([location, hubs]) => ({
-      location,
-      transports: hubs,
-      coords: LOCATIONS[location]
-    })).filter((p) => p.coords);
-  }, [transportHubs]);
+  // Afgangshavne (fra)
+  const departurePins = useMemo(() => {
+    if (!layers.departures) return [];
+    const hubs = {};
+    (transports || []).forEach((t) => {
+      if (!t.from_location) return;
+      if (!hubs[t.from_location]) hubs[t.from_location] = [];
+      hubs[t.from_location].push(t);
+    });
+    return Object.entries(hubs)
+      .map(([location, ts]) => ({ location, transports: ts, coords: LOCATIONS[location] }))
+      .filter((p) => p.coords);
+  }, [transports, layers.departures]);
+
+  // Destinationer (til)
+  const destinationPins = useMemo(() => {
+    if (!layers.destinations) return [];
+    const hubs = {};
+    (transports || []).forEach((t) => {
+      if (!t.to_location) return;
+      // Don't duplicate if also a departure hub
+      if (!hubs[t.to_location]) hubs[t.to_location] = [];
+      hubs[t.to_location].push(t);
+    });
+    // Exclude locations that are already departure pins
+    const departureLocations = new Set(departurePins.map((p) => p.location));
+    return Object.entries(hubs)
+      .filter(([loc]) => !departureLocations.has(loc))
+      .map(([location, ts]) => ({ location, transports: ts, coords: LOCATIONS[location] }))
+      .filter((p) => p.coords);
+  }, [transports, layers.destinations, departurePins]);
+
+  const showTransportLegend = departurePins.length > 0 || destinationPins.length > 0;
 
   return (
-    <div className="space-y-4">
-      {/* Toggle-knapper */}
-      <div className="flex gap-2 flex-wrap">
-        <Button
-          variant={layers.cabins ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setLayers((p) => ({ ...p, cabins: !p.cabins }))} className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3 text-xs gap-2 rounded-lg hidden">
-          
-          
-          {layers.cabins ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-          Hytter {cabinPins.length > 0 && `(${cabinPins.length})`}
-        </Button>
-        <Button
-          variant={layers.transports ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setLayers((p) => ({ ...p, transports: !p.transports }))} className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3 text-xs gap-2 rounded-lg hidden">
-          
-          
-          {layers.transports ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-          Transport {transportPins.length > 0 && `(${transportPins.length})`}
-        </Button>
-      </div>
+    <div className="space-y-3">
+      {/* Lag-toggle og legende */}
+      {(cabins.length > 0 || transports.length > 0) && (
+        <div className="flex flex-wrap items-center gap-2">
+          {cabins.length > 0 && (
+            <button
+              onClick={() => setLayers((p) => ({ ...p, cabins: !p.cabins }))}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                layers.cabins ? 'bg-primary text-white border-primary' : 'bg-white text-muted-foreground border-border'
+              }`}
+            >
+              <HomeIcon className="w-3.5 h-3.5" />
+              Hytter {cabinPins.length > 0 && `(${cabinPins.length})`}
+            </button>
+          )}
+          {transports.length > 0 && (
+            <>
+              <button
+                onClick={() => setLayers((p) => ({ ...p, departures: !p.departures }))}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                  layers.departures ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
+                }`}
+                style={layers.departures ? { backgroundColor: '#1a5276' } : {}}
+              >
+                <span>⚓</span>
+                Afgangshavne {departurePins.length > 0 && `(${departurePins.length})`}
+              </button>
+              <button
+                onClick={() => setLayers((p) => ({ ...p, destinations: !p.destinations }))}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                  layers.destinations ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
+                }`}
+                style={layers.destinations ? { backgroundColor: '#1e8449' } : {}}
+              >
+                <span>🏁</span>
+                Destinationer {destinationPins.length > 0 && `(${destinationPins.length})`}
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Kort */}
       <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card">
@@ -169,48 +227,39 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
           center={[68, -50]}
           zoom={5}
           style={{ height: '100%', width: '100%' }}
-          scrollWheelZoom={false}>
-          
+          scrollWheelZoom={false}
+        >
           <TileLayer
             attribution='&copy; OpenStreetMap'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
 
-          {/* Hytter-pins */}
-          {cabinPins.map((cabin) =>
-          <Marker key={`cabin-${cabin.id}`} position={cabin.coords} icon={createCabinIcon()}>
+          {/* Hytter */}
+          {cabinPins.map((cabin) => (
+            <Marker key={`cabin-${cabin.id}`} position={cabin.coords} icon={createCabinIcon()}>
+              <Popup><CabinPopup cabin={cabin} /></Popup>
+            </Marker>
+          ))}
+
+          {/* Afgangshavne */}
+          {departurePins.map((pin) => (
+            <Marker key={`dep-${pin.location}`} position={pin.coords} icon={createDepartureIcon()}>
               <Popup>
-                <CabinPopup cabin={cabin} />
+                <TransportHubPopup location={pin.location} transports={pin.transports} type="departure" />
               </Popup>
             </Marker>
-          )}
+          ))}
 
-          {/* Transport-hubs */}
-          {transportPins.map((pin) =>
-          <Marker key={`transport-${pin.location}`} position={pin.coords} icon={createTransportIcon()}>
+          {/* Destinationer */}
+          {destinationPins.map((pin) => (
+            <Marker key={`dst-${pin.location}`} position={pin.coords} icon={createDestinationIcon()}>
               <Popup>
-                <TransportHubPopup location={pin.location} transports={pin.transports} />
+                <TransportHubPopup location={pin.location} transports={pin.transports} type="destination" />
               </Popup>
             </Marker>
-          )}
+          ))}
         </MapContainer>
       </div>
-
-      {/* Legende */}
-      <div className="grid grid-cols-2 gap-3 text-xs bg-muted rounded-lg p-3 hidden">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-8 bg-primary rounded-sm flex items-center justify-center">
-            <HomeIcon className="w-3 h-3 text-white" />
-          </div>
-          <span className="text-foreground font-medium">Hytter</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-8 bg-accent rounded-sm flex items-center justify-center">
-            <Anchor className="w-3 h-3 text-white" />
-          </div>
-          <span className="text-foreground font-medium">Transport-haver</span>
-        </div>
-      </div>
-    </div>);
-
+    </div>
+  );
 }

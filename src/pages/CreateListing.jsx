@@ -35,6 +35,7 @@ export default function CreateListing() {
     from_location: '', to_location: '', departure_date: '',
     departure_time: '', seats_available: '', round_trip_price: '',
     boat_type: '', has_cabin: false, notes: '', equipment: [], add_on_services: [], images: [],
+    return_date: '', return_time: '', return_seats: '',
   });
   const [newEquipment, setNewEquipment] = useState('');
 
@@ -89,6 +90,9 @@ export default function CreateListing() {
       ...transportForm,
       seats_available: Number(transportForm.seats_available),
       round_trip_price: Number(transportForm.round_trip_price),
+      return_seats: transportForm.return_seats ? Number(transportForm.return_seats) : undefined,
+      return_date: transportForm.return_date || undefined,
+      return_time: transportForm.return_time || undefined,
       provider_name: user.full_name || '',
       provider_email: user.email,
       provider_avatar: user.avatar_url || '',
@@ -227,26 +231,54 @@ export default function CreateListing() {
              </Field>
 
             {/* Host transport */}
-            <div className="bg-muted/60 rounded-2xl p-5">
+            <div className="bg-muted/60 rounded-2xl p-5 space-y-4">
               <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={cabinForm.host_provides_transport}
-                  onChange={(e) => setCabinForm((p) => ({ ...p, host_provides_transport: e.target.checked }))}
+                  onChange={(e) => setCabinForm((p) => ({ ...p, host_provides_transport: e.target.checked, host_provides_return_transport: e.target.checked ? p.host_provides_return_transport : false }))}
                   className="mt-0.5 w-4 h-4 accent-primary"
                 />
                 <div>
-                  <span className="font-semibold text-sm text-foreground">I provide transport to the cabin</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">Guests will see your transport offer directly on your cabin listing</p>
+                  <span className="font-semibold text-sm text-foreground">Jeg yder transport til hytten</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">Gæster vil se dit transporttilbud direkte på dit hytteopslag</p>
                 </div>
               </label>
               {cabinForm.host_provides_transport && (
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <Field label="Transport from (city/port)">
-                    <Input placeholder="e.g. Nuuk harbour" value={cabinForm.transport_route_from} onChange={(e) => setCabinForm((p) => ({ ...p, transport_route_from: e.target.value }))} className="rounded-xl" />
+                <div className="grid grid-cols-2 gap-4 pl-7">
+                  <Field label="Transport fra (by/havn)">
+                    <Input placeholder="f.eks. Nuuk havn" value={cabinForm.transport_route_from} onChange={(e) => setCabinForm((p) => ({ ...p, transport_route_from: e.target.value }))} className="rounded-xl" />
                   </Field>
-                  <Field label="Price per seat (DKK)">
+                  <Field label="Pris pr. plads (DKK)">
                     <Input type="number" placeholder="500" value={cabinForm.transport_price_per_seat} onChange={(e) => setCabinForm((p) => ({ ...p, transport_price_per_seat: e.target.value }))} className="rounded-xl" />
+                  </Field>
+                </div>
+              )}
+
+              {cabinForm.host_provides_transport && (
+                <label className="flex items-start gap-3 cursor-pointer pl-7">
+                  <input
+                    type="checkbox"
+                    checked={cabinForm.host_provides_return_transport || false}
+                    onChange={(e) => setCabinForm((p) => ({ ...p, host_provides_return_transport: e.target.checked }))}
+                    className="mt-0.5 w-4 h-4 accent-primary"
+                  />
+                  <div>
+                    <span className="font-semibold text-sm text-foreground">Jeg yder også hjemtransport</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">Angiv hvornår I sejler tilbage, og hvor mange pladser der er</p>
+                  </div>
+                </label>
+              )}
+              {cabinForm.host_provides_transport && cabinForm.host_provides_return_transport && (
+                <div className="grid grid-cols-3 gap-4 pl-7">
+                  <Field label="Hjemrejsedato">
+                    <Input type="date" value={cabinForm.return_transport_date || ''} onChange={(e) => setCabinForm((p) => ({ ...p, return_transport_date: e.target.value }))} className="rounded-xl" min={new Date().toISOString().split('T')[0]} />
+                  </Field>
+                  <Field label="Afgang (tid)">
+                    <Input type="time" value={cabinForm.return_transport_time || ''} onChange={(e) => setCabinForm((p) => ({ ...p, return_transport_time: e.target.value }))} className="rounded-xl" />
+                  </Field>
+                  <Field label="Pladser retur">
+                    <Input type="number" min={1} placeholder="3" value={cabinForm.return_transport_seats || ''} onChange={(e) => setCabinForm((p) => ({ ...p, return_transport_seats: e.target.value }))} className="rounded-xl" />
                   </Field>
                 </div>
               )}
@@ -308,6 +340,28 @@ export default function CreateListing() {
                 </div>
               </Field>
             </div>
+            {/* Return trip */}
+            <div className="bg-muted/60 rounded-2xl p-5 space-y-4">
+              <div>
+                <p className="font-semibold text-sm text-foreground">Hjemrejse</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Angiv hvornår I sejler tilbage, og hvor mange pladser der er tilgængelige. Gæster vil se dette tydeligt under booking.</p>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <Field label="Hjemrejsedato">
+                  <Input type="date" value={transportForm.return_date} onChange={(e) => setTransportForm((p) => ({ ...p, return_date: e.target.value }))} className="rounded-xl" min={transportForm.departure_date || new Date().toISOString().split('T')[0]} />
+                </Field>
+                <Field label="Afgang retur (tid)">
+                  <Input type="time" value={transportForm.return_time} onChange={(e) => setTransportForm((p) => ({ ...p, return_time: e.target.value }))} className="rounded-xl" />
+                </Field>
+                <Field label="Pladser retur">
+                  <Input type="number" min={1} placeholder="3" value={transportForm.return_seats} onChange={(e) => setTransportForm((p) => ({ ...p, return_seats: e.target.value }))} className="rounded-xl" />
+                </Field>
+              </div>
+              {!transportForm.return_date && (
+                <p className="text-xs text-muted-foreground italic">Lad felterne stå tomme, hvis du ikke tilbyder hjemrejse.</p>
+              )}
+            </div>
+
             <Field label="Notes">
               <Textarea placeholder="Any info for passengers — gear, meeting point, etc." value={transportForm.notes} onChange={(e) => setTransportForm((p) => ({ ...p, notes: e.target.value }))} rows={3} className="rounded-xl resize-none" />
             </Field>
