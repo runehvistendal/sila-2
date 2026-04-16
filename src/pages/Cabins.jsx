@@ -64,38 +64,6 @@ export default function Cabins() {
 
   return (
     <div className="min-h-screen pt-16">
-      {/* CTA Section */}
-      <section className="py-20 bg-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                {t('cant_find_cabin')}
-                </h2>
-                <p className="text-white/70 text-lg leading-relaxed mb-8">
-                  {t('request_cabin_cta')}
-              </p>
-              <Button
-                onClick={() => user ? setShowRequestModal(true) : base44.auth.redirectToLogin()}
-                size="lg"
-                className="bg-white text-primary hover:bg-white/90 rounded-full px-8 font-semibold gap-2"
-              >
-                {t('request_cabin_btn')} <ArrowRight className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="relative">
-              <div className="rounded-2xl overflow-hidden aspect-[4/3] shadow-card-hover">
-                <img
-                  src="https://images.unsplash.com/photo-1551727170-e209f2d8c1b4?w=900&h=700&fit=crop&q=85"
-                  alt="Grønlandske hytter"
-                  className="w-full h-full object-cover"
-                  onError={(e) => e.target.style.display = 'none'}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <div className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -151,6 +119,29 @@ export default function Cabins() {
           </div>
         )}
       </div>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-primary/5 border-t border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+                {t('cant_find_cabin')}
+              </h2>
+              <p className="text-muted-foreground text-sm sm:text-base max-w-md">
+                {t('request_cabin_cta')}
+              </p>
+            </div>
+            <Button
+              onClick={() => user ? setShowRequestModal(true) : base44.auth.redirectToLogin()}
+              size="lg"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-6 font-semibold gap-2 whitespace-nowrap"
+            >
+              {t('request_cabin_btn')} <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Request Cabin Modal */}
       {showRequestModal && (
