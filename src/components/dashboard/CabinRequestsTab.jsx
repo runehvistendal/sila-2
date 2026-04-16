@@ -120,10 +120,10 @@ export function MyCabinRequestsTab() {
             <RatingModal requestId={ratingFor.id} requestType="cabin" toEmail={ratingFor.host_email} toName={ratingFor.host_name || 'Hosten'} onDone={() => setRatingFor(null)} />
           </DialogContent>
         </Dialog>
-      )}
-    </div>
-  );
-}
+        )}
+        </div>
+        );
+        }
 
 // ---- HOST VIEW ----
 export function IncomingCabinRequestsTab() {
