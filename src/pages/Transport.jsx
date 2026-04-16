@@ -141,7 +141,7 @@ export default function Transport() {
           <>
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} {t('routes_found')}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-               {filtered.map((t) => (
+               {filtered.slice(0, showAllTransport ? undefined : 9).map((t) => (
                  <div key={t.id}>
                    <TransportCard
                      transport={{
@@ -153,6 +153,13 @@ export default function Transport() {
                  </div>
                ))}
              </div>
+             {!showAllTransport && filtered.length > 9 && (
+               <div className="flex justify-center mt-8">
+                 <Button onClick={() => setShowAllTransport(true)} variant="outline" className="rounded-xl px-6">
+                   {t('show_all_transport') || 'Vis alle ruter'}
+                 </Button>
+               </div>
+             )}
           </>
         ) : (
           <div className="text-center py-24">

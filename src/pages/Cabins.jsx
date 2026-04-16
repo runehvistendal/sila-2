@@ -130,10 +130,17 @@ export default function Cabins() {
           <>
             <p className="text-sm text-muted-foreground mb-6">{filtered.length} {t('cabins_found')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.filter(c => c && c.id).map((cabin) => (
+              {filtered.filter(c => c && c.id).slice(0, showAllCabins ? undefined : 9).map((cabin) => (
                 <CabinCard key={cabin.id} cabin={cabin} />
               ))}
             </div>
+            {!showAllCabins && filtered.length > 9 && (
+              <div className="flex justify-center mt-8">
+                <Button onClick={() => setShowAllCabins(true)} variant="outline" className="rounded-xl px-6">
+                  {t('show_all_cabins') || 'Vis alle hytter'}
+                </Button>
+              </div>
+            )}
           </>
         ) : (
           <div className="text-center py-24">
