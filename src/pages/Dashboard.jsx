@@ -42,7 +42,10 @@ export default function Dashboard() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [requestType, setRequestType] = useState('transport'); // 'transport' or 'cabin'
+  const [selectedCity, setSelectedCity] = useState(''); // empty string means all cities
+
+  const CITIES = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Aasiaat', 'Tasiilaq', 'Qaqortoq', 'Maniitsoq', 'Disko Bay', 'Kangerlussuaq', 'Upernavik', 'Narsaq'];
 
   const { data: myBookings = [] } = useQuery({
     queryKey: ['my-bookings', user?.email],
@@ -245,83 +248,86 @@ export default function Dashboard() {
           {/* ALL REQUESTS — for providers */}
           {isProvider && (
             <TabsContent value="all-requests">
-              <div className="space-y-8">
-                {/* Transport Requests */}
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">{t('all_transport_requests') || 'Alle transportanmodninger'}</h3>
-                  <div className="mb-4">
-                    <input
-                      type="text"
-                      placeholder={t('search_by_location') || 'Søg efter by...'}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl border border-input bg-transparent text-sm"
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    {allTransportRequests
-                      .filter((r) => {
-                        const q = searchQuery.toLowerCase();
-                        return !q || r.from_location?.toLowerCase().includes(q) || r.to_location?.toLowerCase().includes(q);
-                      })
-                      .map((r) => (
-                        <div key={r.id} className="bg-white rounded-xl border border-border p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="font-semibold text-sm text-foreground">{r.from_location} → {r.to_location}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">Fra: {r.guest_name || r.guest_email}</p>
-                              <p className="text-xs text-muted-foreground">{format(new Date(r.travel_date), 'd. MMM yyyy')} · {r.passengers} passagerer</p>
-                            </div>
-                            <Badge className={r.status === 'pending' ? 'bg-amber-100 text-amber-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{r.status}</Badge>
-                          </div>
-                        </div>
-                      ))}
-                    {allTransportRequests.filter((r) => {
-                      const q = searchQuery.toLowerCase();
-                      return !q || r.from_location?.toLowerCase().includes(q) || r.to_location?.toLowerCase().includes(q);
-                    }).length === 0 && (
-                      <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_requests') || 'Ingen anmodninger'}</p>
-                    )}
-                  </div>
+              <div className="space-y-6">
+                {/* Toggle buttons */}
+                <div className="flex gap-2 bg-muted rounded-xl p-1 w-fit">
+                  <button
+                    onClick={() => setRequestType('transport')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      requestType === 'transport'
+                        ? 'bg-white text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Anchor className="w-4 h-4 inline mr-2" />
+                    Transport
+                  </button>
+                  <button
+                    onClick={() => setRequestType('cabin')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      requestType === 'cabin'
+                        ? 'bg-white text-foreground shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    <Home className="w-4 h-4 inline mr-2" />
+                    Hytte
+                  </button>
                 </div>
 
-                {/* Cabin Requests */}
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">{t('all_cabin_requests') || 'Alle hytteanmodninger'}</h3>
-                  <div className="mb-4">
-                    <input
-                      type="text"
-                      placeholder={t('search_by_location') || 'Søg efter by...'}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl border border-input bg-transparent text-sm"
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    {allCabinRequests
-                      .filter((r) => {
-                        const q = searchQuery.toLowerCase();
-                        return !q || r.location?.toLowerCase().includes(q);
-                      })
-                      .map((r) => (
-                        <div key={r.id} className="bg-white rounded-xl border border-border p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="font-semibold text-sm text-foreground">{r.location}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">Fra: {r.guest_name || r.guest_email}</p>
-                              <p className="text-xs text-muted-foreground">{format(new Date(r.check_in), 'd. MMM')} – {format(new Date(r.check_out), 'd. MMM yyyy')} · {r.guests} gæster</p>
+                {/* City filter dropdown */}
+                <div className="max-w-xs">
+                  <select
+                    value={selectedCity}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl border border-input bg-white text-sm"
+                  >
+                    <option value="">Alle byer</option>
+                    {CITIES.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Display transport or cabin requests */}
+                <div className="space-y-3">
+                  {requestType === 'transport'
+                    ? allTransportRequests
+                        .filter((r) => !selectedCity || r.from_location === selectedCity || r.to_location === selectedCity)
+                        .map((r) => (
+                          <div key={r.id} className="bg-white rounded-xl border border-border p-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <p className="font-semibold text-sm text-foreground">{r.from_location} → {r.to_location}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">{r.guest_name || r.guest_email}</p>
+                                <p className="text-xs text-muted-foreground">{format(new Date(r.travel_date), 'd. MMM yyyy')} · {r.passengers} passagerer</p>
+                              </div>
+                              <Badge className={r.status === 'pending' ? 'bg-amber-100 text-amber-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{r.status}</Badge>
                             </div>
-                            <Badge className={r.status === 'pending' ? 'bg-amber-100 text-amber-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{r.status}</Badge>
                           </div>
-                        </div>
-                      ))}
-                    {allCabinRequests.filter((r) => {
-                      const q = searchQuery.toLowerCase();
-                      return !q || r.location?.toLowerCase().includes(q);
-                    }).length === 0 && (
-                      <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_requests') || 'Ingen anmodninger'}</p>
-                    )}
-                  </div>
+                        ))
+                    : allCabinRequests
+                        .filter((r) => !selectedCity || r.location === selectedCity)
+                        .map((r) => (
+                          <div key={r.id} className="bg-white rounded-xl border border-border p-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <div>
+                                <p className="font-semibold text-sm text-foreground">{r.location}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">{r.guest_name || r.guest_email}</p>
+                                <p className="text-xs text-muted-foreground">{format(new Date(r.check_in), 'd. MMM')} – {format(new Date(r.check_out), 'd. MMM yyyy')} · {r.guests} gæster</p>
+                              </div>
+                              <Badge className={r.status === 'pending' ? 'bg-amber-100 text-amber-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{r.status}</Badge>
+                            </div>
+                          </div>
+                        ))}
+                  {(requestType === 'transport'
+                    ? allTransportRequests.filter((r) => !selectedCity || r.from_location === selectedCity || r.to_location === selectedCity)
+                    : allCabinRequests.filter((r) => !selectedCity || r.location === selectedCity)
+                  ).length === 0 && (
+                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">Ingen anmodninger fundet</p>
+                  )}
                 </div>
               </div>
             </TabsContent>
