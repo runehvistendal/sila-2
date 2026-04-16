@@ -4,6 +4,12 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
+    
+    // Verify this is an internal entity automation (not external)
+    if (!payload.event || payload.event.type !== 'create') {
+      return Response.json({ error: 'Invalid event source' }, { status: 400 });
+    }
+
     const booking = payload.data;
 
     if (!booking?.guest_email) {

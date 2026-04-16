@@ -5,8 +5,9 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { event } = await req.json();
 
-    if (event.type !== 'update') {
-      return Response.json({ status: 'skipped', reason: 'Not an update event' });
+    // Verify this is an internal entity automation (not external)
+    if (!event || event.type !== 'update' || !event.entity_name || event.entity_name !== 'Booking') {
+      return Response.json({ status: 'skipped', reason: 'Invalid event source' }, { status: 400 });
     }
 
     const booking = event.data;

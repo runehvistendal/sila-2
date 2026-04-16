@@ -3,6 +3,14 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    
+    // Verify scheduler authorization
+    const schedulerSecret = Deno.env.get('SCHEDULER_SECRET');
+    const authHeader = req.headers.get('authorization') || '';
+    
+    if (!schedulerSecret || authHeader !== `Bearer ${schedulerSecret}`) {
+      return Response.json({ error: 'Forbidden: Scheduler access required' }, { status: 403 });
+    }
 
     // Find confirmed bookings that are in 7 days
     const bookings = await base44.asServiceRole.entities.Booking.filter(
