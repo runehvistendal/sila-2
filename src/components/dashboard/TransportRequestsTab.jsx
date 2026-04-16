@@ -114,10 +114,11 @@ export function IncomingRequestsTab() {
             <RatingModal requestId={ratingFor.id} requestType="transport" toEmail={ratingFor.guest_email} toName={ratingFor.guest_name || 'Gæsten'} onDone={() => setRatingFor(null)} />
           </DialogContent>
         </Dialog>
-        )}
-        </div>
-        );
-        }
+      )}
+      )}
+    </div>
+  );
+}
 
 // ---- GUEST VIEW ----
 export function MyTransportRequestsTab() {
