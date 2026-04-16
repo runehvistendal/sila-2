@@ -15,7 +15,21 @@ export default function LocationAutocomplete({
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [allLocations, setAllLocations] = useState([]);
   const timeoutRef = useRef(null);
+
+  // Load all locations on mount
+  useEffect(() => {
+    const loadLocations = async () => {
+      try {
+        const locs = await base44.entities.Location.list('-name_dk', 500);
+        setAllLocations(locs);
+      } catch (err) {
+        console.error('Error loading locations:', err);
+      }
+    };
+    loadLocations();
+  }, []);
 
   // Fetch selected location details
   useEffect(() => {
@@ -37,7 +51,8 @@ export default function LocationAutocomplete({
     setInput(query);
     
     if (!query.trim()) {
-      setResults([]);
+      // Show all locations if no search
+      setResults(allLocations.slice(0, 50));
       return;
     }
 
@@ -47,13 +62,18 @@ export default function LocationAutocomplete({
         query,
         userLat,
         userLon,
-        limit: 10
+        limit: 20
       });
       setResults(res.data.locations || []);
-      setOpen(true);
     } catch (err) {
       console.error('Search error:', err);
-      setResults([]);
+      // Fallback to local filtering
+      const filtered = allLocations.filter(loc =>
+        loc.name_dk.toLowerCase().includes(query.toLowerCase()) ||
+        loc.name_gl.toLowerCase().includes(query.toLowerCase()) ||
+        loc.postal_code.includes(query)
+      );
+      setResults(filtered.slice(0, 20));
     } finally {
       setLoading(false);
     }
@@ -61,13 +81,7 @@ export default function LocationAutocomplete({
 
   const handleInputChange = (e) => {
     const query = e.target.value;
-    setInput(query);
-    
-    // Debounce search
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      handleSearch(query);
-    }, 300);
+    handleSearch(query);
   };
 
   const handleSelect = (location) => {
@@ -80,6 +94,14 @@ export default function LocationAutocomplete({
 
   const displayText = selectedLocation ? `${selectedLocation.name_dk} (${selectedLocation.postal_code})` : '';
 
+  // Show all locations when focus on empty input
+  const handleFocus = () => {
+    if (!input) {
+      setResults(allLocations.slice(0, 50));
+    }
+    setOpen(true);
+  };
+
   return (
     <div className={`relative ${className}`}>
       <div className="relative">
@@ -88,7 +110,7 @@ export default function LocationAutocomplete({
           placeholder={displayText || placeholder}
           value={input}
           onChange={handleInputChange}
-          onFocus={() => input && setOpen(true)}
+          onFocus={handleFocus}
           className="w-full px-4 py-2 pr-9 rounded-xl border border-input bg-white text-sm focus:outline-none focus:ring-1 focus:ring-ring"
         />
         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -104,6 +126,11 @@ export default function LocationAutocomplete({
           {!loading && results.length === 0 && input && (
             <div className="px-4 py-3 text-sm text-muted-foreground text-center">
               Ingen steder fundet
+            </div>
+          )}
+          {results.length === 0 && !input && (
+            <div className="px-4 py-3 text-sm text-muted-foreground text-center">
+              Indlæser steder...
             </div>
           )}
           {results.map((location) => (
