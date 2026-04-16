@@ -57,12 +57,20 @@ export default function OpenRequestsTab() {
     enabled: !!user,
   });
 
-  // Get user's location coordinates from user profile
+  // Get user's location coordinates from user profile (match by ID or by location name)
   const userCoords = useMemo(() => {
-    if (!user?.location_id || !locations.length) return null;
-    const userLoc = locations.find(l => l.id === user.location_id);
-    return userLoc ? { lat: userLoc.latitude, lon: userLoc.longitude, id: userLoc.id } : null;
-  }, [user?.location_id, locations]);
+    if (!locations.length) return null;
+    
+    let userLoc = null;
+    if (user?.location_id) {
+      userLoc = locations.find(l => l.id === user.location_id);
+    } else if (user?.location) {
+      // Match by location name if no location_id
+      userLoc = locations.find(l => l.name_dk?.toLowerCase() === user.location.toLowerCase());
+    }
+    
+    return userLoc ? { lat: userLoc.latitude, lon: userLoc.longitude, id: userLoc.id, name: userLoc.name_dk } : null;
+  }, [user?.location_id, user?.location, locations]);
 
   // Combine and process all requests
   const allRequests = useMemo(() => {
