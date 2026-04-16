@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { MessageCircle, Send, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MessageCircle, Send, CheckCircle, AlertCircle, Loader, ShieldAlert } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -175,6 +176,25 @@ export default function Support() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      {/* Incident Report Section */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-16">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start gap-5">
+          <div className="w-11 h-11 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+            <ShieldAlert className="w-6 h-6 text-red-600" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-bold text-foreground text-lg mb-1">Rapportér en hændelse</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Har du oplevet en sikkerhedsmæssig bekymring, chikane, svindel eller en anden alvorlig hændelse i forbindelse med en booking eller transport? Du kan indgive en fortrolig rapport til Sila, og vores team vil behandle den hurtigst muligt.
+            </p>
+            <Link to="/report-incident">
+              <Button variant="destructive" className="gap-2 rounded-xl">
+                <ShieldAlert className="w-4 h-4" />
+                Indgiv en hændelsesrapport
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
