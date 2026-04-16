@@ -23,23 +23,6 @@ export default function UserProfile() {
   const email = urlParams.get('email');
   const type = urlParams.get('type') || 'host'; // 'host' | 'guest'
 
-  if (!email) {
-    return (
-      <div className="min-h-screen bg-background pt-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
-            <ArrowLeft className="w-4 h-4" />
-            Tilbage
-          </button>
-          <div className="bg-white rounded-2xl border border-border p-6 text-center">
-            <AlertCircle className="w-10 h-10 text-destructive mx-auto mb-3 opacity-50" />
-            <p className="text-muted-foreground">Brugerinformation blev ikke fundet.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Fetch reviews where this person is the provider (as host/transport provider)
   const { data: hostReviews = [], isLoading: isLoadingHostReviews } = useQuery({
     queryKey: ['profile-host-reviews', email],
@@ -80,6 +63,23 @@ export default function UserProfile() {
     : null;
 
   const memberSince = cabins[0]?.created_date || transports[0]?.created_date;
+
+  if (!email) {
+    return (
+      <div className="min-h-screen bg-background pt-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
+            <ArrowLeft className="w-4 h-4" />
+            Tilbage
+          </button>
+          <div className="bg-white rounded-2xl border border-border p-6 text-center">
+            <AlertCircle className="w-10 h-10 text-destructive mx-auto mb-3 opacity-50" />
+            <p className="text-muted-foreground">Brugerinformation blev ikke fundet.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
