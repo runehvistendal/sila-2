@@ -18,6 +18,7 @@ import { IncomingCabinRequestsTab, MyCabinRequestsTab } from '@/components/dashb
 import HostCalendarTab from '@/components/dashboard/HostCalendarTab';
 import BookingReviewButton from '@/components/bookings/BookingReviewButton';
 import ProviderTrustCard from '@/components/provider/ProviderTrustCard';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -37,21 +38,6 @@ const STATUS_LABELS = {
   completed: 'Afsluttet',
 };
 
-// City coordinates for distance calculation
-const CITY_COORDS = {
-  'Nuuk': { lat: 64.175, lon: -51.739 },
-  'Ilulissat': { lat: 69.218, lon: -51.098 },
-  'Sisimiut': { lat: 66.940, lon: -53.673 },
-  'Aasiaat': { lat: 68.708, lon: -52.891 },
-  'Tasiilaq': { lat: 65.614, lon: -37.636 },
-  'Qaqortoq': { lat: 60.716, lon: -46.034 },
-  'Maniitsoq': { lat: 65.414, lon: -52.897 },
-  'Disko Bay': { lat: 69.5, lon: -52.5 },
-  'Kangerlussuaq': { lat: 66.996, lon: -50.621 },
-  'Upernavik': { lat: 72.786, lon: -56.148 },
-  'Narsaq': { lat: 60.912, lon: -46.059 },
-};
-
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -62,6 +48,14 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
+
+// Build city coordinates from GREENLAND_LOCATIONS
+const CITY_COORDS = {};
+GREENLAND_LOCATIONS.forEach(loc => {
+  if (!CITY_COORDS[loc.name_dk]) {
+    CITY_COORDS[loc.name_dk] = { lat: loc.latitude, lon: loc.longitude };
+  }
+});
 
 export default function Dashboard() {
   const { user } = useAuth();

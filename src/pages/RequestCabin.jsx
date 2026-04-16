@@ -10,11 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Calendar, Users, ArrowRight, CheckCircle } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
-
-const LOCATIONS = [
-  'Nuuk', 'Ilulissat', 'Sisimiut', 'Aasiaat', 'Maniitsoq',
-  'Tasiilaq', 'Nanortalik', 'Qaqortoq', 'Paamiut', 'Uummannaq',
-];
+import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
 
 export default function RequestCabin() {
   const { user } = useAuth();
@@ -93,18 +89,15 @@ export default function RequestCabin() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Location */}
-          <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">{t('location')}</label>
-            <Select value={form.location} onValueChange={v => setForm(f => ({ ...f, location: v }))}>
-              <SelectTrigger className="h-11 rounded-xl">
-                <SelectValue placeholder={t('select_destination')} />
-              </SelectTrigger>
-              <SelectContent>
-                {LOCATIONS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
+           {/* Location */}
+           <div>
+             <label className="block text-sm font-medium text-foreground mb-1.5">{t('location')}</label>
+             <LocationAutocomplete 
+               value={form.location ? { name_dk: form.location } : null}
+               onChange={(loc) => setForm(f => ({ ...f, location: loc?.name_dk || '' }))}
+               placeholder={t('select_destination')}
+             />
+           </div>
 
           {/* Dates */}
           <div className="grid grid-cols-2 gap-3">

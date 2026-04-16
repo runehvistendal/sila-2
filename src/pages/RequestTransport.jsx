@@ -10,13 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Anchor, MapPin, Calendar, Users, Send, ArrowRight, ArrowLeftRight, RefreshCw } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
-
-const LOCATIONS = [
-  'Nuuk', 'Ilulissat', 'Sisimiut', 'Qaqortoq', 'Aasiaat',
-  'Maniitsoq', 'Tasiilaq', 'Paamiut', 'Nanortalik', 'Uummannaq',
-  'Kangaatsiaq', 'Qasigiannguit', 'Narsaq', 'Kangerlussuaq',
-  'Ilimanaq', 'Qeqertarsuaq', 'Ittoqqortoormiit', 'Qaanaaq',
-];
+import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
 
 export default function RequestTransport() {
   const { user } = useAuth();
@@ -102,40 +96,24 @@ export default function RequestTransport() {
         <form onSubmit={handleSubmit} className="space-y-5 bg-white rounded-2xl border border-border p-6 shadow-card">
 
           {/* Route */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('from')}</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <select
-                  required
-                  value={form.from_location}
-                  onChange={(e) => set('from_location', e.target.value)}
-                  className="w-full pl-9 pr-3 h-9 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <option value="">{t('select_departure')}</option>
-                  {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                  <option value="Andet">{t('other_describe')}</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('to')}</Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <select
-                  required
-                  value={form.to_location}
-                  onChange={(e) => set('to_location', e.target.value)}
-                  className="w-full pl-9 pr-3 h-9 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <option value="">{t('select_destination')}</option>
-                  {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
-                  <option value="Andet">{t('other_describe')}</option>
-                </select>
-              </div>
-            </div>
-          </div>
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+             <div>
+               <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('from')}</Label>
+               <LocationAutocomplete 
+                 value={form.from_location ? { name_dk: form.from_location } : null}
+                 onChange={(loc) => set('from_location', loc?.name_dk || '')}
+                 placeholder={t('select_departure')}
+               />
+             </div>
+             <div>
+               <Label className="text-xs font-semibold text-foreground/70 mb-1.5 block">{t('to')}</Label>
+               <LocationAutocomplete 
+                 value={form.to_location ? { name_dk: form.to_location } : null}
+                 onChange={(loc) => set('to_location', loc?.name_dk || '')}
+                 placeholder={t('select_destination')}
+               />
+             </div>
+           </div>
 
           {/* Route preview */}
           {form.from_location && form.to_location && (

@@ -11,9 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Home, Anchor, X, Plus } from 'lucide-react';
 import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
 import AddOnServicesEditor from '@/components/shared/AddOnServicesEditor';
+import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
 import { toast } from '@/components/ui/use-toast';
-
-const LOCATIONS = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Disko Bay', 'Kangerlussuaq', 'Tasiilaq', 'Upernavik', 'Qaqortoq', 'Narsaq', 'Other'];
 
 export default function CreateListing() {
   const navigate = useNavigate();
@@ -25,7 +24,7 @@ export default function CreateListing() {
 
   // Cabin form state
   const [cabinForm, setCabinForm] = useState({
-    title: '', description: '', location: '', price_per_night: '',
+    title: '', description: '', location_id: '', location: '', price_per_night: '',
     max_guests: '', host_provides_transport: false,
     transport_route_from: '', transport_price_per_seat: '', amenities: [],
     add_on_services: [], images: [],
@@ -67,6 +66,10 @@ export default function CreateListing() {
 
   const handleCabinSubmit = (e) => {
     e.preventDefault();
+    if (!cabinForm.location_id) {
+      toast({ title: 'Vælg en lokation', description: 'Du skal vælge en lokation fra listen' });
+      return;
+    }
     cabinMutation.mutate({
       ...cabinForm,
       price_per_night: Number(cabinForm.price_per_night),
@@ -157,12 +160,16 @@ export default function CreateListing() {
               <Input placeholder={t('cabin_title_placeholder') || 'e.g. Arctic Wilderness Cabin'} value={cabinForm.title} onChange={(e) => setCabinForm((p) => ({ ...p, title: e.target.value }))} required className="rounded-xl" />
             </Field>
             <Field label={t('location') || 'Location *'}>
-              <Select value={cabinForm.location} onValueChange={(v) => setCabinForm((p) => ({ ...p, location: v }))}>
-                <SelectTrigger className="rounded-xl"><SelectValue placeholder={t('select_destination')} /></SelectTrigger>
-                <SelectContent>
-                  {LOCATIONS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <LocationAutocomplete 
+                value={cabinForm.location_id ? { id: cabinForm.location_id } : null}
+                onChange={(loc) => {
+                  setCabinForm((p) => ({
+                    ...p,
+                    location_id: loc?.id || '',
+                    location: loc ? `${loc.name_dk} (${loc.postal_code})` : ''
+                  }));
+                }}
+              />
             </Field>
             <Field label={t('description') || 'Description'}>
               <Textarea placeholder={t('cabin_description_placeholder') || 'Describe your cabin, surroundings, access...'} value={cabinForm.description} onChange={(e) => setCabinForm((p) => ({ ...p, description: e.target.value }))} rows={4} className="rounded-xl resize-none" />
