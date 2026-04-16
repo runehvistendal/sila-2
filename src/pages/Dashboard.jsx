@@ -217,7 +217,7 @@ export default function Dashboard() {
              {isProvider && (
                <>
                  <TabsTrigger value="all-requests" className="rounded-lg px-4 py-2 text-sm gap-2">
-                   <Users className="w-4 h-4" /> {t('all_requests') || 'Alle anmodninger'}
+                   <Users className="w-4 h-4" /> {t('all_requests') || 'Anmodninger'}
                  </TabsTrigger>
                  <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
                    <Briefcase className="w-4 h-4" /> {t('provider_tab')}

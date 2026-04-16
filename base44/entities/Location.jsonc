@@ -1,0 +1,55 @@
+{
+  "name": "Location",
+  "type": "object",
+  "properties": {
+    "postal_code": {
+      "type": "string",
+      "description": "Postnummer i Gr\u00f8nland (f.eks. 3900)"
+    },
+    "name_gl": {
+      "type": "string",
+      "description": "Navn p\u00e5 gr\u00f8nlandsk (Kalaallisut)"
+    },
+    "name_dk": {
+      "type": "string",
+      "description": "Navn p\u00e5 dansk"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "by",
+        "bygd"
+      ],
+      "description": "Type: by (hovedby) eller bygd (mindre bos\u00e6ttelse)"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Geografisk breddegrad"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Geografisk l\u00e6ngdegrad"
+    },
+    "region": {
+      "type": "string",
+      "description": "Region i Gr\u00f8nland (f.eks. Sermersooq, Qeqertalik)"
+    },
+    "population": {
+      "type": "number",
+      "description": "Befolkningstal (hvis kendt)"
+    },
+    "is_major_hub": {
+      "type": "boolean",
+      "default": false,
+      "description": "Om lokationen er en st\u00f8rre knudepunkt med\ub9ce\uc740 forbindelser"
+    }
+  },
+  "required": [
+    "postal_code",
+    "name_gl",
+    "name_dk",
+    "type",
+    "latitude",
+    "longitude"
+  ]
+}
