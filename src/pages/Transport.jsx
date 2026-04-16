@@ -57,6 +57,16 @@ export default function Transport() {
     return result;
   }, [transports, filters]);
 
+  // Find return trip for each outbound trip (same provider, reverse route, later date)
+  const getReturnTrip = (t) => transports.find(
+    (r) => r.provider_email === t.provider_email &&
+      r.from_location === t.to_location &&
+      r.to_location === t.from_location &&
+      r.departure_date >= t.departure_date &&
+      r.id !== t.id &&
+      r.status === 'scheduled'
+  ) || null;
+
   return (
     <div className="min-h-screen pt-16">
       <div className="bg-white border-b border-border">
@@ -85,11 +95,12 @@ export default function Transport() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                {filtered.map((t) => (
                  <div key={t.id}>
-                   <TransportCard 
+                   <TransportCard
                      transport={{
                        ...t,
                        round_trip_price: t.round_trip_price || PRICE_EXAMPLES[t.from_location] || PRICE_EXAMPLES[t.to_location] || 1800
-                     }} 
+                     }}
+                     returnTrip={getReturnTrip(t)}
                    />
                  </div>
                ))}

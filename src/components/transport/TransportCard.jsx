@@ -4,10 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Calendar, Clock, Users, Anchor, Home, Shield, AlertTriangle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Calendar, Clock, Users, Anchor, Home, Shield, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 
-export default function TransportCard({ transport, compact = false }) {
+export default function TransportCard({ transport, returnTrip = null, compact = false }) {
   const { data: providerTrust } = useQuery({
     queryKey: ['provider-trust', transport.provider_email],
     queryFn: () => base44.entities.ProviderTrust.filter({ provider_email: transport.provider_email }, null, 1).then(r => r[0]),
@@ -90,10 +90,20 @@ export default function TransportCard({ transport, compact = false }) {
         </span>
       </div>
 
+      {/* Return trip badge */}
+      {returnTrip && (
+        <div className="mb-4 bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2">
+          <ArrowLeft className="w-3.5 h-3.5 text-accent shrink-0" />
+          <span className="text-xs font-medium text-accent">
+            Hjemrejse tilgængelig: {returnTrip.to_location} → {returnTrip.from_location} · {format(new Date(returnTrip.departure_date), 'd. MMM yyyy')}
+          </span>
+        </div>
+      )}
+
       {!compact && (
         <Link to={`/transport/${transport.id}`}>
           <Button size="sm" variant="outline" className="w-full rounded-xl border-primary/30 text-primary hover:bg-primary hover:text-white transition-colors">
-            View & Book
+            Se & Book
           </Button>
         </Link>
       )}

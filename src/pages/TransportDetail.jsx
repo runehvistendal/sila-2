@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare, X } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare } from 'lucide-react';
 import ListingImageGallery from '@/components/shared/ListingImageGallery';
 import { format } from 'date-fns';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
@@ -169,69 +169,156 @@ export default function TransportDetail() {
 
           {/* Return trip section */}
           <div className="mb-5">
+            <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 text-accent" />
+              Hjemrejse
+            </p>
+
             {returnTrips.length > 0 ? (
-              <div>
-                <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 text-accent" />
-                  Tilkøb returbillet
-                </p>
-                <div className="space-y-2">
-                  {returnTrips.map((rt) => (
-                    <button
-                      key={rt.id}
-                      onClick={() => {
-                        if (selectedReturn?.id === rt.id && addReturn) {
-                          setAddReturn(false);
-                          setSelectedReturn(null);
-                        } else {
-                          setSelectedReturn(rt);
-                          setAddReturn(true);
-                        }
-                      }}
-                      className={`w-full text-left p-3 rounded-xl border transition-colors ${
-                        addReturn && selectedReturn?.id === rt.id
-                          ? 'bg-accent/10 border-accent text-foreground'
-                          : 'bg-muted border-border hover:border-accent/40'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-semibold">{rt.to_location} → {rt.from_location}</p>
-                          <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} pladser</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-accent">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
-                          {addReturn && selectedReturn?.id === rt.id && (
-                            <Badge className="bg-accent/20 text-accent border-0 text-xs mt-1">Valgt</Badge>
-                          )}
-                        </div>
+              <div className="space-y-2">
+                {returnTrips.map((rt) => (
+                  <button
+                    key={rt.id}
+                    onClick={() => {
+                      if (selectedReturn?.id === rt.id && addReturn) {
+                        setAddReturn(false);
+                        setSelectedReturn(null);
+                      } else {
+                        setSelectedReturn(rt);
+                        setAddReturn(true);
+                        setShowRequestForm(false);
+                      }
+                    }}
+                    className={`w-full text-left p-3 rounded-xl border transition-colors ${
+                      addReturn && selectedReturn?.id === rt.id
+                        ? 'bg-accent/10 border-accent text-foreground'
+                        : 'bg-muted border-border hover:border-accent/40'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold">{rt.to_location} → {rt.from_location}</p>
+                        <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} pladser</p>
                       </div>
-                    </button>
-                  ))}
-                </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-accent">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
+                        {addReturn && selectedReturn?.id === rt.id && (
+                          <Badge className="bg-accent/20 text-accent border-0 text-xs mt-1">Valgt</Badge>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+                <button
+                  onClick={() => {
+                    setShowRequestForm(!showRequestForm);
+                    setAddReturn(false);
+                    setSelectedReturn(null);
+                    setReqForm(prev => ({ ...prev, from_location: transport.to_location, to_location: transport.from_location }));
+                  }}
+                  className="w-full text-left p-3 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
+                >
+                  + Ønsker du en anden dato? Send en anmodning
+                </button>
               </div>
             ) : (
-              <div className="bg-muted rounded-xl p-4">
-                <p className="text-sm text-muted-foreground mb-3">
-                  Passer datoen ikke? Eller ønsker du transport tilbage?
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Ingen bekræftet hjemrejse fra denne udbyder endnu.</p>
+                <button
                   onClick={() => {
-                    setShowRequestForm(true);
-                    setReqForm(prev => ({
-                      ...prev,
-                      from_location: transport.to_location,
-                      to_location: transport.from_location,
-                    }));
+                    setShowRequestForm(!showRequestForm);
+                    setReqForm(prev => ({ ...prev, from_location: transport.to_location, to_location: transport.from_location }));
                   }}
-                  className="gap-2 rounded-lg text-sm"
+                  className={`w-full text-left p-3 rounded-xl border transition-colors ${
+                    showRequestForm ? 'bg-primary/5 border-primary/30 text-foreground' : 'bg-muted border-border hover:border-primary/40'
+                  }`}
                 >
-                  <MessageSquare className="w-4 h-4" /> Anmod om returtransport
-                </Button>
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium">Anmod om returtransport</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 ml-6">Send en anmodning — udbyderen svarer dig direkte</p>
+                </button>
               </div>
             )}
+
+            {/* Inline request form — folds out inside the booking card */}
+            <AnimatePresence>
+              {showRequestForm && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-3 pt-4 border-t border-border">
+                    {/* "Only a request" notice */}
+                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
+                      <span className="text-amber-500 mt-0.5 text-base leading-none">⚠️</span>
+                      <p className="text-xs text-amber-800">
+                        <strong>Dette er en anmodning — ikke en booking.</strong> Udbyderen modtager din forespørgsel og vender tilbage med tilbud og pris. Du betaler intet nu.
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Fra</label>
+                          <select
+                            value={reqForm.from_location}
+                            onChange={e => setReqForm(p => ({ ...p, from_location: e.target.value }))}
+                            className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                          >
+                            {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Til</label>
+                          <select
+                            value={reqForm.to_location}
+                            onChange={e => setReqForm(p => ({ ...p, to_location: e.target.value }))}
+                            className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                          >
+                            {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Ønsket dato</label>
+                          <Input type="date" value={reqForm.travel_date} onChange={e => setReqForm(p => ({ ...p, travel_date: e.target.value }))} min={new Date().toISOString().split('T')[0]} />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Passagerer</label>
+                          <Input type="number" min={1} max={20} value={reqForm.passengers} onChange={e => setReqForm(p => ({ ...p, passengers: Number(e.target.value) }))} />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Besked (valgfri)</label>
+                        <Textarea value={reqForm.message} onChange={e => setReqForm(p => ({ ...p, message: e.target.value }))} rows={2} placeholder="Beskriv din rejse..." className="resize-none" />
+                      </div>
+                      <Button
+                        onClick={() => {
+                          if (!user) { base44.auth.redirectToLogin(); return; }
+                          requestMutation.mutate({
+                            ...reqForm,
+                            passengers: Number(reqForm.passengers),
+                            guest_name: user.full_name || '',
+                            guest_email: user.email,
+                            provider_email: transport.provider_email,
+                            provider_name: transport.provider_name,
+                            status: 'pending',
+                          });
+                        }}
+                        disabled={!reqForm.travel_date || requestMutation.isPending}
+                        className="w-full bg-primary text-white rounded-xl h-11 font-semibold"
+                      >
+                        {requestMutation.isPending ? 'Sender...' : 'Send anmodning'}
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Seats */}
@@ -285,81 +372,6 @@ export default function TransportDetail() {
           )}
           <p className="text-xs text-muted-foreground text-center mt-3">Sikker betaling via Stripe</p>
         </div>
-
-        {/* Inline transport request form */}
-        <AnimatePresence>
-          {showRequestForm && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-foreground text-base">Anmod om transport</h3>
-                <button onClick={() => setShowRequestForm(false)} className="text-muted-foreground hover:text-foreground">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Fra</label>
-                    <select
-                      value={reqForm.from_location}
-                      onChange={e => setReqForm(p => ({ ...p, from_location: e.target.value }))}
-                      className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    >
-                      {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Til</label>
-                    <select
-                      value={reqForm.to_location}
-                      onChange={e => setReqForm(p => ({ ...p, to_location: e.target.value }))}
-                      className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    >
-                      {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-                    </select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Ønsket dato</label>
-                    <Input type="date" value={reqForm.travel_date} onChange={e => setReqForm(p => ({ ...p, travel_date: e.target.value }))} min={new Date().toISOString().split('T')[0]} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Passagerer</label>
-                    <Input type="number" min={1} max={20} value={reqForm.passengers} onChange={e => setReqForm(p => ({ ...p, passengers: Number(e.target.value) }))} />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Besked (valgfri)</label>
-                  <Textarea value={reqForm.message} onChange={e => setReqForm(p => ({ ...p, message: e.target.value }))} rows={2} placeholder="Beskriv din rejse..." className="resize-none" />
-                </div>
-                <Button
-                  onClick={() => {
-                    if (!user) { base44.auth.redirectToLogin(); return; }
-                    requestMutation.mutate({
-                      ...reqForm,
-                      passengers: Number(reqForm.passengers),
-                      guest_name: user.full_name || '',
-                      guest_email: user.email,
-                      provider_email: transport.provider_email,
-                      provider_name: transport.provider_name,
-                      status: 'pending',
-                    });
-                  }}
-                  disabled={!reqForm.travel_date || requestMutation.isPending}
-                  className="w-full bg-primary text-white rounded-xl h-11 font-semibold"
-                >
-                  {requestMutation.isPending ? 'Sender...' : 'Send anmodning'}
-                </Button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Reviews */}
         <TransportReviews transportId={transport.id} providerEmail={transport.provider_email} providerName={transport.provider_name} />
