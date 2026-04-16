@@ -18,7 +18,7 @@ export default function Home() {
     queryFn: async () => {
       const res = await base44.functions.invoke('listCabins', { sort: '-created_date', limit: 6 });
       return res.data.cabins || [];
-    }
+    },
   });
 
   const handleSearch = (e) => {
@@ -35,8 +35,8 @@ export default function Home() {
             src="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&h=1080&fit=crop&q=85"
             alt="Greenland"
             className="w-full h-full object-cover opacity-70"
-            onError={(e) => e.target.style.display = 'none'} />
-          
+            onError={(e) => e.target.style.display = 'none'}
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
 
@@ -92,8 +92,8 @@ export default function Home() {
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            className="max-w-xl">
-            
+            className="max-w-xl"
+          >
             <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/15 rounded-full px-4 py-1.5 mb-6">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
               <span className="text-white/90 text-xs font-medium">Greenland's cabin & boat marketplace</span>
@@ -115,8 +115,8 @@ export default function Home() {
                   placeholder="Search by location..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 h-12 bg-white/95 backdrop-blur-sm rounded-xl border-0 shadow-lg text-foreground placeholder:text-muted-foreground" />
-                
+                  className="pl-10 h-12 bg-white/95 backdrop-blur-sm rounded-xl border-0 shadow-lg text-foreground placeholder:text-muted-foreground"
+                />
               </div>
               <Button type="submit" className="h-12 px-6 bg-primary hover:bg-primary/90 rounded-xl font-semibold shadow-lg">
                 Search
@@ -136,26 +136,26 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-            {
-              icon: Search,
-              step: '01',
-              title: 'Find your cabin',
-              desc: 'Browse remote cabins across Greenland, filtered by location and price.'
-            },
-            {
-              icon: Anchor,
-              step: '02',
-              title: 'Book transport',
-              desc: "See transport options directly on the cabin page. Some hosts provide it themselves."
-            },
-            {
-              icon: HomeIcon,
-              step: '03',
-              title: 'Experience it',
-              desc: 'Your host confirms the booking and you head off into the Arctic wilderness.'
-            }].
-            map((item, i) =>
-            <div key={i} className="text-center">
+              {
+                icon: Search,
+                step: '01',
+                title: 'Find your cabin',
+                desc: 'Browse remote cabins across Greenland, filtered by location and price.',
+              },
+              {
+                icon: Anchor,
+                step: '02',
+                title: 'Book transport',
+                desc: "See transport options directly on the cabin page. Some hosts provide it themselves.",
+              },
+              {
+                icon: HomeIcon,
+                step: '03',
+                title: 'Experience it',
+                desc: 'Your host confirms the booking and you head off into the Arctic wilderness.',
+              },
+            ].map((item, i) => (
+              <div key={i} className="text-center">
                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
                   <item.icon className="w-6 h-6 text-primary" />
                 </div>
@@ -163,7 +163,7 @@ export default function Home() {
                 <h3 className="text-lg font-bold text-foreground mt-1 mb-2">{item.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </section>
@@ -181,19 +181,19 @@ export default function Home() {
             </Button>
           </div>
 
-          {featuredCabins.length > 0 ?
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredCabins.map((cabin) =>
-            <CabinCard key={cabin.id} cabin={cabin} />
-            )}
-            </div> :
-
-          <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-border">
+          {featuredCabins.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredCabins.map((cabin) => (
+                <CabinCard key={cabin.id} cabin={cabin} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-border">
               <HomeIcon className="w-10 h-10 text-muted-foreground/40 mx-auto mb-4" />
               <p className="text-muted-foreground font-medium mb-2">No cabins listed yet</p>
               <Button size="sm" onClick={() => navigate('/create-listing')} className="mt-2 bg-primary text-white">Be the first host</Button>
             </div>
-          }
+          )}
 
           <div className="mt-8 text-center sm:hidden">
             <Button variant="outline" onClick={() => navigate('/cabins')} className="rounded-xl px-6">View all cabins</Button>
@@ -220,10 +220,10 @@ export default function Home() {
               </p>
               <div className="flex flex-wrap gap-6 mb-8">
                 {[
-                { label: 'Delte pladser', desc: 'Betal per plads' },
-                { label: 'Fleksibel afgang', desc: 'Afgang når klar' }].
-                map((item, i) =>
-                <div key={i} className="flex items-center gap-3">
+                  { label: 'Delte pladser', desc: 'Betal per plads' },
+                  { label: 'Fleksibel afgang', desc: 'Afgang når klar' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
                     <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
                       <Users className="w-4 h-4 text-primary" />
                     </div>
@@ -232,13 +232,13 @@ export default function Home() {
                       <p className="text-xs text-muted-foreground">{item.desc}</p>
                     </div>
                   </div>
-                )}
+                ))}
               </div>
               <Button
                 size="lg"
                 onClick={() => navigate('/transport')}
-                className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 gap-2 font-semibold">
-                
+                className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 gap-2 font-semibold"
+              >
                 Find en bådtur <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
@@ -249,11 +249,11 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=900&h=700&fit=crop&q=85"
                   alt="Grønlandsk sejltur"
                   className="w-full h-full object-cover"
-                  onError={(e) => e.target.style.display = 'none'} />
-                
+                  onError={(e) => e.target.style.display = 'none'}
+                />
               </div>
               {/* Floating card */}
-              <div className="bg-white rounded-xl absolute bottom-5 left-5 shadow-card max-w-[180px]">
+              <div className="absolute bottom-5 left-5 bg-white rounded-xl shadow-card p-3.5 max-w-[180px]">
                 <p className="text-xs text-muted-foreground mb-0.5">Næste afgang</p>
                 <p className="text-sm font-bold text-foreground">Nuuk → Kapisillit</p>
                 <p className="text-xs text-muted-foreground mt-0.5">2 pladser · 150 DKK/plads</p>
@@ -294,37 +294,37 @@ export default function Home() {
                 <Button
                   size="lg"
                   className="bg-white text-primary hover:bg-white/90 rounded-full px-8 font-semibold"
-                  onClick={() => window.location.href = '/create-listing'}>
-                  
+                  onClick={() => window.location.href = '/create-listing'}
+                >
                   List your cabin
                 </Button>
                 <Button
                   size="lg"
                   variant="ghost"
                   className="text-white/80 hover:text-white hover:bg-white/10 rounded-full px-8"
-                  onClick={() => window.location.href = '/create-listing?type=transport'}>
-                  
+                  onClick={() => window.location.href = '/create-listing?type=transport'}
+                >
                   Offer transport
                 </Button>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-              { icon: HomeIcon, label: 'Cabins listed', value: 'Free to list' },
-              { icon: Anchor, label: 'Transport routes', value: 'You set the price' },
-              { icon: Users, label: 'Travelers', value: 'Direct booking' },
-              { icon: Search, label: 'Visibility', value: 'Arctic-focused' }].
-              map((item, i) =>
-              <div key={i} className="bg-white/10 rounded-2xl p-5 backdrop-blur-sm">
+                { icon: HomeIcon, label: 'Cabins listed', value: 'Free to list' },
+                { icon: Anchor, label: 'Transport routes', value: 'You set the price' },
+                { icon: Users, label: 'Travelers', value: 'Direct booking' },
+                { icon: Search, label: 'Visibility', value: 'Arctic-focused' },
+              ].map((item, i) => (
+                <div key={i} className="bg-white/10 rounded-2xl p-5 backdrop-blur-sm">
                   <item.icon className="w-6 h-6 text-white/60 mb-3" />
                   <p className="text-white font-bold text-base">{item.value}</p>
                   <p className="text-white/50 text-xs mt-0.5">{item.label}</p>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
       </section>
-    </div>);
-
+    </div>
+  );
 }

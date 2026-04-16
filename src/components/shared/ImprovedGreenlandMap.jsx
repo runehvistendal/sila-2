@@ -140,24 +140,24 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
     <div className="space-y-4">
       {/* Toggle-knapper */}
       <div className="flex gap-2 flex-wrap">
-        
-
-
-
-
-
-
-
-        
-        
-
-
-
-
-
-
-
-        
+        <Button
+          variant={layers.cabins ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setLayers((p) => ({ ...p, cabins: !p.cabins }))} className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3 text-xs gap-2 rounded-lg hidden">
+          
+          
+          {layers.cabins ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          Hytter {cabinPins.length > 0 && `(${cabinPins.length})`}
+        </Button>
+        <Button
+          variant={layers.transports ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setLayers((p) => ({ ...p, transports: !p.transports }))} className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3 text-xs gap-2 rounded-lg hidden">
+          
+          
+          {layers.transports ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          Transport {transportPins.length > 0 && `(${transportPins.length})`}
+        </Button>
       </div>
 
       {/* Kort */}
@@ -194,20 +194,20 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
       </div>
 
       {/* Legende */}
-      
-
-
-
-
-
-
-
-
-
-
-
-
-      
+      <div className="grid grid-cols-2 gap-3 text-xs bg-muted rounded-lg p-3 hidden">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-8 bg-primary rounded-sm flex items-center justify-center">
+            <HomeIcon className="w-3 h-3 text-white" />
+          </div>
+          <span className="text-foreground font-medium">Hytter</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-8 bg-accent rounded-sm flex items-center justify-center">
+            <Anchor className="w-3 h-3 text-white" />
+          </div>
+          <span className="text-foreground font-medium">Transport-haver</span>
+        </div>
+      </div>
     </div>);
 
 }
