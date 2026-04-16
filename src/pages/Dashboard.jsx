@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   PlusCircle, Home, Anchor, Calendar, MapPin, Users, Check, X,
-  ArrowRight, Eye, Star, ChevronRight, Briefcase, Clock, Ship, ChevronDown
+  ArrowRight, Eye, Star, ChevronRight, Briefcase, Clock, Ship, ChevronDown, DollarSign
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
@@ -178,15 +178,20 @@ export default function Dashboard() {
              )}
            </div>
            <div className="flex gap-2 flex-wrap">
-             <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
-               <MapPin className="w-4 h-4" /> {t('request_cabin_btn')}
-             </Button>
-             <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
-               <Anchor className="w-4 h-4" /> {t('request_transport_btn')}
-             </Button>
-             <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
-               <PlusCircle className="w-4 h-4" /> {t('new_listing')}
-             </Button>
+              <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
+                <MapPin className="w-4 h-4" /> {t('request_cabin_btn')}
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
+                <Anchor className="w-4 h-4" /> {t('request_transport_btn')}
+              </Button>
+              {isProvider && (
+                <Button variant="outline" onClick={() => setRequestType('transport')} className="rounded-xl gap-2 text-sm">
+                  <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
+                </Button>
+              )}
+              <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
+                <PlusCircle className="w-4 h-4" /> {t('new_listing')}
+              </Button>
             {user?.role === 'admin' && (
               <Button variant="outline" onClick={() => navigate('/admin/legal')} className="rounded-xl gap-2 text-sm">
                 {t('admin')}
@@ -210,7 +215,7 @@ export default function Dashboard() {
              </TabsTrigger>
              {isProvider && (
                <>
-                 <TabsTrigger value="all-requests" className="rounded-lg px-4 py-2 text-sm gap-2">
+                 <TabsTrigger value="all-requests" className="rounded-lg px-4 py-2 text-sm gap-2 hidden">
                    <Users className="w-4 h-4" /> {t('all_requests') || 'Anmodninger'}
                  </TabsTrigger>
                  <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
