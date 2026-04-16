@@ -11,10 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, Heart, Briefcase } from 'lucide-react';
+import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
-import RoleSwitcherDropdown from '@/components/shared/RoleSwitcherDropdown';
 import CurrencySelector from '@/components/shared/CurrencySelector';
 
 export default function Navbar() {
@@ -128,16 +127,6 @@ export default function Navbar() {
                        </Link>
                      </DropdownMenuItem>
                      <DropdownMenuSeparator />
-                     <DropdownMenuItem asChild>
-                       <div className="flex items-center gap-2 cursor-pointer">
-                         <Briefcase className="w-4 h-4" />
-                         <div className="flex-1">
-                           <RoleSwitcherDropdown />
-                         </div>
-                       </div>
-                     </DropdownMenuItem>
-                     <DropdownMenuSeparator />
-
                      <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive flex items-center gap-2 cursor-pointer">
                        <LogOut className="w-4 h-4" /> {t('nav_sign_out')}
                      </DropdownMenuItem>

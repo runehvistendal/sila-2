@@ -130,9 +130,9 @@ export default function Profile() {
 
   const roleLabels = {
     traveler: 'Rejsende',
-    host: 'Hytteejer',
-    provider: 'Transportudbyder',
-    both: 'Host & Transportudbyder',
+    host: 'Udbyder',
+    provider: 'Udbyder',
+    both: 'Udbyder & Rejsende',
   };
 
   return (
@@ -228,11 +228,10 @@ export default function Profile() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="traveler">Rejsende – jeg leder efter hytter</SelectItem>
-                    <SelectItem value="host">Hytteejer – jeg udlejer hytter</SelectItem>
-                    <SelectItem value="provider">Transportudbyder – jeg tilbyder båd/transport</SelectItem>
-                    <SelectItem value="both">Begge – host og transportudbyder</SelectItem>
-                  </SelectContent>
+                     <SelectItem value="traveler">Rejsende – jeg leder efter hytter og transport</SelectItem>
+                     <SelectItem value="provider">Udbyder – jeg tilbyder hytter eller transport</SelectItem>
+                     <SelectItem value="both">Begge – jeg udbyder og rejser selv</SelectItem>
+                   </SelectContent>
                 </Select>
               </div>
               <div>
