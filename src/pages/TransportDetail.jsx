@@ -233,7 +233,7 @@ export default function TransportDetail() {
                 
                 {returnTrips.length > 0 ? (
                   <div className="space-y-2 mb-4">
-                    <p className="text-xs font-semibold text-muted-foreground mb-2">{t('other_providers_return')}:</p>
+                    <p className="text-xs font-semibold text-muted-foreground mb-2 whitespace-pre-line">{t('no_return_other_providers')} {transport.from_location}:</p>
                     {returnTrips.map((rt) => (
                       <button
                         key={rt.id}

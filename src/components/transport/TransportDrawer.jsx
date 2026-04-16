@@ -206,6 +206,7 @@ export default function TransportDrawer({ transportId, onClose }) {
 
                   {returnTrips.length > 0 ? (
                     <div className="space-y-2">
+                      <p className="text-xs font-semibold text-muted-foreground mb-2 whitespace-pre-line">{t('no_return_other_providers')} {transport.from_location}:</p>
                       {returnTrips.map((rt) => (
                         <button
                           key={rt.id}
