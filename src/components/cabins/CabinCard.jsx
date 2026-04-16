@@ -4,11 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { MapPin, Users, Anchor, Star } from 'lucide-react';
 import { useCurrency } from '@/lib/CurrencyContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import FavouriteButton from '@/components/shared/FavouriteButton';
 
 export default function CabinCard({ cabin }) {
   const [imageError, setImageError] = useState(false);
   const { formatPrice } = useCurrency();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const coverImage = cabin.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=600&h=400&fit=crop&q=80';
   const fallbackImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80';
@@ -49,7 +51,7 @@ export default function CabinCard({ cabin }) {
         {cabin.host_provides_transport && (
           <div className="absolute top-3 left-3">
             <span className="inline-flex items-center gap-1 bg-white text-primary shadow-sm text-xs font-semibold px-2.5 py-0.5 rounded-md">
-              <Anchor className="w-3 h-3" /> Transport tilbydes
+              <Anchor className="w-3 h-3" /> {t('transport_offered')}
             </span>
           </div>
         )}
@@ -62,7 +64,7 @@ export default function CabinCard({ cabin }) {
             {cabin.title}
           </h3>
           <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-            {formatPrice(cabin.price_per_night)} <span className="font-normal text-muted-foreground text-xs">/nat</span>
+            {formatPrice(cabin.price_per_night)} <span className="font-normal text-muted-foreground text-xs">{t('per_night_abbr')}</span>
           </span>
         </div>
         <div className="flex items-center gap-1 text-muted-foreground text-xs mb-1.5">

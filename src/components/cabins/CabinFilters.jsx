@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 import SearchSuggestions from './SearchSuggestions';
 
 const AMENITIES = ['Wi-Fi', 'Sauna', 'Toilet', 'Electricity', 'Running water', 'Fireplace', 'Boat access', 'Fishing'];
@@ -8,6 +9,7 @@ const AMENITIES = ['Wi-Fi', 'Sauna', 'Toilet', 'Electricity', 'Running water', '
 const selectClass = "h-10 rounded-xl border border-input bg-transparent px-3 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring text-foreground cursor-pointer";
 
 export default function CabinFilters({ filters, onChange, cabins = [] }) {
+  const { t } = useLanguage();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const set = (key, val) => onChange({ ...filters, [key]: val });
@@ -26,7 +28,7 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
         <div className="relative flex-1 min-w-[180px] max-w-xs">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="Søg på navn, sted eller facilitet..."
+            placeholder={t('search_cabin_placeholder')}
             value={filters.search}
             onChange={(e) => set('search', e.target.value)}
             className="pl-10 h-10 rounded-xl"
@@ -43,7 +45,7 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
           onChange={(e) => set('location', e.target.value)}
           className={`${selectClass} w-[180px]`}
         >
-          <option value="all">Alle steder</option>
+          <option value="all">{t('all_locations')}</option>
           <option value="Nuuk">Nuuk</option>
           <option value="Ilulissat">Ilulissat</option>
           <option value="Sisimiut">Sisimiut</option>
@@ -60,9 +62,9 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
           onChange={(e) => set('sort', e.target.value)}
           className={`${selectClass} w-[160px]`}
         >
-          <option value="newest">Nyeste først</option>
-          <option value="price_asc">Pris: lav til høj</option>
-          <option value="price_desc">Pris: høj til lav</option>
+          <option value="newest">{t('newest_first')}</option>
+          <option value="price_asc">{t('price_low_high')}</option>
+          <option value="price_desc">{t('price_high_low')}</option>
         </select>
 
         <button
@@ -70,7 +72,7 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
-          Avanceret
+          {t('advanced')}
           {hasActive && <span className="w-2 h-2 rounded-full bg-primary inline-block" />}
         </button>
       </div>
@@ -79,24 +81,24 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
         <div className="bg-white border border-border rounded-2xl p-5 space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Min pris (DKK/nat)</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">{t('min_price_label')}</label>
               <Input type="number" placeholder="0" value={filters.minPrice} onChange={(e) => set('minPrice', e.target.value)} className="rounded-xl h-9" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Max pris (DKK/nat)</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">{t('max_price_label')}</label>
               <Input type="number" placeholder="∞" value={filters.maxPrice} onChange={(e) => set('maxPrice', e.target.value)} className="rounded-xl h-9" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Min. gæster</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">{t('min_guests_label')}</label>
               <Input type="number" placeholder="1" min={1} value={filters.minGuests} onChange={(e) => set('minGuests', e.target.value)} className="rounded-xl h-9" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Indflytning efter</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">{t('check_in_after')}</label>
               <Input type="date" value={filters.checkIn} onChange={(e) => set('checkIn', e.target.value)} className="rounded-xl h-9" />
             </div>
           </div>
           <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Faciliteter</label>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">{t('amenities_label')}</label>
             <div className="flex flex-wrap gap-2">
               {AMENITIES.map((a) => (
                 <button
@@ -117,12 +119,12 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
                 onChange={(e) => set('hostTransport', e.target.checked)}
                 className="w-4 h-4 accent-primary rounded"
               />
-              <span className="font-medium text-foreground">Værten tilbyder transport</span>
+              <span className="font-medium text-foreground">{t('host_offers_transport')}</span>
             </label>
           </div>
           {hasActive && (
             <button onClick={reset} className="text-muted-foreground text-sm flex items-center gap-1 h-8 px-2 rounded-lg hover:bg-muted">
-              <X className="w-3.5 h-3.5" /> Nulstil filtre
+              <X className="w-3.5 h-3.5" /> {t('reset_filters')}
             </button>
           )}
         </div>

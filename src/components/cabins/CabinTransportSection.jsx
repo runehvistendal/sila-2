@@ -37,7 +37,7 @@ const TRANSPORT_TYPES = [
  */
 export default function CabinTransportSection({ cabin, transports, guests, onTransportCostChange }) {
   const { user } = useAuth();
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
 
   // Host transport
   const [selectedType, setSelectedType] = useState(null); // null | 'round_trip' | 'outbound' | 'return'
@@ -79,59 +79,34 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
     onTransportCostChange?.(transportCost);
   }, [transportCost]);
 
-  // Translated label helpers
   const typeLabel = (value) => {
     const map = {
-      round_trip: { da: 'Tur-retur (begge veje)', en: 'Round trip (both ways)', kl: 'Inisseq-paluartup' },
-      outbound:   { da: 'Udrejse (enkeltbillet)', en: 'Outbound (one way)',     kl: 'Inisseq aataatigut' },
-      return:     { da: 'Hjemrejse (enkeltbillet)', en: 'Return (one way)',     kl: 'Paluartup aataatigut' },
+      round_trip: t('round_trip_both'),
+      outbound: t('outbound_one_way'),
+      return: t('return_one_way'),
     };
-    return map[value]?.[lang] || map[value]?.da;
+    return map[value];
   };
-
-  const otherTransportsLabel = {
-    da: `Andre tilgængelige transportmuligheder til ${cabin.location}`,
-    en: `Other available transport options to ${cabin.location}`,
-    kl: `Allanik umiarsuiit ${cabin.location}-imut`,
-  }[lang] || `Andre tilgængelige transportmuligheder til ${cabin.location}`;
-
-  const dateDoesntFitLabel = {
-    da: 'Passer datoen ikke?',
-    en: "Date doesn't fit?",
-    kl: 'Ullua siunngitsoorpa?',
-  }[lang];
-
-  const requestNowLabel = {
-    da: 'Anmod om transport nu',
-    en: 'Request transport now',
-    kl: 'Umiarsuanik ujarlerit',
-  }[lang];
-
-  const sendRequestLabel = {
-    da: 'Send forespørgsel',
-    en: 'Send request',
-    kl: 'Takuuk',
-  }[lang];
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-foreground mb-4">Getting there</h2>
+      <h2 className="text-xl font-bold text-foreground mb-4">{t('getting_there')}</h2>
 
       {/* ── HOST-PROVIDED TRANSPORT ── */}
       {cabin.host_provides_transport && pricePerSeat > 0 && (
         <div className="bg-primary/5 border border-primary/15 rounded-2xl p-5 mb-5">
           <div className="flex items-center gap-2 mb-2">
             <Anchor className="w-5 h-5 text-primary" />
-            <span className="font-semibold text-foreground">Host-provided transport</span>
+            <span className="font-semibold text-foreground">{t('host_provided_transport')}</span>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
-            {cabin.host_name || 'Your host'} offers transport from{' '}
-            <strong>{cabin.transport_route_from || 'the mainland'}</strong> to the cabin.
+            {cabin.host_name || t('your_host')} {t('offers_transport_from')}{' '}
+            <strong>{cabin.transport_route_from || t('the_mainland')}</strong> {t('to_the_cabin')}.
           </p>
 
           {/* Type selector */}
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            {lang === 'da' ? 'Jeg ønsker:' : lang === 'en' ? 'I want:' : 'Nalinginnaasumik:'}
+            {t('i_want')}
           </p>
           <div className="space-y-2 mb-3">
             {(['round_trip', 'outbound', 'return']).map((type) => {
@@ -166,10 +141,10 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
 
           {selectedType && (
             <div className="bg-white rounded-lg px-3 py-2 text-xs text-muted-foreground">
-              {pricePerSeat} DKK × {guests} {lang === 'da' ? 'gæst' : 'guest'}{guests !== 1 ? (lang === 'da' ? 'er' : 's') : ''}
-              {selectedType === 'round_trip' ? ` × 2 (${lang === 'da' ? 'tur/retur' : 'round trip'})` : ''} ={' '}
+              {pricePerSeat} DKK × {guests} {guests !== 1 ? t('guest_plural') : t('guest_singular')}
+              {selectedType === 'round_trip' ? ` × 2 (${t('round_trip_label')})` : ''} ={' '}
               <span className="font-semibold text-foreground">{transportCost} DKK</span>{' '}
-              <span className="text-muted-foreground/60">({lang === 'da' ? 'lægges til bookingprisen' : 'added to booking total'})</span>
+              <span className="text-muted-foreground/60">({t('added_to_total')})</span>
             </div>
           )}
 
@@ -179,12 +154,12 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
               <ArrowRight className="w-3.5 h-3.5 text-accent shrink-0 mt-0.5 rotate-180" />
               <div>
                 <p className="text-xs font-semibold text-accent">
-                  {lang === 'da' ? 'Hjemrejse inkluderet' : 'Return trip available'}
+                  {t('return_included')}
                 </p>
                 <p className="text-xs text-accent/80 mt-0.5">
                   {cabin.location} → {cabin.transport_route_from || '...'} · {format(new Date(cabin.return_transport_date), 'd. MMM')}
                   {cabin.return_transport_time && ` kl. ${cabin.return_transport_time}`}
-                  {cabin.return_transport_seats && ` · ${cabin.return_transport_seats} ${lang === 'da' ? 'pladser' : 'seats'}`}
+                  {cabin.return_transport_seats && ` · ${cabin.return_transport_seats} ${t('seats_plural')}`}
                 </p>
               </div>
             </div>
@@ -195,7 +170,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
       {/* ── OTHER TRANSPORT LISTINGS ── */}
       {transports.length > 0 && (
         <div className="mb-5 space-y-3">
-          <p className="text-sm font-medium text-muted-foreground">{otherTransportsLabel}:</p>
+          <p className="text-sm font-medium text-muted-foreground">{t('other_transport_to')} {cabin.location}:</p>
           {transports.map((tr) => (
             <div key={tr.id} onClick={() => setDrawerTransportId(tr.id)} className="cursor-pointer">
               <TransportCard transport={tr} compact={false} />
@@ -217,16 +192,14 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
       {/* ── NO TRANSPORT AVAILABLE ── */}
       {!cabin.host_provides_transport && transports.length === 0 && (
         <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4 mb-4">
-          {lang === 'da'
-            ? 'Ingen transportopslag fundet til denne destination endnu.'
-            : 'No transport listings found for this location yet.'}
+          {t('no_transport_listings')}
         </p>
       )}
 
       {/* ── REQUEST TRANSPORT CTA ── */}
       {!showRequest && !reqSent && (
         <div className="flex items-center gap-3 mt-2">
-          <span className="text-sm text-muted-foreground">{dateDoesntFitLabel}</span>
+          <span className="text-sm text-muted-foreground">{t('date_doesnt_fit')}</span>
           <Button
             variant="outline"
             size="sm"
@@ -234,7 +207,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
             className="gap-1.5 rounded-xl shrink-0"
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            {requestNowLabel}
+            {t('request_transport_now')}
           </Button>
         </div>
       )}
@@ -252,12 +225,10 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-semibold text-foreground text-sm">
-                    {lang === 'da' ? 'Anmod om transport' : 'Request transport'}
+                    {t('request_transport_heading')}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {lang === 'da'
-                      ? 'Lokale sejlere svarer med et pristilbud — gratis og uforpligtende.'
-                      : 'Local sailors will reply with a price quote — free and non-binding.'}
+                    {t('request_transport_subtitle')}
                   </p>
                 </div>
                 <button onClick={() => setShowRequest(false)} className="text-muted-foreground hover:text-foreground">
@@ -269,7 +240,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
-                      {lang === 'da' ? 'Fra' : 'From'}
+                      {t('from')}
                     </label>
                     <select
                       value={reqForm.from_location}
@@ -281,7 +252,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
-                      {lang === 'da' ? 'Til' : 'To'}
+                      {t('to')}
                     </label>
                     <select
                       value={reqForm.to_location}
@@ -296,7 +267,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
-                      {lang === 'da' ? 'Ønsket dato' : 'Desired date'}
+                      {t('desired_date')}
                     </label>
                     <Input
                       type="date"
@@ -308,7 +279,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
-                      {lang === 'da' ? 'Passagerer' : 'Passengers'}
+                      {t('passengers')}
                     </label>
                     <Input
                       type="number"
@@ -323,14 +294,12 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
 
                 <div>
                   <label className="text-xs font-semibold text-muted-foreground block mb-1.5">
-                    {lang === 'da' ? 'Besked (valgfri)' : 'Message (optional)'}
+                    {t('message_optional')}
                   </label>
                   <Textarea
-                    value={reqForm.message}
-                    onChange={(e) => setReqForm((p) => ({ ...p, message: e.target.value }))}
-                    placeholder={lang === 'da'
-                      ? 'F.eks. vi har meget bagage, og ønsker at ankomme inden kl. 14...'
-                      : 'E.g. we have a lot of luggage and need to arrive before 2pm...'}
+                  value={reqForm.message}
+                  onChange={(e) => setReqForm((p) => ({ ...p, message: e.target.value }))}
+                  placeholder={t('request_placeholder')}
                     rows={2}
                     className="resize-none bg-white"
                   />
@@ -350,7 +319,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
                   disabled={!reqForm.travel_date || requestMutation.isPending}
                   className="w-full bg-primary text-white rounded-xl h-10 font-semibold text-sm gap-1.5"
                 >
-                  {requestMutation.isPending ? (lang === 'da' ? 'Sender...' : 'Sending...') : sendRequestLabel}
+                  {requestMutation.isPending ? t('sending_dots') : t('send_request')}
                 </Button>
               </div>
             </div>
@@ -366,18 +335,16 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
           </div>
           <div>
             <p className="text-sm font-semibold text-green-800">
-              {lang === 'da' ? 'Forespørgsel sendt!' : 'Request sent!'}
+              {t('request_success')}
             </p>
             <p className="text-xs text-green-700 mt-0.5">
-              {lang === 'da'
-                ? 'Lokale sejlere vil svare med et pristilbud hurtigst muligt.'
-                : 'Local sailors will reply with a price quote as soon as possible.'}
+              {t('request_success_desc')}
             </p>
             <button
               onClick={() => { setReqSent(false); setShowRequest(false); }}
               className="text-xs text-green-600 underline mt-1"
             >
-              {lang === 'da' ? 'Send en ny forespørgsel' : 'Send another request'}
+              {t('send_another')}
             </button>
           </div>
         </div>

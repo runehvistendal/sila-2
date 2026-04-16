@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
+import { useLanguage } from '@/lib/LanguageContext';
 
 function StarPicker({ value, onChange }) {
   const [hovered, setHovered] = useState(0);
@@ -33,6 +34,7 @@ function StarBar({ stars }) {
 
 export default function TransportReviews({ transportId, providerEmail, providerName }) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const qc = useQueryClient();
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState('');
@@ -56,7 +58,7 @@ export default function TransportReviews({ transportId, providerEmail, providerN
     onSuccess: () => {
       qc.invalidateQueries(['transport-reviews', transportId]);
       setStars(0); setComment(''); setShowForm(false);
-      toast({ title: 'Anmeldelse sendt', description: 'Tak for din feedback!' });
+      toast({ title: t('review_sent'), description: t('review_sent_desc') });
     },
   });
 
@@ -69,7 +71,7 @@ export default function TransportReviews({ transportId, providerEmail, providerN
         <div>
           <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
             <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-            Anmeldelser {avgRating && <span className="text-base">{avgRating}</span>}
+            {t('reviews')} {avgRating && <span className="text-base">{avgRating}</span>}
           </h2>
           {avgRating && (
             <div className="flex gap-0.5 mt-1">
@@ -80,7 +82,7 @@ export default function TransportReviews({ transportId, providerEmail, providerN
         </div>
         {user && !alreadyReviewed && !showForm && (
           <Button variant="outline" onClick={() => setShowForm(true)} className="rounded-xl text-sm gap-1">
-            <Star className="w-3.5 h-3.5" /> Skriv anmeldelse
+            <Star className="w-3.5 h-3.5" /> {t('write_review')}
           </Button>
         )}
       </div>
@@ -88,19 +90,19 @@ export default function TransportReviews({ transportId, providerEmail, providerN
       {showForm && (
         <div className="bg-muted/50 rounded-2xl p-5 mb-5 border border-border space-y-4">
           <StarPicker value={stars} onChange={setStars} />
-          <Textarea placeholder="Del din oplevelse med transporten..." value={comment} onChange={e => setComment(e.target.value)} className="h-24 resize-none text-sm rounded-xl" />
+          <Textarea placeholder={t('share_experience_transport')} value={comment} onChange={e => setComment(e.target.value)} className="h-24 resize-none text-sm rounded-xl" />
           <div className="flex gap-2">
             <Button onClick={() => submitMutation.mutate()} disabled={stars === 0 || submitMutation.isPending} className="bg-primary text-white rounded-xl text-sm">
-              {submitMutation.isPending ? 'Sender...' : 'Send anmeldelse'}
+              {submitMutation.isPending ? t('sending_dots') : t('send_review')}
             </Button>
-            <Button variant="ghost" onClick={() => setShowForm(false)} className="text-sm rounded-xl">Annuller</Button>
+            <Button variant="ghost" onClick={() => setShowForm(false)} className="text-sm rounded-xl">{t('cancel')}</Button>
           </div>
         </div>
       )}
 
       {reviews.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-6 bg-muted rounded-xl">
-          Ingen anmeldelser endnu.
+          {t('no_reviews_yet')}
         </p>
       ) : (
         <div className="space-y-4">
@@ -112,7 +114,7 @@ export default function TransportReviews({ transportId, providerEmail, providerN
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <p className="text-sm font-semibold text-foreground">{r.reviewer_name || 'Anonym'}</p>
+                    <p className="text-sm font-semibold text-foreground">{r.reviewer_name || t('anonymous')}</p>
                     <p className="text-xs text-muted-foreground">{format(new Date(r.created_date), 'MMM d, yyyy')}</p>
                   </div>
                   <StarBar stars={r.rating} />

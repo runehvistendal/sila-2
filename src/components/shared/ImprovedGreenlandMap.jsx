@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Eye, EyeOff, Anchor, Home as HomeIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCurrency } from '@/lib/CurrencyContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -71,6 +72,7 @@ const createDestinationIcon = () => {
 const CabinPopup = ({ cabin }) => {
   const [imageError, setImageError] = React.useState(false);
   const { formatPrice } = useCurrency();
+  const { t } = useLanguage();
   const image = cabin.images?.[0];
 
   return (
@@ -81,27 +83,26 @@ const CabinPopup = ({ cabin }) => {
         alt=""
         className="w-full h-32 object-cover rounded-lg mb-2"
         onError={() => setImageError(true)} />
-
       }
       <p className="font-bold text-foreground">{cabin.title}</p>
       <p className="text-muted-foreground text-xs mb-2">{cabin.location}</p>
-      <p className="font-semibold text-primary">{formatPrice(cabin.price_per_night)}/nat</p>
+      <p className="font-semibold text-primary">{formatPrice(cabin.price_per_night)}{t('map_per_night')}</p>
       <a href={`/cabins/${cabin.id}`} className="text-primary text-xs mt-2 font-semibold hover:underline block">
-        Se detaljer →
+        {t('map_see_details')}
       </a>
     </div>);
-
 };
 
 const TransportHubPopup = ({ location, transports, type = 'departure' }) => {
   const { formatPrice } = useCurrency();
+  const { t } = useLanguage();
   const count = transports.length;
   const avgPrice = transports.length > 0
-    ? Math.round(transports.reduce((s, t) => s + (t.round_trip_price || 0), 0) / count)
+    ? Math.round(transports.reduce((s, tr) => s + (tr.round_trip_price || 0), 0) / count)
     : 0;
 
   const isDeparture = type === 'departure';
-  const label = isDeparture ? 'Afgangshavn' : 'Destination';
+  const label = isDeparture ? t('map_departure_port') : t('map_destination_label');
   const icon = isDeparture ? '⚓' : '🏁';
   const linkParam = isDeparture ? `from=${encodeURIComponent(location)}` : `to=${encodeURIComponent(location)}`;
 
@@ -111,12 +112,12 @@ const TransportHubPopup = ({ location, transports, type = 'departure' }) => {
         <span>{icon}</span> {location}
       </p>
       <p className="text-muted-foreground text-xs mb-1">{label}</p>
-      <p className="text-muted-foreground text-xs mb-2">{count} rute{count !== 1 ? 'r' : ''} tilgængelig</p>
+      <p className="text-muted-foreground text-xs mb-2">{count} {t('map_routes_available')}</p>
       {avgPrice > 0 && (
-        <p className="text-primary font-semibold text-xs">Gns. tur/retur: {formatPrice(avgPrice)}</p>
+        <p className="text-primary font-semibold text-xs">{t('map_avg_roundtrip')}: {formatPrice(avgPrice)}</p>
       )}
       <a href={`/transport?${linkParam}`} className="text-primary text-xs mt-2 font-semibold hover:underline block">
-        Se alle ruter →
+        {t('map_see_all_routes')}
       </a>
     </div>
   );
@@ -130,6 +131,7 @@ const TransportHubPopup = ({ location, transports, type = 'departure' }) => {
  *   height?: string     — kort-højde
  */
 export default function ImprovedGreenlandMap({ cabins = [], transports = [], height = '500px' }) {
+  const { t } = useLanguage();
   const [layers, setLayers] = React.useState({
     cabins: true,
     departures: true,
@@ -191,7 +193,7 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
               }`}
             >
               <HomeIcon className="w-3.5 h-3.5" />
-              Hytter {cabinPins.length > 0 && `(${cabinPins.length})`}
+              {t('map_cabins')} {cabinPins.length > 0 && `(${cabinPins.length})`}
             </button>
           )}
           {transports.length > 0 && (
@@ -204,7 +206,7 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
                 style={layers.departures ? { backgroundColor: '#1a5276' } : {}}
               >
                 <span>⚓</span>
-                Afgangshavne {departurePins.length > 0 && `(${departurePins.length})`}
+                {t('map_departures')} {departurePins.length > 0 && `(${departurePins.length})`}
               </button>
               <button
                 onClick={() => setLayers((p) => ({ ...p, destinations: !p.destinations }))}
@@ -214,7 +216,7 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
                 style={layers.destinations ? { backgroundColor: '#1e8449' } : {}}
               >
                 <span>🏁</span>
-                Destinationer {destinationPins.length > 0 && `(${destinationPins.length})`}
+                {t('map_destinations')} {destinationPins.length > 0 && `(${destinationPins.length})`}
               </button>
             </>
           )}

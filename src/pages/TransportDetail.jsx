@@ -88,7 +88,7 @@ export default function TransportDetail() {
   const stripePayload = {
     bookingType: 'transport',
     listingId: transport.id,
-    listingTitle: `${transport.from_location} → ${transport.to_location}${addReturn && selectedReturn ? ` + retur ${format(new Date(selectedReturn.departure_date), 'd. MMM')}` : ''} (Enkeltbillet)`,
+    listingTitle: `${transport.from_location} → ${transport.to_location}${addReturn && selectedReturn ? ` + ${t('return_trip')} ${format(new Date(selectedReturn.departure_date), 'd. MMM')}` : ''} (${t('outbound_oneway')})`,
     checkIn: transport.departure_date,
     seats,
     totalPrice: total,
@@ -120,7 +120,7 @@ export default function TransportDetail() {
                 <ArrowRight className="w-5 h-5 text-primary" />
                 <span>{transport.to_location}</span>
               </div>
-              {transport.provider_name && <p className="text-sm text-muted-foreground">Skipper: {transport.provider_name}</p>}
+              {transport.provider_name && <p className="text-sm text-muted-foreground">{t('skipper')} {transport.provider_name}</p>}
             </div>
           </div>
 
@@ -214,7 +214,7 @@ export default function TransportDetail() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold">{rt.to_location} → {rt.from_location}</p>
-                        <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} pladser</p>
+                        <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} {t('seats_plural')}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold text-accent">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
@@ -382,7 +382,7 @@ export default function TransportDetail() {
             <StripeCheckoutButton
               payload={stripePayload}
               disabled={seats < 1 || seats > transport.seats_available}
-              label={`Betal ${total} DKK`}
+              label={`${t('pay_amount')} ${total} DKK`}
             />
           )}
           <p className="text-xs text-muted-foreground text-center mt-3">{t('secure_payment')}</p>

@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ArrowLeft, Calendar, Clock, Users, Anchor, Home, Star } from 'lucide-react';
 import { format } from 'date-fns';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function TransportCard({ transport, returnTrip = null, compact = false }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const { data: reviews = [] } = useQuery({
     queryKey: ['transport-card-reviews', transport.id],
@@ -41,7 +43,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
                 onClick={(e) => { e.stopPropagation(); navigate(`/profile/user?email=${encodeURIComponent(transport.provider_email)}&type=host`); }}
                 className="text-xs text-muted-foreground hover:underline hover:text-foreground transition-colors"
               >
-                by {transport.provider_name}
+                {t('by_provider')} {transport.provider_name}
               </button>
             )}
             {avgRating && (
@@ -55,7 +57,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
         </div>
         <div className="text-right shrink-0">
           <p className="font-bold text-foreground text-sm">{transport.round_trip_price} DKK</p>
-          <p className="text-xs text-muted-foreground">tur/retur</p>
+          <p className="text-xs text-muted-foreground">{t('round_trip_label')}</p>
         </div>
       </div>
 
@@ -77,7 +79,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
           transport.seats_available > 0 ? 'bg-accent/10 text-accent' : 'bg-destructive/10 text-destructive'
         }`}>
           <Users className="w-3 h-3" />
-          {transport.seats_available} seat{transport.seats_available !== 1 ? 's' : ''} left
+          {transport.seats_available} {t('seats_left')}
         </span>
         {transport.boat_type && (
           <span className="inline-flex items-center gap-1.5 text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
@@ -89,7 +91,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
           transport.has_cabin ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
         }`}>
           <Home className="w-3 h-3" />
-          {transport.has_cabin ? 'Med kabine' : 'Uden kabine'}
+          {transport.has_cabin ? t('with_cabin') : t('without_cabin')}
         </span>
       </div>
 
@@ -99,16 +101,16 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
           <div className="bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2">
             <ArrowLeft className="w-3.5 h-3.5 text-accent shrink-0" />
             <span className="text-xs font-medium text-accent">
-              Hjemrejse: {transport.to_location} → {transport.from_location} · {format(new Date(transport.return_date), 'd. MMM')}
+              {t('return_trip')}: {transport.to_location} → {transport.from_location} · {format(new Date(transport.return_date), 'd. MMM')}
               {transport.return_time && ` kl. ${transport.return_time}`}
-              {transport.return_seats && ` · ${transport.return_seats} pladser`}
+              {transport.return_seats && ` · ${transport.return_seats} ${t('seats_plural')}`}
             </span>
           </div>
         ) : returnTrip ? (
           <div className="bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2">
             <ArrowLeft className="w-3.5 h-3.5 text-accent shrink-0" />
             <span className="text-xs font-medium text-accent">
-              Hjemrejse tilgængelig: {returnTrip.to_location} → {returnTrip.from_location} · {format(new Date(returnTrip.departure_date), 'd. MMM')}
+              {t('return_trip_available')}: {returnTrip.to_location} → {returnTrip.from_location} · {format(new Date(returnTrip.departure_date), 'd. MMM')}
             </span>
           </div>
         ) : null}
@@ -118,7 +120,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
         {!compact && (
           <Link to={`/transport/${transport.id}`}>
             <Button size="sm" variant="outline" className="w-full rounded-xl border-primary/30 text-primary hover:bg-primary hover:text-white transition-colors">
-              Se & Book
+              {t('see_and_book')}
             </Button>
           </Link>
         )}
