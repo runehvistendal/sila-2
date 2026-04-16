@@ -178,6 +178,8 @@ export default function Support() {
             </div>
           </div>
         </div>
+      </div>
+
       {/* Incident Report Section */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-16">
         <div className="bg-red-50 border border-red-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start gap-5">
