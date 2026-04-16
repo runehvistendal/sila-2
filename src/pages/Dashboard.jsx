@@ -499,14 +499,14 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {/* Ratings */}
+                {/* Anmeldelser */}
                 <div>
                   <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {t('ratings')}
-                    {avgRating && <span className="text-sm font-normal text-muted-foreground">— {t('avg_rating')} {avgRating} ★</span>}
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> Anmeldelser
+                    {avgRating && <span className="text-sm font-normal text-muted-foreground">— gennemsnitlig vurdering {avgRating} ★</span>}
                   </h3>
                   {myRatingsReceived.length === 0 ? (
-                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_received_ratings')}</p>
+                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">Ingen anmeldelser endnu</p>
                   ) : (
                     <div className="space-y-3">
                       {myRatingsReceived.map((r) => <RatingRow key={r.id} rating={r} />)}

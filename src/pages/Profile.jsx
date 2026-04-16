@@ -354,15 +354,15 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Ratings received */}
+        {/* Anmeldelser */}
         <div className="bg-white rounded-2xl border border-border p-6">
           <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
             <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-            {t('ratings')}
-            {avgRating && <span className="text-sm font-normal text-muted-foreground ml-1">{avgRating} ★ {t('avg_rating')}</span>}
+            Anmeldelser
+            {avgRating && <span className="text-sm font-normal text-muted-foreground ml-1">{avgRating} ★ gennemsnitlig vurdering</span>}
           </h2>
           {allRatingValues.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t('no_ratings')}</p>
+            <p className="text-sm text-muted-foreground">Ingen anmeldelser endnu</p>
           ) : (
             <div className="space-y-3">
               {myRatingsReceived.map(r => (

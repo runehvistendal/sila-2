@@ -80,7 +80,7 @@ export default function BookingReviewButton({ booking }) {
                 disabled={stars === 0 || submitMutation.isPending}
                 className="w-full bg-primary text-white rounded-xl"
               >
-                {submitMutation.isPending ? 'Sender...' : 'Send anmeldelse'}
+                {submitMutation.isPending ? 'Sender...' : 'Send Anmeldelse'}
               </Button>
             </div>
           )}
