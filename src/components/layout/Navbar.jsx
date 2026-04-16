@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, X, User, LayoutDashboard, LogOut, PlusCircle, Waves, UserCircle, Heart } from 'lucide-react';
+import { Menu, X, User, LayoutDashboard, LogOut, Plus, Waves, UserCircle, Heart, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
 import CurrencySelector from '@/components/shared/CurrencySelector';
@@ -90,6 +90,28 @@ export default function Navbar() {
             <LanguageSwitcher transparent={transparent} />
             {user ? (
               <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                      transparent ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-muted hover:bg-secondary text-foreground'
+                    }`}>
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/create-listing?type=cabin" className="flex items-center gap-2 cursor-pointer">
+                        <Home className="w-4 h-4" /> Opret hytte
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/create-listing?type=transport" className="flex items-center gap-2 cursor-pointer">
+                        <Waves className="w-4 h-4" /> Opret transport
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm" className={transparent ? 'text-white/80 hover:text-white hover:bg-white/10' : ''}>
                     {t('nav_dashboard')}
@@ -180,7 +202,7 @@ export default function Navbar() {
                   <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_dashboard')}</Link>
                   <Link to="/profile" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_profile')}</Link>
                   <Link to="/favourites" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_favourites')}</Link>
-                  <Link to="/create-listing" onClick={() => setMobileOpen(false)} className="block px-4 py-3 rounded-lg text-foreground hover:bg-muted font-medium">{t('nav_create_listing')}</Link>
+    
                   <button onClick={() => base44.auth.logout()} className="w-full text-left px-4 py-3 rounded-lg text-destructive hover:bg-muted font-medium">{t('nav_sign_out')}</button>
                 </>
               ) : (

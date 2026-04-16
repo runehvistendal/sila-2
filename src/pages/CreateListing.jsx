@@ -236,7 +236,7 @@ export default function CreateListing() {
                 <input
                   type="checkbox"
                   checked={cabinForm.host_provides_transport}
-                  onChange={(e) => setCabinForm((p) => ({ ...p, host_provides_transport: e.target.checked, host_provides_return_transport: e.target.checked ? p.host_provides_return_transport : false }))}
+                  onChange={(e) => setCabinForm((p) => ({ ...p, host_provides_transport: e.target.checked }))}
                   className="mt-0.5 w-4 h-4 accent-primary"
                 />
                 <div>
@@ -245,41 +245,20 @@ export default function CreateListing() {
                 </div>
               </label>
               {cabinForm.host_provides_transport && (
-                <div className="grid grid-cols-2 gap-4 pl-7">
-                  <Field label="Transport fra (by/havn)">
-                    <Input placeholder="f.eks. Nuuk havn" value={cabinForm.transport_route_from} onChange={(e) => setCabinForm((p) => ({ ...p, transport_route_from: e.target.value }))} className="rounded-xl" />
-                  </Field>
-                  <Field label="Pris pr. plads (DKK)">
-                    <Input type="number" placeholder="500" value={cabinForm.transport_price_per_seat} onChange={(e) => setCabinForm((p) => ({ ...p, transport_price_per_seat: e.target.value }))} className="rounded-xl" />
-                  </Field>
-                </div>
-              )}
-
-              {cabinForm.host_provides_transport && (
-                <label className="flex items-start gap-3 cursor-pointer pl-7">
-                  <input
-                    type="checkbox"
-                    checked={cabinForm.host_provides_return_transport || false}
-                    onChange={(e) => setCabinForm((p) => ({ ...p, host_provides_return_transport: e.target.checked }))}
-                    className="mt-0.5 w-4 h-4 accent-primary"
-                  />
-                  <div>
-                    <span className="font-semibold text-sm text-foreground">Jeg yder også hjemtransport</span>
-                    <p className="text-xs text-muted-foreground mt-0.5">Angiv hvornår I sejler tilbage, og hvor mange pladser der er</p>
+                <div className="space-y-4 pl-7">
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
+                    <p className="text-sm text-blue-900">
+                      <strong>💡 Prismodel:</strong> Den pris du indtaster er for <strong>tur/retur transport pr. sæde</strong>. Hvis en gæst kun vælger énvejs transport (f.eks. kun hen eller kun tilbage), beregnes prisen automatisk til 60% af det beløb, du angiver her.
+                    </p>
                   </div>
-                </label>
-              )}
-              {cabinForm.host_provides_transport && cabinForm.host_provides_return_transport && (
-                <div className="grid grid-cols-3 gap-4 pl-7">
-                  <Field label="Hjemrejsedato">
-                    <Input type="date" value={cabinForm.return_transport_date || ''} onChange={(e) => setCabinForm((p) => ({ ...p, return_transport_date: e.target.value }))} className="rounded-xl" min={new Date().toISOString().split('T')[0]} />
-                  </Field>
-                  <Field label="Afgang (tid)">
-                    <Input type="time" value={cabinForm.return_transport_time || ''} onChange={(e) => setCabinForm((p) => ({ ...p, return_transport_time: e.target.value }))} className="rounded-xl" />
-                  </Field>
-                  <Field label="Pladser retur">
-                    <Input type="number" min={1} placeholder="3" value={cabinForm.return_transport_seats || ''} onChange={(e) => setCabinForm((p) => ({ ...p, return_transport_seats: e.target.value }))} className="rounded-xl" />
-                  </Field>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Transport fra (by/havn)">
+                      <Input placeholder="f.eks. Nuuk havn" value={cabinForm.transport_route_from} onChange={(e) => setCabinForm((p) => ({ ...p, transport_route_from: e.target.value }))} className="rounded-xl" />
+                    </Field>
+                    <Field label="Pris pr. plads (DKK) — tur/retur">
+                      <Input type="number" placeholder="500" value={cabinForm.transport_price_per_seat} onChange={(e) => setCabinForm((p) => ({ ...p, transport_price_per_seat: e.target.value }))} className="rounded-xl" />
+                    </Field>
+                  </div>
                 </div>
               )}
             </div>

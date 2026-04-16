@@ -73,24 +73,6 @@
     "transport_route_from": {
       "type": "string"
     },
-    "host_provides_return_transport": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether the host also provides return transport back from the cabin"
-    },
-    "return_transport_date": {
-      "type": "string",
-      "format": "date",
-      "description": "Date of return departure from cabin"
-    },
-    "return_transport_time": {
-      "type": "string",
-      "description": "Time of return departure (HH:MM)"
-    },
-    "return_transport_seats": {
-      "type": "number",
-      "description": "Available seats on the return trip"
-    },
     "status": {
       "type": "string",
       "enum": [
