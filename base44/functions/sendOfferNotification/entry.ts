@@ -21,6 +21,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Message not found or not an offer' }, { status: 404 });
     }
 
+    // Only the sender of the offer or an admin may trigger the notification
+    const isAdmin = user.role === 'admin';
+    if (message.sender_email !== user.email && !isAdmin) {
+      return Response.json({ error: 'Forbidden: Only the offer sender or an admin can trigger this notification' }, { status: 403 });
+    }
+
     // Get request details
     let request, guestEmail, guestName;
     if (request_type === 'transport') {

@@ -20,6 +20,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking not found' }, { status: 404 });
     }
 
+    // Only the host or admin may trigger rejection emails
+    const isHost = booking.host_email === user.email;
+    const isAdmin = user.role === 'admin';
+    if (!isHost && !isAdmin) {
+      return Response.json({ error: 'Forbidden: Only the host or an admin can reject this booking' }, { status: 403 });
+    }
+
     // Guest rejection email
     const guestSubject = `Booking afvist: ${booking.listing_title}`;
     const guestBody = `

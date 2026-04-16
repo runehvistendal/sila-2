@@ -20,6 +20,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Booking not found' }, { status: 404 });
     }
 
+    // Only the host or admin may trigger confirmation emails
+    const isHost = booking.host_email === user.email;
+    const isAdmin = user.role === 'admin';
+    if (!isHost && !isAdmin) {
+      return Response.json({ error: 'Forbidden: Only the host or an admin can confirm this booking' }, { status: 403 });
+    }
+
     // Guest confirmation email
     const guestSubject = `Booking bekræftet: ${booking.listing_title}`;
     const guestBody = `
