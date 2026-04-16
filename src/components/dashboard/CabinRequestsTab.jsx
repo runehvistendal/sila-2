@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import RequestChat from '@/components/chat/RequestChat';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import RatingModal from '@/components/ratings/RatingModal';
+import RequestFilters from './RequestFilters';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -132,6 +133,7 @@ export function IncomingCabinRequestsTab() {
   const [quoting, setQuoting] = useState(null);
   const [quote, setQuote] = useState({ price: '', cabin_title: '', message: '' });
   const [ratingFor, setRatingFor] = useState(null);
+  const [filters, setFilters] = useState({ location: '', status: 'all', passengers: '' });
 
   const { data: myCabins = [] } = useQuery({
     queryKey: ['my-cabins-host', user?.email],
@@ -146,11 +148,19 @@ export function IncomingCabinRequestsTab() {
     queryFn: async () => {
       if (locations.length === 0) return [];
       const results = await Promise.all(
-        locations.map(loc => base44.entities.CabinRequest.filter({ location: loc, status: 'pending' }, '-created_date', 20))
+        locations.map(loc => base44.entities.CabinRequest.filter({ location: loc }, '-created_date', 50))
       );
       return results.flat();
     },
     enabled: locations.length > 0,
+  });
+
+  // Apply filters
+  const filteredRequests = allRequests.filter(r => {
+    if (filters.location && r.location !== filters.location) return false;
+    if (filters.status !== 'all' && r.status !== filters.status) return false;
+    if (filters.passengers && r.guests < Number(filters.passengers)) return false;
+    return true;
   });
 
   const quoteMutation = useMutation({
@@ -183,8 +193,15 @@ export function IncomingCabinRequestsTab() {
   }
 
   return (
-    <div className="space-y-3">
-      {allRequests.map((r) => (
+    <div className="space-y-4">
+      <RequestFilters onFilterChange={setFilters} type="cabin" />
+      {filteredRequests.length === 0 ? (
+        <div className="text-center py-8 bg-muted rounded-xl">
+          <p className="text-sm text-muted-foreground">Ingen forespørgsler matcher dine filtre</p>
+        </div>
+      ) : (
+      <div className="space-y-3">
+      {filteredRequests.map((r) => (
         <div key={r.id} className="bg-white rounded-xl border border-border p-4">
           <div className="flex items-start justify-between gap-3 flex-wrap">
             <div>
@@ -250,6 +267,7 @@ export function IncomingCabinRequestsTab() {
             <RatingModal requestId={ratingFor.id} requestType="cabin" toEmail={ratingFor.guest_email} toName={ratingFor.guest_name || 'Gæsten'} onDone={() => setRatingFor(null)} />
           </DialogContent>
         </Dialog>
+      )}
       )}
     </div>
   );

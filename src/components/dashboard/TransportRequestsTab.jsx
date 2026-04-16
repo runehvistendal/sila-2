@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import RatingModal from '@/components/ratings/RatingModal';
 import LifeJacketConfirmation from '@/components/transport/LifeJacketConfirmation';
 import SafetyFeedbackForm from '@/components/ratings/SafetyFeedbackForm';
+import RequestFilters from './RequestFilters';
 
 const STATUS_COLORS = {
   pending: 'bg-amber-100 text-amber-700',
@@ -38,11 +39,20 @@ export function IncomingRequestsTab() {
   const [quoting, setQuoting] = useState(null);
   const [quote, setQuote] = useState({ price: '', seats: '', message: '' });
   const [ratingFor, setRatingFor] = useState(null);
+  const [filters, setFilters] = useState({ location: '', status: 'all', passengers: '' });
 
-  const { data: requests = [] } = useQuery({
+  const { data: allRequests = [] } = useQuery({
     queryKey: ['incoming-transport-requests'],
-    queryFn: () => base44.entities.TransportRequest.filter({ status: 'pending' }, '-created_date', 50),
+    queryFn: () => base44.entities.TransportRequest.filter({}, '-created_date', 50),
     enabled: !!user,
+  });
+
+  // Apply filters
+  const requests = allRequests.filter(r => {
+    if (filters.location && r.from_location !== filters.location) return false;
+    if (filters.status !== 'all' && r.status !== filters.status) return false;
+    if (filters.passengers && r.passengers < Number(filters.passengers)) return false;
+    return true;
   });
 
   const quoteMutation = useMutation({
@@ -61,7 +71,7 @@ export function IncomingRequestsTab() {
     },
   });
 
-  if (requests.length === 0) {
+  if (allRequests.length === 0) {
     return (
       <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-border">
         <Anchor className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
@@ -71,7 +81,14 @@ export function IncomingRequestsTab() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <RequestFilters onFilterChange={setFilters} type="transport" />
+      {requests.length === 0 ? (
+        <div className="text-center py-8 bg-muted rounded-xl">
+          <p className="text-sm text-muted-foreground">Ingen forespørgsler matcher dine filtre</p>
+        </div>
+      ) : (
+      <div className="space-y-3">
       {requests.map((r) => (
         <RequestCard
           key={r.id}
@@ -97,6 +114,7 @@ export function IncomingRequestsTab() {
             <RatingModal requestId={ratingFor.id} requestType="transport" toEmail={ratingFor.guest_email} toName={ratingFor.guest_name || 'Gæsten'} onDone={() => setRatingFor(null)} />
           </DialogContent>
         </Dialog>
+      )}
       )}
     </div>
   );
