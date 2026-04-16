@@ -147,11 +147,7 @@ export default function Navbar() {
                          <Heart className="w-4 h-4" /> {t('nav_favourites')}
                        </Link>
                      </DropdownMenuItem>
-                     <DropdownMenuItem asChild>
-                       <Link to="/create-listing" className="flex items-center gap-2 cursor-pointer">
-                         <PlusCircle className="w-4 h-4" /> {t('nav_create_listing')}
-                       </Link>
-                     </DropdownMenuItem>
+
                      <DropdownMenuSeparator />
                      <DropdownMenuItem onClick={() => base44.auth.logout()} className="text-destructive flex items-center gap-2 cursor-pointer">
                        <LogOut className="w-4 h-4" /> {t('nav_sign_out')}
