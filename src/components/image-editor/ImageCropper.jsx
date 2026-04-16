@@ -177,9 +177,31 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
   };
 
   const handleSave = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const img = imgRef.current;
+    if (!img) return;
+    const { zoom, panX, panY, rotation } = stateRef.current;
+
+    // Draw clean canvas without any overlay
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = CANVAS_W;
+    exportCanvas.height = CANVAS_H;
+    const ctx = exportCanvas.getContext('2d');
+
+    if (shape === 'circle') {
+      // Clip to circle before drawing image
+      ctx.beginPath();
+      ctx.arc(CANVAS_W / 2, CANVAS_H / 2, Math.min(CANVAS_W, CANVAS_H) / 2, 0, Math.PI * 2);
+      ctx.clip();
+    }
+
+    ctx.save();
+    ctx.translate(CANVAS_W / 2 + panX, CANVAS_H / 2 + panY);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.scale(zoom, zoom);
+    ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+    ctx.restore();
+
+    const dataUrl = exportCanvas.toDataURL('image/png', 0.95);
     onSave(dataUrl);
   };
 
