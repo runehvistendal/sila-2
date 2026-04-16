@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import TransportCard from '@/components/transport/TransportCard';
-import { Anchor, ArrowRight, RefreshCw, MessageSquare, ChevronDown, X, Check } from 'lucide-react';
+import TransportDrawer from '@/components/transport/TransportDrawer';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Anchor, ArrowRight, RefreshCw, MessageSquare, ChevronDown, X, Check } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 const LOCATIONS = [
@@ -39,6 +40,9 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
 
   // Host transport
   const [selectedType, setSelectedType] = useState(null); // null | 'round_trip' | 'outbound' | 'return'
+
+  // Transport drawer
+  const [drawerTransportId, setDrawerTransportId] = useState(null);
 
   // Request form
   const [showRequest, setShowRequest] = useState(false);
@@ -174,11 +178,23 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
       {transports.length > 0 && (
         <div className="mb-5 space-y-3">
           <p className="text-sm font-medium text-muted-foreground">{otherTransportsLabel}:</p>
-          {transports.map((t) => (
-            <TransportCard key={t.id} transport={t} compact={false} />
+          {transports.map((tr) => (
+            <div key={tr.id} onClick={() => setDrawerTransportId(tr.id)} className="cursor-pointer">
+              <TransportCard transport={tr} compact={false} />
+            </div>
           ))}
         </div>
       )}
+
+      {/* Transport Drawer */}
+      <AnimatePresence>
+        {drawerTransportId && (
+          <TransportDrawer
+            transportId={drawerTransportId}
+            onClose={() => setDrawerTransportId(null)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ── NO TRANSPORT AVAILABLE ── */}
       {!cabin.host_provides_transport && transports.length === 0 && (

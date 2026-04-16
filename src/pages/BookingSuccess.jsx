@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { CheckCircle2, Loader2, CalendarDays, ArrowRight } from 'lucide-react';
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
@@ -48,12 +48,29 @@ export default function BookingSuccess() {
             <strong>{booking.listing_title}</strong>
           </p>
         )}
-        <p className="text-muted-foreground text-sm mb-8">
+        <p className="text-muted-foreground text-sm mb-6">
           Din betaling er gennemført. Du vil modtage en bekræftelse på e-mail.
         </p>
-        <Button onClick={() => navigate('/dashboard')} className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">
+
+        {/* CTA */}
+        <div className="bg-primary/5 border border-primary/15 rounded-xl p-4 mb-6 text-left flex items-start gap-3">
+          <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+            <CalendarDays className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Dine bookinger er klar</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Se alle detaljer, kommunikér med udbyderen og hold styr på din rejse fra dit dashboard.</p>
+          </div>
+        </div>
+
+        <Button onClick={() => navigate('/dashboard')} className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 gap-2 h-11 font-semibold">
+          <CalendarDays className="w-4 h-4" />
           Se mine bookinger
+          <ArrowRight className="w-4 h-4 ml-auto" />
         </Button>
+        <button onClick={() => navigate('/')} className="w-full mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          Tilbage til forsiden
+        </button>
       </div>
     </div>
   );

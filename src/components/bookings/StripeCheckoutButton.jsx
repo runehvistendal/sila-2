@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Lock } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
-export default function StripeCheckoutButton({ payload, disabled, label = 'Betal sikkert' }) {
+export default function StripeCheckoutButton({ payload, disabled, label = 'Betal sikkert', onSuccess }) {
   const [loading, setLoading] = useState(false);
 
   const handleCheckout = async () => {
