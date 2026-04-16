@@ -13,6 +13,7 @@ import ListingImageGallery from '@/components/shared/ListingImageGallery';
 import { format } from 'date-fns';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import TransportReviews from '@/components/transport/TransportReviews';
+import TransportDrawer from '@/components/transport/TransportDrawer';
 import { toast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,6 +33,7 @@ export default function TransportDetail() {
   const [addReturn, setAddReturn] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [requestSent, setRequestSent] = useState(false);
+  const [drawerTransportId, setDrawerTransportId] = useState(null);
 
   // Request form state
   const [reqForm, setReqForm] = useState({
@@ -184,63 +186,75 @@ export default function TransportDetail() {
 
           {/* Return trip section */}
           <div className="mb-5">
-            <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 text-accent" />
-              {t('return_trip')}
-            </p>
-
-            {returnTrips.length > 0 ? (
-              <div className="space-y-2">
-                {returnTrips.map((rt) => (
-                  <button
-                    key={rt.id}
-                    onClick={() => {
-                      if (selectedReturn?.id === rt.id && addReturn) {
-                        setAddReturn(false);
-                        setSelectedReturn(null);
-                      } else {
-                        setSelectedReturn(rt);
-                        setAddReturn(true);
-                        setShowRequestForm(false);
-                      }
-                    }}
-                    className={`w-full text-left p-3 rounded-xl border transition-colors ${
-                      addReturn && selectedReturn?.id === rt.id
-                        ? 'bg-accent/10 border-accent text-foreground'
-                        : 'bg-muted border-border hover:border-accent/40'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-semibold">{rt.to_location} → {rt.from_location}</p>
-                        <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} {t('seats_plural')}</p>
-                        {rt.provider_name && <p className="text-xs text-muted-foreground/70 mt-0.5">{t('skipper')} {rt.provider_name}</p>}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-accent">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
-                        {addReturn && selectedReturn?.id === rt.id && (
-                          <Badge className="bg-accent/20 text-accent border-0 text-xs mt-1">{t('selected')}</Badge>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                ))}
+            {transport.return_date ? (
+              // Own return trip
+              <>
+                <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4 text-accent" />
+                  {t('return_trip')}
+                </p>
                 <button
                   onClick={() => {
-                    setShowRequestForm(!showRequestForm);
-                    setAddReturn(false);
-                    setSelectedReturn(null);
-                    setRequestSent(false);
-                    setReqForm(prev => ({ ...prev, from_location: transport.to_location, to_location: transport.from_location, passengers: seats }));
+                    if (addReturn) {
+                      setAddReturn(false);
+                      setSelectedReturn(null);
+                    } else {
+                      setAddReturn(true);
+                      setShowRequestForm(false);
+                    }
                   }}
-                  className="w-full text-left p-3 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
-                  >
-                  + {t('want_other_date')}
-                  </button>
-              </div>
+                  className={`w-full text-left p-3 rounded-xl border transition-colors ${
+                    addReturn
+                      ? 'bg-accent/10 border-accent text-foreground'
+                      : 'bg-muted border-border hover:border-accent/40'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-semibold">{transport.to_location} → {transport.from_location}</p>
+                      <p className="text-xs text-muted-foreground">{format(new Date(transport.return_date), 'd. MMM yyyy')}{transport.return_time ? ` · kl. ${transport.return_time}` : ''} · {transport.return_seats} {t('seats_plural')}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-accent">{oneWayPrice} DKK/plads</p>
+                      {addReturn && (
+                        <Badge className="bg-accent/20 text-accent border-0 text-xs mt-1">{t('selected')}</Badge>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              </>
             ) : (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">{t('no_confirmed_return_any')}</p>
+              // No own return trip - show other providers or request form
+              <>
+                <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4 text-accent" />
+                  {t('return_trip')}
+                </p>
+                
+                {returnTrips.length > 0 ? (
+                  <div className="space-y-2 mb-4">
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">{t('other_providers_return')}:</p>
+                    {returnTrips.map((rt) => (
+                      <button
+                        key={rt.id}
+                        onClick={() => setDrawerTransportId(rt.id)}
+                        className="w-full text-left p-3 rounded-xl border border-border bg-white hover:border-primary/30 hover:bg-primary/5 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">{rt.to_location} → {rt.from_location}</p>
+                            <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} {t('seats_plural')}</p>
+                            {rt.provider_name && <p className="text-xs text-primary font-medium mt-0.5">{t('skipper')} {rt.provider_name}</p>}
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-sm font-bold text-primary">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+
                 <button
                   onClick={() => {
                     setShowRequestForm(!showRequestForm);
@@ -257,7 +271,7 @@ export default function TransportDetail() {
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 ml-6">{t('send_request_all_providers')}</p>
                 </button>
-              </div>
+              </>
             )}
 
             {/* Inline request form — folds out inside the booking card */}
@@ -414,6 +428,16 @@ export default function TransportDetail() {
         {/* Reviews */}
         <TransportReviews transportId={transport.id} providerEmail={transport.provider_email} providerName={transport.provider_name} />
       </div>
+
+      {/* Transport Drawer for other providers' return trips */}
+      <AnimatePresence>
+        {drawerTransportId && (
+          <TransportDrawer
+            transportId={drawerTransportId}
+            onClose={() => setDrawerTransportId(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
