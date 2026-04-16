@@ -143,8 +143,8 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
         <Button
           variant={layers.cabins ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setLayers((p) => ({ ...p, cabins: !p.cabins }))}
-          className="gap-2 rounded-lg">
+          onClick={() => setLayers((p) => ({ ...p, cabins: !p.cabins }))} className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3 text-xs gap-2 rounded-lg hidden">
+          
           
           {layers.cabins ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
           Hytter {cabinPins.length > 0 && `(${cabinPins.length})`}
@@ -152,8 +152,8 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
         <Button
           variant={layers.transports ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setLayers((p) => ({ ...p, transports: !p.transports }))}
-          className="gap-2 rounded-lg">
+          onClick={() => setLayers((p) => ({ ...p, transports: !p.transports }))} className="inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3 text-xs gap-2 rounded-lg hidden">
+          
           
           {layers.transports ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
           Transport {transportPins.length > 0 && `(${transportPins.length})`}
