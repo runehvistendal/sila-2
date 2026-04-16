@@ -71,7 +71,7 @@ export default function RequestChat({ requestId, requestType, participants, onOf
   const sendOffer = async () => {
     if (!offer.price_dkk || sending) return;
     setSending(true);
-    await base44.entities.Message.create({
+    const msg = await base44.entities.Message.create({
       request_id: requestId,
       request_type: requestType,
       sender_email: user.email,
@@ -80,6 +80,8 @@ export default function RequestChat({ requestId, requestType, participants, onOf
       message_type: 'offer',
       offer_data: { price_dkk: Number(offer.price_dkk), seats: Number(offer.seats), note: offer.note },
     });
+    // Send email notification
+    await base44.functions.invoke('sendOfferNotification', { message_id: msg.id, request_id: requestId, request_type: requestType });
     setOffer({ price_dkk: '', seats: '', note: '' });
     setShowOfferForm(false);
     setSending(false);

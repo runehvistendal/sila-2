@@ -117,6 +117,15 @@ export default function ImageUploadWithEditor({
       <div className="flex items-center justify-between mb-2">
         <label className="text-sm font-semibold text-foreground">{label}</label>
         <span className="text-xs text-muted-foreground">{images.length}/{maxImages}</span>
+        {images.length > 0 && shape === 'circle' && (
+          <button
+            type="button"
+            onClick={() => handleRemove(0)}
+            className="text-xs text-destructive hover:underline ml-2"
+          >
+            Slet
+          </button>
+        )}
       </div>
 
       {/* Thumbnail grid */}
