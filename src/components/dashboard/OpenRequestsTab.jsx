@@ -50,13 +50,19 @@ export default function OpenRequestsTab() {
   // Fetch all locations for coordinates
   const { data: locations = [] } = useQuery({
     queryKey: ['locations-list'],
-    queryFn: () => base44.entities.Location.list('', 500),
+    queryFn: async () => {
+      const locs = await base44.entities.Location.list('-name_dk', 1000);
+      return locs;
+    },
     enabled: !!user,
   });
 
-  // Get user's location coordinates
-  const userLocation = locations.find(loc => loc.name_dk === user?.location || loc.postal_code === user?.location);
-  const userCoords = userLocation ? { lat: userLocation.latitude, lon: userLocation.longitude } : null;
+  // Get user's location coordinates from user profile
+  const userCoords = useMemo(() => {
+    if (!user?.location_id || !locations.length) return null;
+    const userLoc = locations.find(l => l.id === user.location_id);
+    return userLoc ? { lat: userLoc.latitude, lon: userLoc.longitude, id: userLoc.id } : null;
+  }, [user?.location_id, locations]);
 
   // Combine and process all requests
   const allRequests = useMemo(() => {
@@ -92,21 +98,31 @@ export default function OpenRequestsTab() {
     filtered = filtered.map(r => {
       let relevanceScore = 0;
 
-      // Priority: requests from user's location
-      if (userCoords && r.location) {
-        const locData = locations.find(l => l.name_dk === r.location);
-        if (locData) {
-          const dist = calculateDistance(
-            userCoords.lat,
-            userCoords.lon,
-            locData.latitude,
-            locData.longitude
-          );
-          relevanceScore = Math.max(0, 1000 - dist); // Closer = higher score
+      // Priority 1: requests from user's own location (highest)
+      if (userCoords && r.location && locations.length) {
+        const requestLoc = locations.find(l => 
+          l.name_dk?.toLowerCase() === r.location?.toLowerCase() || 
+          l.postal_code === r.location
+        );
+        
+        if (requestLoc) {
+          if (requestLoc.id === userCoords.id) {
+            // Same location = highest score
+            relevanceScore = 10000;
+          } else {
+            // Different location = score based on distance
+            const dist = calculateDistance(
+              userCoords.lat,
+              userCoords.lon,
+              requestLoc.latitude,
+              requestLoc.longitude
+            );
+            relevanceScore = Math.max(0, 1000 - dist);
+          }
         }
       }
 
-      // Pending requests are more relevant
+      // Priority 2: Pending requests get bonus
       if (r.status === 'pending') relevanceScore += 100;
 
       return { ...r, relevanceScore };
@@ -124,9 +140,13 @@ export default function OpenRequestsTab() {
     return filtered;
   }, [cabinRequests, transportRequests, statusFilter, typeFilter, locationFilter, dateFrom, dateTo, sortBy, userCoords, locations]);
 
-  const uniqueLocations = [...new Set(
-    [...cabinRequests.map(r => r.location), ...transportRequests.map(r => r.from_location)].filter(Boolean)
-  )].sort();
+  // Build unique locations from requests, matched against Location entity
+  const uniqueLocations = useMemo(() => {
+    const locSet = new Set(
+      [...cabinRequests.map(r => r.location), ...transportRequests.map(r => r.from_location)].filter(Boolean)
+    );
+    return Array.from(locSet).sort();
+  }, [cabinRequests, transportRequests]);
 
   return (
     <div className="space-y-6">
