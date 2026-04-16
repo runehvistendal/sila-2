@@ -1,17 +1,28 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ZoomIn, ZoomOut, RotateCw, RotateCcw, X, Check, RefreshCw } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCw, RotateCcw, X, Check, RefreshCw, Undo2, Redo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+const ASPECT_RATIOS = {
+  'square': { label: '1:1 Kvadrat', ratio: 1 },
+  '3:4': { label: '3:4 Portræt', ratio: 3 / 4 },
+  '4:3': { label: '4:3 Landskab', ratio: 4 / 3 },
+  '16:9': { label: '16:9 Bred', ratio: 16 / 9 },
+  'circle': { label: 'Cirkel', ratio: 1 },
+};
+
 /**
- * 16:9 billededitor med zoom, pan og rotation.
- * Canvas viser altid en 16:9 output-ramme med overlay.
+ * Billededitor med zoom, pan, rotation, aspect-ratio valg og undo/redo.
  * Props:
  *   image: string       — data-URL eller http-URL
  *   onSave: (dataUrl) => void
  *   onCancel: () => void
+ *   shape: string       — 'rect' (default) eller 'circle'
  */
 export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }) {
-  const ASPECT = shape === 'circle' ? 1 : 16 / 9;
+  // Determine initial aspect ratio
+  const initialAspectKey = shape === 'circle' ? 'circle' : '16:9';
+  const [aspectKey, setAspectKey] = useState(initialAspectKey);
+  const ASPECT = ASPECT_RATIOS[aspectKey].ratio;
   const CANVAS_W = 640;
   const CANVAS_H = Math.round(CANVAS_W / ASPECT);
 
@@ -20,20 +31,34 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
   const stateRef = useRef({ zoom: 1, panX: 0, panY: 0, rotation: 0 });
   const dragRef = useRef(null);
   const rafRef = useRef(null);
+  const historyRef = useRef([{ zoom: 1, panX: 0, panY: 0, rotation: 0 }]);
+  const historyIndexRef = useRef(0);
 
   const [zoom, setZoomState] = useState(1);
   const [rotation, setRotationState] = useState(0);
   const [panX, setPanXState] = useState(0);
   const [panY, setPanYState] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const [historyLength, setHistoryLength] = useState(1);
 
-  // Sync state to ref for draw (avoids stale closures)
-  const sync = useCallback((updates) => {
+  // Sync state to ref for draw (avoids stale closures) + add to history
+  const sync = useCallback((updates, skipHistory = false) => {
     Object.assign(stateRef.current, updates);
     if (updates.zoom !== undefined) setZoomState(updates.zoom);
     if (updates.rotation !== undefined) setRotationState(updates.rotation);
     if (updates.panX !== undefined) setPanXState(updates.panX);
     if (updates.panY !== undefined) setPanYState(updates.panY);
+
+    if (!skipHistory) {
+      // Add new state to history, truncate any redo states
+      const newState = { ...stateRef.current };
+      historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
+      historyRef.current.push(newState);
+      historyIndexRef.current = historyRef.current.length - 1;
+      setHistoryIndex(historyIndexRef.current);
+      setHistoryLength(historyRef.current.length);
+    }
   }, []);
 
   const draw = useCallback(() => {
@@ -53,7 +78,7 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
     ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
     ctx.restore();
 
-    if (shape === 'circle') {
+    if (shape === 'circle' || aspectKey === 'circle') {
       // Dark overlay outside the circle
       ctx.save();
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -87,10 +112,10 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
       ctx.lineWidth = 2;
       ctx.strokeRect(1, 1, CANVAS_W - 2, CANVAS_H - 2);
       ctx.fillStyle = 'rgba(0,0,0,0.45)';
-      ctx.fillRect(8, 8, 44, 18);
+      ctx.fillRect(8, 8, 120, 18);
       ctx.fillStyle = 'white';
       ctx.font = 'bold 11px sans-serif';
-      ctx.fillText('16:9', 12, 21);
+      ctx.fillText(ASPECT_RATIOS[aspectKey].label, 12, 21);
     }
   }, []);
 
@@ -176,6 +201,41 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
     scheduleDraw();
   };
 
+  const handleUndo = () => {
+    if (historyIndexRef.current > 0) {
+      historyIndexRef.current--;
+      const state = historyRef.current[historyIndexRef.current];
+      sync(state, true);
+      setHistoryIndex(historyIndexRef.current);
+      scheduleDraw();
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndexRef.current < historyRef.current.length - 1) {
+      historyIndexRef.current++;
+      const state = historyRef.current[historyIndexRef.current];
+      sync(state, true);
+      setHistoryIndex(historyIndexRef.current);
+      scheduleDraw();
+    }
+  };
+
+  const handleAspectChange = (key) => {
+    if (key === aspectKey) return;
+    setAspectKey(key);
+    // Recalculate zoom for new aspect ratio
+    const img = imgRef.current;
+    if (!img) return;
+    const newAspect = ASPECT_RATIOS[key].ratio;
+    const newCanvasH = Math.round(CANVAS_W / newAspect);
+    const scaleW = CANVAS_W / img.naturalWidth;
+    const scaleH = newCanvasH / img.naturalHeight;
+    const fitZoom = Math.max(scaleW, scaleH);
+    sync({ zoom: fitZoom, panX: 0, panY: 0, rotation: 0 });
+    scheduleDraw();
+  };
+
   const handleSave = () => {
     const img = imgRef.current;
     if (!img) return;
@@ -187,7 +247,7 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
     exportCanvas.height = CANVAS_H;
     const ctx = exportCanvas.getContext('2d');
 
-    if (shape === 'circle') {
+    if (shape === 'circle' || aspectKey === 'circle') {
       // Clip to circle before drawing image
       ctx.beginPath();
       ctx.arc(CANVAS_W / 2, CANVAS_H / 2, Math.min(CANVAS_W, CANVAS_H) / 2, 0, Math.PI * 2);
@@ -209,13 +269,13 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
     <div className="space-y-4">
       {/* Preview label */}
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{shape === 'circle' ? 'Tilpas profilbillede' : 'Tilpas billedet til 16:9 rammen'}</span>
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tilpas billede</span>
         <span className="text-xs text-muted-foreground">Træk for at panorere · Scroll for zoom</span>
       </div>
 
       {/* Canvas */}
       <div className="relative rounded-xl overflow-hidden select-none"
-           style={{ aspectRatio: shape === 'circle' ? '1/1' : '16/9', width: shape === 'circle' ? '280px' : '100%', margin: '0 auto' }}>
+           style={{ aspectRatio: ASPECT, width: aspectKey === 'circle' ? '280px' : '100%', margin: '0 auto' }}>
         <canvas
           ref={canvasRef}
           width={CANVAS_W}
@@ -235,6 +295,26 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         )}
+      </div>
+
+      {/* Aspect ratio selector */}
+      <div className="space-y-2">
+        <label className="text-xs font-medium text-muted-foreground block">Billedformat</label>
+        <div className="grid grid-cols-4 gap-2">
+          {Object.entries(ASPECT_RATIOS).map(([key, { label }]) => (
+            <button
+              key={key}
+              onClick={() => handleAspectChange(key)}
+              className={`px-2 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                aspectKey === key
+                  ? 'bg-primary text-white'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {label.split(' ')[0]}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Controls */}
@@ -284,17 +364,41 @@ export default function ImageCropper({ image, onSave, onCancel, shape = 'rect' }
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-2 pt-1">
-        <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5">
-          <RefreshCw className="w-3.5 h-3.5" /> Nulstil
-        </Button>
-        <Button variant="outline" size="sm" onClick={onCancel} className="gap-1.5 flex-1">
-          <X className="w-3.5 h-3.5" /> Annuller
-        </Button>
-        <Button size="sm" onClick={handleSave} className="bg-primary text-white gap-1.5 flex-1">
-          <Check className="w-3.5 h-3.5" /> Anvend billedudsnit
-        </Button>
+      {/* Undo/Redo + Actions */}
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleUndo}
+            disabled={historyIndex <= 0}
+            className="gap-1.5"
+            title="Undo"
+          >
+            <Undo2 className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRedo}
+            disabled={historyIndex >= historyLength - 1}
+            className="gap-1.5"
+            title="Redo"
+          >
+            <Redo2 className="w-3.5 h-3.5" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleReset} className="gap-1.5 flex-1">
+            <RefreshCw className="w-3.5 h-3.5" /> Nulstil
+          </Button>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={onCancel} className="gap-1.5 flex-1">
+            <X className="w-3.5 h-3.5" /> Annuller
+          </Button>
+          <Button size="sm" onClick={handleSave} className="bg-primary text-white gap-1.5 flex-1">
+            <Check className="w-3.5 h-3.5" /> Anvend billedudsnit
+          </Button>
+        </div>
       </div>
     </div>
   );
