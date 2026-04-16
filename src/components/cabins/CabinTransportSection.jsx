@@ -13,12 +13,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Anchor, ArrowRight, RefreshCw, MessageSquare, ChevronDown, X, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
-const LOCATIONS = [
-  'Nuuk', 'Ilulissat', 'Sisimiut', 'Qaqortoq', 'Aasiaat',
-  'Maniitsoq', 'Tasiilaq', 'Paamiut', 'Nanortalik', 'Uummannaq',
-  'Ilimanaq', 'Qeqertarsuaq',
-];
+const LOCATIONS = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
 
 // Transport type options for host-provided transport
 const TRANSPORT_TYPES = [

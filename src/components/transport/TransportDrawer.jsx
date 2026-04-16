@@ -13,12 +13,9 @@ import TransportReviews from '@/components/transport/TransportReviews';
 import { X, ArrowRight, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
-const LOCATIONS = [
-  'Nuuk', 'Ilulissat', 'Sisimiut', 'Qaqortoq', 'Aasiaat',
-  'Maniitsoq', 'Tasiilaq', 'Paamiut', 'Nanortalik', 'Uummannaq',
-  'Ilimanaq', 'Qeqertarsuaq',
-];
+const LOCATIONS = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
 
 export default function TransportDrawer({ transportId, onClose }) {
   const { user } = useAuth();
