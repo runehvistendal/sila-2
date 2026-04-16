@@ -66,6 +66,7 @@ export default function Dashboard() {
   const [requestType, setRequestType] = useState('transport'); // 'transport' or 'cabin'
   const [searchInput, setSearchInput] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('bookings');
 
   const CITIES = Object.keys(CITY_COORDS);
 
@@ -180,10 +181,7 @@ export default function Dashboard() {
            </div>
            <div className="flex gap-2 flex-wrap">
               {isProvider && (
-                <Button variant="outline" onClick={() => {
-                  const tab = document.querySelector('[value="open-requests"]');
-                  if (tab) tab.click();
-                }} className="rounded-xl gap-2 text-sm">
+                <Button variant="outline" onClick={() => setActiveTab('open-requests')} className="rounded-xl gap-2 text-sm">
                   <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
                 </Button>
               )}
@@ -199,7 +197,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue={defaultTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-8 bg-muted rounded-xl p-1 h-auto flex-wrap gap-1">
              <TabsTrigger value="bookings" className="rounded-lg px-4 py-2 text-sm gap-2">
                <Calendar className="w-4 h-4" /> {t('my_bookings')}
@@ -214,9 +212,6 @@ export default function Dashboard() {
              </TabsTrigger>
              {isProvider && (
                <>
-                 <TabsTrigger value="open-requests" className="rounded-lg px-4 py-2 text-sm gap-2 hidden">
-                   <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
-                 </TabsTrigger>
                  <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
                    <Briefcase className="w-4 h-4" /> {t('provider_tab')}
                  </TabsTrigger>
