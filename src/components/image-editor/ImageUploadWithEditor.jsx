@@ -90,7 +90,7 @@ export default function ImageUploadWithEditor({
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-semibold text-foreground">Tilpas billede</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Juster udsnit til 16:9 — dette er præcis hvordan billedet vises i listingen</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{shape === 'circle' ? 'Juster udsnit til cirkel — dette er præcis hvordan profilbilledet vises' : 'Juster udsnit til 16:9 — dette er præcis hvordan billedet vises i listingen'}</p>
           </div>
         </div>
 
@@ -193,7 +193,7 @@ export default function ImageUploadWithEditor({
                 <Upload className="w-5 h-5 text-primary" />
               </div>
               <p className="text-sm font-medium text-foreground">Træk billede hertil eller klik for at vælge</p>
-              <p className="text-xs text-muted-foreground">Du kan justere udsnit (16:9) inden billedet gemmes</p>
+              <p className="text-xs text-muted-foreground">Du kan justere udsnit ({shape === 'circle' ? 'cirkel' : '16:9'}) inden billedet gemmes</p>
             </div>
           )}
         </div>
