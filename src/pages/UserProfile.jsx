@@ -2,8 +2,9 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { Star, MapPin, Anchor, Home, ArrowLeft, Calendar, User } from 'lucide-react';
+import { Star, MapPin, Anchor, Home, ArrowLeft, Calendar, User, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function StarRow({ rating, size = 'sm' }) {
   const s = size === 'sm' ? 'w-3.5 h-3.5' : 'w-5 h-5';
@@ -22,34 +23,52 @@ export default function UserProfile() {
   const email = urlParams.get('email');
   const type = urlParams.get('type') || 'host'; // 'host' | 'guest'
 
+  if (!email) {
+    return (
+      <div className="min-h-screen bg-background pt-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8">
+            <ArrowLeft className="w-4 h-4" />
+            Tilbage
+          </button>
+          <div className="bg-white rounded-2xl border border-border p-6 text-center">
+            <AlertCircle className="w-10 h-10 text-destructive mx-auto mb-3 opacity-50" />
+            <p className="text-muted-foreground">Brugerinformation blev ikke fundet.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Fetch reviews where this person is the provider (as host/transport provider)
-  const { data: hostReviews = [] } = useQuery({
+  const { data: hostReviews = [], isLoading: isLoadingHostReviews } = useQuery({
     queryKey: ['profile-host-reviews', email],
     queryFn: () => base44.entities.Review.filter({ provider_email: email }, '-created_date', 50),
     enabled: !!email,
   });
 
   // Fetch reviews written BY this person (as guest)
-  const { data: guestReviews = [] } = useQuery({
+  const { data: guestReviews = [], isLoading: isLoadingGuestReviews } = useQuery({
     queryKey: ['profile-guest-reviews', email],
     queryFn: () => base44.entities.Review.filter({ reviewer_email: email }, '-created_date', 50),
     enabled: !!email,
   });
 
   // Fetch cabins listed by this person
-  const { data: cabins = [] } = useQuery({
+  const { data: cabins = [], isLoading: isLoadingCabins } = useQuery({
     queryKey: ['profile-cabins', email],
     queryFn: () => base44.entities.Cabin.filter({ host_email: email, status: 'active' }, '-created_date', 10),
     enabled: !!email,
   });
 
   // Fetch transports listed by this person
-  const { data: transports = [] } = useQuery({
+  const { data: transports = [], isLoading: isLoadingTransports } = useQuery({
     queryKey: ['profile-transports', email],
     queryFn: () => base44.entities.Transport.filter({ provider_email: email, status: 'scheduled' }, '-departure_date', 10),
     enabled: !!email,
   });
 
+  const isLoading = isLoadingHostReviews || isLoadingGuestReviews || isLoadingCabins || isLoadingTransports;
   const isProvider = cabins.length > 0 || transports.length > 0 || hostReviews.length > 0;
 
   // Derive name and avatar from reviews or listings
@@ -61,6 +80,24 @@ export default function UserProfile() {
     : null;
 
   const memberSince = cabins[0]?.created_date || transports[0]?.created_date;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background pt-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+          <div className="bg-white rounded-2xl border border-border shadow-card p-6 mb-6">
+            <div className="flex items-start gap-5">
+              <Skeleton className="w-20 h-20 rounded-full shrink-0" />
+              <div className="flex-1">
+                <Skeleton className="h-6 w-40 mb-2" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pt-16">
@@ -212,7 +249,7 @@ export default function UserProfile() {
         {hostReviews.length === 0 && guestReviews.length === 0 && cabins.length === 0 && transports.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
             <User className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p>Ingen data fundet for denne bruger.</p>
+            <p>{isProvider ? 'Ingen opslag oprettet endnu.' : 'Denne bruger har ikke oprettet nogen opslag.'}</p>
           </div>
         )}
       </div>
