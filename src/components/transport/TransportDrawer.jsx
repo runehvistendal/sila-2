@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +22,7 @@ const LOCATIONS = [
 
 export default function TransportDrawer({ transportId, onClose }) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [seats, setSeats] = useState(1);
   const [message, setMessage] = useState('');
   const [addReturn, setAddReturn] = useState(false);
@@ -50,14 +52,14 @@ export default function TransportDrawer({ transportId, onClose }) {
     enabled: !!transportId,
   });
 
+  // Return trips from ALL providers on this route
   const { data: returnTrips = [] } = useQuery({
-    queryKey: ['return-trips', transport?.to_location, transport?.from_location, transport?.provider_email],
+    queryKey: ['return-trips-all', transport?.to_location, transport?.from_location],
     queryFn: () => base44.entities.Transport.filter({
       from_location: transport.to_location,
       to_location: transport.from_location,
-      provider_email: transport.provider_email,
       status: 'scheduled',
-    }, 'departure_date', 5),
+    }, 'departure_date', 10),
     enabled: !!transport,
   });
 
@@ -139,22 +141,22 @@ export default function TransportDrawer({ transportId, onClose }) {
               {/* Info */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-muted rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Calendar className="w-3.5 h-3.5" />Dato</div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Calendar className="w-3.5 h-3.5" />{t('date')}</div>
                   <p className="font-semibold text-sm">{format(new Date(transport.departure_date), 'd. MMM yyyy')}</p>
                 </div>
                 {transport.departure_time && (
                   <div className="bg-muted rounded-xl p-3">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Clock className="w-3.5 h-3.5" />Afgang</div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Clock className="w-3.5 h-3.5" />{t('departure')}</div>
                     <p className="font-semibold text-sm">{transport.departure_time}</p>
                   </div>
                 )}
                 <div className="bg-muted rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Users className="w-3.5 h-3.5" />Ledige pladser</div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Users className="w-3.5 h-3.5" />{t('available_seats')}</div>
                   <p className="font-semibold text-sm">{transport.seats_available}</p>
                 </div>
                 {transport.boat_type && (
                   <div className="bg-muted rounded-xl p-3">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Anchor className="w-3.5 h-3.5" />Båd</div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1"><Anchor className="w-3.5 h-3.5" />{t('boat')}</div>
                     <p className="font-semibold text-sm">{transport.boat_type}</p>
                   </div>
                 )}
@@ -168,23 +170,23 @@ export default function TransportDrawer({ transportId, onClose }) {
 
               {/* Booking section */}
               <div className="bg-white rounded-2xl border border-border p-5">
-                <h3 className="text-base font-bold text-foreground mb-4">Book din plads</h3>
+                <h3 className="text-base font-bold text-foreground mb-4">{t('book_your_seat')}</h3>
 
                 {/* Outbound info */}
                 <div className="bg-primary/5 border border-primary/15 rounded-xl p-3.5 mb-4">
                   <div className="flex items-center gap-2 mb-1">
                     <ArrowRight className="w-4 h-4 text-primary" />
-                    <span className="font-semibold text-sm text-foreground">Udrejse (enkeltbillet)</span>
+                    <span className="font-semibold text-sm text-foreground">{t('outbound_oneway')}</span>
                   </div>
                   <p className="text-sm text-muted-foreground ml-6">
                     {transport.from_location} → {transport.to_location} · {format(new Date(transport.departure_date), 'd. MMM yyyy')}
                   </p>
-                  <p className="text-sm font-semibold text-primary ml-6 mt-1">{oneWayPrice} DKK/plads</p>
+                  <p className="text-sm font-semibold text-primary ml-6 mt-1">{oneWayPrice} {t('price_per_seat')}</p>
                 </div>
 
                 {/* Seats */}
                 <div className="mb-4">
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Antal pladser</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{t('seats_label')}</label>
                   <Input
                     type="number"
                     min={1}
@@ -199,7 +201,7 @@ export default function TransportDrawer({ transportId, onClose }) {
                 <div className="mb-4">
                   <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                     <RefreshCw className="w-4 h-4 text-accent" />
-                    Hjemrejse
+                    {t('return_trip')}
                   </p>
 
                   {returnTrips.length > 0 ? (
@@ -223,12 +225,13 @@ export default function TransportDrawer({ transportId, onClose }) {
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="text-sm font-semibold">{rt.to_location} → {rt.from_location}</p>
-                              <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} pladser</p>
+                              <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} {t('seats_plural')}</p>
+                              {rt.provider_name && <p className="text-xs text-muted-foreground/70 mt-0.5">{t('skipper')} {rt.provider_name}</p>}
                             </div>
                             <div className="text-right">
                               <p className="text-sm font-bold text-accent">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
                               {addReturn && selectedReturn?.id === rt.id && (
-                                <Badge className="bg-accent/20 text-accent border-0 text-xs mt-1">Valgt</Badge>
+                                <Badge className="bg-accent/20 text-accent border-0 text-xs mt-1">{t('selected')}</Badge>
                               )}
                             </div>
                           </div>
@@ -242,12 +245,12 @@ export default function TransportDrawer({ transportId, onClose }) {
                         }}
                         className="w-full text-left p-3 rounded-xl border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
                       >
-                        + Ønsker du en anden dato? Send en anmodning
+                        + {t('want_other_date')}
                       </button>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Ingen bekræftet hjemrejse fra denne udbyder endnu.</p>
+                      <p className="text-sm text-muted-foreground">{t('no_confirmed_return_any')}</p>
                       <button
                         onClick={() => {
                           setShowRequestForm(!showRequestForm); setRequestSent(false);
@@ -259,9 +262,9 @@ export default function TransportDrawer({ transportId, onClose }) {
                       >
                         <div className="flex items-center gap-2">
                           <MessageSquare className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-medium">Anmod om returtransport</span>
+                          <span className="text-sm font-medium">{t('request_return_transport')}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 ml-6">Send en anmodning — udbyderen svarer dig direkte</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 ml-6">{t('send_request_all_providers')}</p>
                       </button>
                     </div>
                   )}
@@ -280,8 +283,8 @@ export default function TransportDrawer({ transportId, onClose }) {
                             <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
                               <span className="text-green-500 text-lg leading-none">✓</span>
                               <div>
-                                <p className="text-sm font-semibold text-green-800">Anmodning sendt!</p>
-                                <p className="text-xs text-green-700 mt-0.5">Din transportanmodning er sendt til udbyderne. Du hører fra dem hurtigst muligt.</p>
+                                <p className="text-sm font-semibold text-green-800">{t('request_sent_exclaim')}</p>
+                                <p className="text-xs text-green-700 mt-0.5">{t('request_sent_to_all_providers')}</p>
                               </div>
                             </div>
                           ) : (
@@ -289,20 +292,20 @@ export default function TransportDrawer({ transportId, onClose }) {
                               <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-3">
                                 <span className="text-amber-500 mt-0.5 text-base leading-none">⚠️</span>
                                 <p className="text-xs text-amber-800">
-                                  <strong>Hjemrejsen er ikke bekræftet endnu.</strong> Din anmodning sendes til lokale udbydere. Du betaler intet nu.
+                                  <strong>{t('notice_not_confirmed')}</strong> {t('request_sent_to_all_desc')}
                                 </p>
                               </div>
                               <div className="space-y-3">
                                 <div className="grid grid-cols-2 gap-3">
                                   <div>
-                                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Fra</label>
+                                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">{t('from')}</label>
                                     <select value={reqForm.from_location} onChange={e => setReqForm(p => ({ ...p, from_location: e.target.value }))}
                                       className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                                       {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
                                     </select>
                                   </div>
                                   <div>
-                                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Til</label>
+                                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">{t('to')}</label>
                                     <select value={reqForm.to_location} onChange={e => setReqForm(p => ({ ...p, to_location: e.target.value }))}
                                       className="w-full h-9 px-3 rounded-md border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                                       {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
@@ -311,15 +314,15 @@ export default function TransportDrawer({ transportId, onClose }) {
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                   <div>
-                                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Ønsket dato</label>
+                                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">{t('desired_date')}</label>
                                     <Input type="date" value={reqForm.travel_date} onChange={e => setReqForm(p => ({ ...p, travel_date: e.target.value }))} min={new Date().toISOString().split('T')[0]} />
                                   </div>
                                   <div>
-                                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Passagerer</label>
+                                    <label className="text-xs font-semibold text-muted-foreground block mb-1.5">{t('passengers')}</label>
                                     <Input type="number" min={1} max={20} value={reqForm.passengers} onChange={e => setReqForm(p => ({ ...p, passengers: Number(e.target.value) }))} />
                                   </div>
                                 </div>
-                                <Textarea value={reqForm.message} onChange={e => setReqForm(p => ({ ...p, message: e.target.value }))} rows={2} placeholder="Beskriv din rejse..." className="resize-none" />
+                                <Textarea value={reqForm.message} onChange={e => setReqForm(p => ({ ...p, message: e.target.value }))} rows={2} placeholder={t('describe_trip')} className="resize-none" />
                                 <Button
                                   onClick={() => {
                                     if (!user) { base44.auth.redirectToLogin(); return; }
@@ -328,7 +331,7 @@ export default function TransportDrawer({ transportId, onClose }) {
                                   disabled={!reqForm.travel_date || requestMutation.isPending}
                                   className="w-full bg-primary text-white rounded-xl h-10 font-semibold text-sm"
                                 >
-                                  {requestMutation.isPending ? 'Sender...' : 'Send anmodning'}
+                                  {requestMutation.isPending ? t('sending_dots') : t('send_request')}
                                 </Button>
                               </div>
                             </>
@@ -341,43 +344,43 @@ export default function TransportDrawer({ transportId, onClose }) {
 
                 {/* Optional message */}
                 <div className="mb-4">
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Besked (valgfri)</label>
-                  <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Spørgsmål til udbyderen?" rows={2} className="rounded-xl resize-none" />
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{t('message_optional')}</label>
+                  <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder={t('question_to_provider')} rows={2} className="rounded-xl resize-none" />
                 </div>
 
                 {/* Price summary */}
                 <div className="bg-muted rounded-xl p-4 mb-4 text-sm space-y-1.5">
                   <div className="flex justify-between text-muted-foreground">
-                    <span>Udrejse: {oneWayPrice} DKK × {seats} plads{seats !== 1 ? 'er' : ''}</span>
+                    <span>{t('outbound_oneway')}: {oneWayPrice} DKK × {seats} {t('seats_plural')}</span>
                     <span>{outboundTotal} DKK</span>
                   </div>
                   {addReturn && selectedReturn && (
                     <div className="flex justify-between text-muted-foreground">
-                      <span>Hjemrejse: {returnPrice} DKK × {seats} plads{seats !== 1 ? 'er' : ''}</span>
+                      <span>{t('return_trip')}: {returnPrice} DKK × {seats} {t('seats_plural')}</span>
                       <span>{returnTotal} DKK</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-foreground pt-1 border-t border-border">
-                    <span>I alt</span>
+                    <span>{t('total_label')}</span>
                     <span>{total} DKK</span>
                   </div>
                 </div>
 
                 {transport.seats_available === 0 ? (
-                  <Button disabled className="w-full h-11 rounded-xl font-semibold">Fuldt booket</Button>
+                  <Button disabled className="w-full h-11 rounded-xl font-semibold">{t('fully_booked')}</Button>
                 ) : !user ? (
                   <Button onClick={() => base44.auth.redirectToLogin()} className="w-full h-11 bg-primary text-white hover:bg-primary/90 rounded-xl font-semibold">
-                    Log ind for at booke
+                    {t('login_to_book')}
                   </Button>
                 ) : (
                   <StripeCheckoutButton
                     payload={stripePayload}
                     disabled={seats < 1 || seats > transport.seats_available}
-                    label={`Betal ${total} DKK`}
+                    label={`${t('pay_amount')} ${total} DKK`}
                     onSuccess={onClose}
                   />
                 )}
-                <p className="text-xs text-muted-foreground text-center mt-2">Sikker betaling via Stripe</p>
+                <p className="text-xs text-muted-foreground text-center mt-2">{t('secure_payment')}</p>
               </div>
 
               {/* Reviews */}

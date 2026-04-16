@@ -43,15 +43,14 @@ export default function TransportDetail() {
     queryFn: () => base44.entities.Transport.filter({ id }, null, 1).then((r) => r[0]),
   });
 
-  // Find return trip: same provider, reverse route, future date
+  // Find return trips from ALL providers on this route
   const { data: returnTrips = [] } = useQuery({
-    queryKey: ['return-trips', transport?.to_location, transport?.from_location, transport?.provider_email],
+    queryKey: ['return-trips-all', transport?.to_location, transport?.from_location],
     queryFn: () => base44.entities.Transport.filter({
       from_location: transport.to_location,
       to_location: transport.from_location,
-      provider_email: transport.provider_email,
       status: 'scheduled',
-    }, 'departure_date', 5),
+    }, 'departure_date', 10),
     enabled: !!transport,
   });
 
@@ -215,6 +214,7 @@ export default function TransportDetail() {
                       <div>
                         <p className="text-sm font-semibold">{rt.to_location} → {rt.from_location}</p>
                         <p className="text-xs text-muted-foreground">{format(new Date(rt.departure_date), 'd. MMM yyyy')}{rt.departure_time ? ` · kl. ${rt.departure_time}` : ''} · {rt.seats_available} {t('seats_plural')}</p>
+                        {rt.provider_name && <p className="text-xs text-muted-foreground/70 mt-0.5">{t('skipper')} {rt.provider_name}</p>}
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold text-accent">{Math.round(rt.round_trip_price * 0.6)} DKK/plads</p>
@@ -240,7 +240,7 @@ export default function TransportDetail() {
               </div>
             ) : (
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">{t('no_confirmed_return')}</p>
+                <p className="text-sm text-muted-foreground">{t('no_confirmed_return_any')}</p>
                 <button
                   onClick={() => {
                     setShowRequestForm(!showRequestForm);
@@ -255,7 +255,7 @@ export default function TransportDetail() {
                     <MessageSquare className="w-4 h-4 text-primary" />
                     <span className="text-sm font-medium">{t('request_return_transport')}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 ml-6">{t('send_request_desc')}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 ml-6">{t('send_request_all_providers')}</p>
                 </button>
               </div>
             )}
@@ -275,7 +275,7 @@ export default function TransportDetail() {
                         <span className="text-green-500 text-lg leading-none">✓</span>
                         <div>
                           <p className="text-sm font-semibold text-green-800">{t('request_sent_exclaim')}</p>
-                          <p className="text-xs text-green-700 mt-0.5">{t('request_sent_to_providers')}</p>
+                          <p className="text-xs text-green-700 mt-0.5">{t('request_sent_to_all_providers')}</p>
                         </div>
                       </div>
                     ) : (
@@ -284,7 +284,7 @@ export default function TransportDetail() {
                     <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
                       <span className="text-amber-500 mt-0.5 text-base leading-none">⚠️</span>
                       <p className="text-xs text-amber-800">
-                        <strong>{t('notice_not_confirmed')}</strong> {t('send_request_desc')}
+                        <strong>{t('notice_not_confirmed')}</strong> {t('request_sent_to_all_desc')}
                       </p>
                     </div>
                     <div className="space-y-3">
