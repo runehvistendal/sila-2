@@ -115,7 +115,7 @@ export default function ImageUploadWithEditor({
             >
               <img src={url} alt="" className="w-full h-full object-cover" />
 
-              <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
+              <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 hover:opacity-100 transition-opacity">
                 <button
                   type="button"
                   title="Rediger udsnit"
