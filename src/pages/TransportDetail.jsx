@@ -231,10 +231,14 @@ export default function TransportDetail() {
                   {t('return_trip')}
                 </p>
                 
-                {returnTrips.length > 0 ? (
-                  <div className="space-y-2 mb-4">
-                    <p className="text-xs font-semibold text-muted-foreground mb-2 whitespace-pre-line">{t('no_return_other_providers')} {transport.from_location}:</p>
-                    {returnTrips.map((rt) => (
+                {returnTrips.length > 0 && (
+                  <>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      <p className="mb-2">{t('no_confirmed_return')}</p>
+                      <p className="font-semibold">{t('no_return_other_providers')} {transport.from_location}:</p>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      {returnTrips.map((rt) => (
                       <button
                         key={rt.id}
                         onClick={() => setDrawerTransportId(rt.id)}
@@ -252,8 +256,9 @@ export default function TransportDetail() {
                         </div>
                       </button>
                     ))}
-                  </div>
-                ) : null}
+                    </div>
+                    </>
+                    )}
 
                 <button
                   onClick={() => {
