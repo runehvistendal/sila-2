@@ -19,6 +19,8 @@ import HostCalendarTab from '@/components/dashboard/HostCalendarTab';
 import OpenRequestsTab from '@/components/dashboard/OpenRequestsTab';
 import BookingReviewButton from '@/components/bookings/BookingReviewButton';
 import ProviderTrustCard from '@/components/provider/ProviderTrustCard';
+import GuestBookingsTab from '@/components/dashboard/GuestBookingsTab';
+import ProviderOverviewTab from '@/components/dashboard/ProviderOverviewTab';
 import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
 const STATUS_COLORS = {
@@ -213,7 +215,10 @@ export default function Dashboard() {
              {isProvider && (
                <>
                  <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
-                   <Briefcase className="w-4 h-4" /> {t('provider_tab')}
+                   <Briefcase className="w-4 h-4" /> Forespørgsler & Bookinger
+                 </TabsTrigger>
+                 <TabsTrigger value="listings" className="rounded-lg px-4 py-2 text-sm gap-2">
+                   <Home className="w-4 h-4" /> Mine annoncer
                  </TabsTrigger>
                </>
              )}
@@ -227,49 +232,13 @@ export default function Dashboard() {
              )}
            </TabsList>
 
-          {/* MY BOOKINGS */}
+          {/* MY BOOKINGS — for guests */}
           <TabsContent value="bookings">
-            <div className="space-y-6">
-              {/* Active bookings as guest */}
-              <div>
-                <h3 className="font-semibold text-foreground mb-3">{t('my_bookings_guest')}</h3>
-                {myBookings.length === 0 ? (
-                  <EmptyState icon={Calendar} message={t('no_bookings')} cta={t('explore_cabins')} ctaHref="/cabins" />
-                ) : (
-                  <div className="space-y-3">
-                    {myBookings.map((b) => <BookingRow key={b.id} booking={b} isHost={false} t={t} />)}
-                  </div>
-                )}
-              </div>
-
-              {/* Booking requests as host/skipper */}
-              {(isProvider) && (
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">
-                    {t('booking_requests_provider')}
-                    {pendingHostBookings > 0 && (
-                      <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs">{pendingHostBookings}</span>
-                    )}
-                  </h3>
-                  {hostBookings.length === 0 ? (
-                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_booking_requests')}</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {hostBookings.map((b) => (
-                        <BookingRow
-                          key={b.id}
-                          booking={b}
-                          isHost
-                          t={t}
-                          onConfirm={() => updateBooking.mutate({ id: b.id, status: 'confirmed' })}
-                          onDecline={() => updateBooking.mutate({ id: b.id, status: 'declined' })}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+            {isTraveler ? (
+              <GuestBookingsTab bookings={myBookings} t={t} />
+            ) : (
+              <EmptyState icon={Calendar} message={t('no_bookings')} cta={t('explore_cabins')} ctaHref="/cabins" />
+            )}
           </TabsContent>
 
           {/* MY REQUESTS */}
@@ -286,16 +255,9 @@ export default function Dashboard() {
              </div>
            </TabsContent>
 
-          {/* OPEN REQUESTS — for providers */}
+          {/* OLD OPEN REQUESTS — hidden (now in provider overview) */}
           {isProvider && (
-            <TabsContent value="open-requests">
-              <OpenRequestsTab />
-            </TabsContent>
-          )}
-
-          {/* OLD ALL REQUESTS — hidden */}
-          {isProvider && (
-            <TabsContent value="all-requests" className="hidden">
+            <TabsContent value="open-requests" className="hidden">
               <div className="space-y-6">
                 {/* Toggle buttons */}
                 <div className="flex gap-2 bg-muted rounded-xl p-1 w-fit">
@@ -430,11 +392,23 @@ export default function Dashboard() {
             </TabsContent>
           )}
 
-          {/* PROVIDER */}
+          {/* PROVIDER OVERVIEW — forespørgsler & bookinger */}
           {isProvider && (
             <TabsContent value="provider">
+              <ProviderOverviewTab
+                cabinRequests={allCabinRequests}
+                transportRequests={allTransportRequests}
+                hostBookings={hostBookings}
+                userEmail={user.email}
+                t={t}
+              />
+            </TabsContent>
+          )}
+
+          {/* MY LISTINGS */}
+          {isProvider && (
+            <TabsContent value="listings">
               <div className="space-y-8">
-                {/* Listings */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-foreground">{t('my_listings')}</h3>
@@ -479,16 +453,6 @@ export default function Dashboard() {
                       <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_listings')}</p>
                     )}
                   </div>
-                </div>
-
-                {/* Incoming requests */}
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">{t('incoming_cabin_requests')}</h3>
-                  <IncomingCabinRequestsTab />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3">{t('incoming_transport_requests')}</h3>
-                  <IncomingRequestsTab />
                 </div>
 
                 {/* Trust score */}
