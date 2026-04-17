@@ -51,7 +51,7 @@ const NewUserRedirect = () => {
     if (isLoadingAuth || !user) return;
 
     const isOnOnboardingPage = location.pathname === '/profile' && location.search.includes('onboarding=true');
-    const missingBasicInfo = !user.full_name?.trim() || !user.location?.trim();
+    const missingBasicInfo = !user.full_name?.trim() || (!user.location_id && !user.location?.trim());
 
     if (missingBasicInfo && !isOnOnboardingPage) {
       navigate('/profile?onboarding=true', { replace: true });
