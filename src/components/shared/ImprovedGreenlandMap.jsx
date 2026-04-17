@@ -232,8 +232,8 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
           scrollWheelZoom={false}
         >
           <TileLayer
-            attribution='&copy; OpenStreetMap'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; CartoDB'
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           />
 
           {/* Hytter */}
