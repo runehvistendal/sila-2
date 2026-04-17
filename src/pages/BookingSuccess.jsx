@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Loader2, CalendarDays, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Loader2, CalendarDays, Mail, Clock, ArrowRight, Home } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
@@ -38,41 +39,75 @@ export default function BookingSuccess() {
     </div>
   );
 
+  const nextSteps = [
+    { icon: Mail, label: t('next_step_1') },
+    { icon: Clock, label: t('next_step_2') },
+    { icon: CheckCircle2, label: t('next_step_3') },
+  ];
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="bg-white rounded-2xl border border-border shadow-card p-10 max-w-md w-full text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <CheckCircle2 className="w-9 h-9 text-green-600" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-6 pt-24">
+      <div className="bg-white rounded-2xl border border-border shadow-card p-8 sm:p-10 max-w-lg w-full">
+
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+            <CheckCircle2 className="w-11 h-11 text-green-600" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{t('booking_confirmed')}</h1>
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">{t('booked')}</h1>
+
+        {/* Summary card */}
         {booking && (
-          <p className="text-muted-foreground text-sm mb-1">
-            <strong>{booking.listing_title}</strong>
-          </p>
+          <div className="bg-muted/40 border border-border rounded-xl p-5 mb-6 space-y-3">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <p className="font-semibold text-foreground text-base">{booking.listing_title}</p>
+              {booking.total_price && (
+                <span className="text-sm font-bold text-primary whitespace-nowrap">{booking.total_price} DKK</span>
+              )}
+            </div>
+            {(booking.check_in || booking.check_out) && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CalendarDays className="w-4 h-4 shrink-0" />
+                <span>
+                  {booking.check_in ? format(new Date(booking.check_in), 'd MMM yyyy') : '—'}
+                  {' → '}
+                  {booking.check_out ? format(new Date(booking.check_out), 'd MMM yyyy') : '—'}
+                </span>
+              </div>
+            )}
+            {booking.host_email && (
+              <p className="text-xs text-muted-foreground">{t('host')}: {booking.host_email}</p>
+            )}
+          </div>
         )}
-        <p className="text-muted-foreground text-sm mb-6">
-          {t('booking_confirmation') || 'Din betaling er gennemført. Du vil modtage en bekræftelse på e-mail.'}
-        </p>
 
-        {/* CTA */}
-        <div className="bg-primary/5 border border-primary/15 rounded-xl p-4 mb-6 text-left flex items-start gap-3">
-          <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-            <CalendarDays className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">{t('bookings_ready') || 'Dine bookinger er klar'}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{t('booking_details') || 'Se alle detaljer, kommunikér med udbyderen og hold styr på din rejse fra dit dashboard.'}</p>
-          </div>
+        {/* What happens next */}
+        <div className="mb-8">
+          <h2 className="text-base font-bold text-foreground mb-4">{t('what_happens_next')}</h2>
+          <ol className="space-y-3">
+            {nextSteps.map((step, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <step.icon className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed pt-1">{step.label}</p>
+              </li>
+            ))}
+          </ol>
         </div>
 
-        <Button onClick={() => navigate('/dashboard')} className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 gap-2 h-11 font-semibold">
-          <CalendarDays className="w-4 h-4" />
-          {t('my_bookings')}
-          <ArrowRight className="w-4 h-4 ml-auto" />
-        </Button>
-        <button onClick={() => navigate('/')} className="w-full mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          {t('homepage_return')}
-        </button>
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button onClick={() => navigate('/dashboard')} className="flex-1 h-11 rounded-xl bg-primary text-white hover:bg-primary/90 font-semibold gap-2">
+            <CalendarDays className="w-4 h-4" />
+            {t('see_my_bookings')}
+          </Button>
+          <Button onClick={() => navigate('/cabins')} variant="outline" className="flex-1 h-11 rounded-xl font-semibold gap-2">
+            <Home className="w-4 h-4" />
+            {t('explore_more')}
+          </Button>
+        </div>
       </div>
     </div>
   );
