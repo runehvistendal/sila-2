@@ -49,14 +49,28 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-18">
 
           {/* Logo — desktop only, mobile has hamburger */}
-          <Link to="/" className="hidden md:flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary rounded-xl items-center justify-center flex">
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              // Create SVG logo and download it
+              const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3-13H11v6l5.25 3.15.75-1.23-3-1.92z"/></svg>`;
+              const blob = new Blob([svg], { type: 'image/svg+xml' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'sila-logo.svg';
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="hidden md:flex items-center gap-2 group cursor-pointer"
+          >
+            <div className="w-8 h-8 bg-primary rounded-xl items-center justify-center flex hover:bg-primary/90 transition-colors">
               <Waves className="w-4 h-4 text-white" />
             </div>
             <span className={`text-lg font-bold tracking-tight transition-colors ${transparent ? 'text-white' : 'text-foreground'}`}>
               Sila
             </span>
-          </Link>
+          </button>
 
           {/* Mobile/tablet menu button as logo */}
           <button
