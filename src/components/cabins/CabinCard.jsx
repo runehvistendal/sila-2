@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { MapPin, Users, Anchor, Star } from 'lucide-react';
+import { MapPin, Users, Anchor, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/lib/CurrencyContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import FavouriteButton from '@/components/shared/FavouriteButton';
@@ -10,12 +10,26 @@ import ProviderBadge from '@/components/shared/ProviderBadge';
 
 export default function CabinCard({ cabin }) {
   const [imageError, setImageError] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const imageScrollRef = useRef(null);
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const coverImage = cabin.images?.[0] || 'https://images.unsplash.com/photo-1542314503-37143f4f1c21?w=600&h=400&fit=crop&q=80';
+  const images = cabin.images && cabin.images.length > 0 ? cabin.images : ['https://images.unsplash.com/photo-1542314503-37143f4f1c21?w=600&h=400&fit=crop&q=80'];
   const fallbackImage = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=400&fit=crop&q=80';
-  const imageUrl = imageError ? fallbackImage : coverImage;
+  const imageUrl = imageError ? fallbackImage : images[currentImageIndex];
+  
+  const handlePrevImage = (e) => {
+    e.preventDefault();
+    setCurrentImageIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+    setImageError(false);
+  };
+  
+  const handleNextImage = (e) => {
+    e.preventDefault();
+    setCurrentImageIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+    setImageError(false);
+  };
 
   const { data: reviews = [] } = useQuery({
     queryKey: ['cabin-card-reviews', cabin.id],
@@ -39,12 +53,27 @@ export default function CabinCard({ cabin }) {
              onError={() => setImageError(true)}
            />
          )}
+        {images.length > 1 && (
+          <>
+            <button onClick={handlePrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full transition-colors z-10">
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button onClick={handleNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full transition-colors z-10">
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+              {images.map((_, i) => (
+                <div key={i} className={`h-1.5 rounded-full transition-all ${i === currentImageIndex ? 'bg-white w-4' : 'bg-white/50 w-1.5'}`} />
+              ))}
+            </div>
+          </>
+        )}
         <div className="absolute top-3 right-3" onClick={e => e.preventDefault()}>
           <FavouriteButton
             listingType="cabin"
             listingId={cabin.id}
             listingTitle={cabin.title}
-            listingImage={coverImage}
+            listingImage={images[0]}
             listingLocation={cabin.location}
             listingPrice={cabin.price_per_night}
           />

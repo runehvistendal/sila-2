@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, Calendar, Clock, Users, Anchor, Home, Star } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Calendar, Clock, Users, Anchor, Home, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/lib/LanguageContext';
 import ProviderBadge from '@/components/shared/ProviderBadge';
@@ -13,6 +13,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [imageError, setImageError] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const { data: reviews = [] } = useQuery({
     queryKey: ['transport-card-reviews', transport.id],
@@ -24,14 +25,26 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
     : null;
 
-  const boatImage = transport.images?.[0] || 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=200&h=150&fit=crop&q=80';
+  const images = transport.images && transport.images.length > 0 ? transport.images : [];
   const fallbackBoatImage = 'https://images.unsplash.com/photo-1527821712519-f3f5e0e75c6c?w=200&h=150&fit=crop&q=80';
-  const imageUrl = imageError ? fallbackBoatImage : boatImage;
+  const imageUrl = imageError || images.length === 0 ? fallbackBoatImage : images[currentImageIndex];
+  
+  const handlePrevImage = (e) => {
+    e.preventDefault();
+    setCurrentImageIndex((i) => (i === 0 ? images.length - 1 : i - 1));
+    setImageError(false);
+  };
+  
+  const handleNextImage = (e) => {
+    e.preventDefault();
+    setCurrentImageIndex((i) => (i === images.length - 1 ? 0 : i + 1));
+    setImageError(false);
+  };
 
   const content = (
     <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col h-full ${compact ? '' : 'hover:border-primary/30'}`}>
       {/* Boat Image */}
-      {transport.images && transport.images.length > 0 && (
+      {images.length > 0 && (
         <div className="relative overflow-hidden rounded-lg aspect-video mb-4 bg-muted">
           <img
             src={imageUrl}
@@ -39,6 +52,21 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
             className="w-full h-full object-cover"
             onError={() => setImageError(true)}
           />
+          {images.length > 1 && (
+            <>
+              <button onClick={handlePrevImage} className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-0.5 rounded-full transition-colors z-10">
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <button onClick={handleNextImage} className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-0.5 rounded-full transition-colors z-10">
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+              <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+                {images.map((_, i) => (
+                  <div key={i} className={`h-1 rounded-full transition-all ${i === currentImageIndex ? 'bg-white w-3' : 'bg-white/50 w-1'}`} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
       {/* Route */}
