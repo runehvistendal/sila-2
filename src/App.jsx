@@ -44,10 +44,10 @@ import CabinRequestDetail from '@/pages/CabinRequestDetail';
 
 const NewUserRedirect = () => {
   const { user, isLoadingAuth } = useAuth();
-  const navigate = useNavigate ? useNavigate() : null;
+  const navigate = useNavigate();
   
   useEffect(() => {
-    if (isLoadingAuth || !user || !navigate) return;
+    if (isLoadingAuth || !user) return;
     const alreadyOnboarding = window.location.pathname === '/profile' && window.location.search.includes('onboarding=true');
     if (alreadyOnboarding) return;
     const createdRecently = user.created_date && (Date.now() - new Date(user.created_date).getTime()) < 60_000;
