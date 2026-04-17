@@ -71,7 +71,7 @@ export default function TransportReviews({ transportId, providerEmail, providerN
         <div>
           <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
             <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-            {t('reviews')} {avgRating && <span className="text-base">{avgRating}</span>}
+            {t('reviews').charAt(0).toUpperCase() + t('reviews').slice(1)} {avgRating && <span className="text-base">{avgRating}</span>}
           </h2>
           {avgRating && (
             <div className="flex gap-0.5 mt-1">
