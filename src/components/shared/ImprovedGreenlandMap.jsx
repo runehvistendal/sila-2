@@ -297,7 +297,7 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
       )}
 
       {/* Kort */}
-      <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card">
+      <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card relative z-0">
         <MapContainer
           center={[68, -50]}
           zoom={5}
