@@ -7,6 +7,14 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Verify request comes from trusted internal automation
+    const schedulerSecret = Deno.env.get('SCHEDULER_SECRET');
+    const authHeader = req.headers.get('authorization') || '';
+    if (!schedulerSecret || authHeader !== `Bearer ${schedulerSecret}`) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const payload = await req.json();
 
     // Verify this is a trusted internal automation event (not external request)
