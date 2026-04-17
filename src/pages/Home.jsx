@@ -48,10 +48,12 @@ export default function Home() {
       const res = await base44.functions.invoke('getActiveTransports', {});
       return res.data.transports || [];
     },
-    staleTime: 60_000,
+    staleTime: 30_000,
   });
 
-  const nextTransport = transports.length > 0 ? transports[0] : null;
+  const nextTransport = transports.length > 0 
+    ? transports.find(t => t.status === 'scheduled' && t.departure_date >= new Date().toISOString().split('T')[0]) || transports[0]
+    : null;
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -305,7 +307,7 @@ export default function Home() {
               {/* Floating card — overlaps bottom-left edge of map */}
               {nextTransport && (
                 <div
-                  className="absolute bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.18)] p-4 w-[175px] cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.22)] transition-shadow"
+                  className="absolute bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.18)] p-4 w-[175px] cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.22)] transition-shadow z-50"
                   style={{ bottom: '-18px', left: '-18px' }}
                   onClick={() => navigate('/transport')}
                 >
