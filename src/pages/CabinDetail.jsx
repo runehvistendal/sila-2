@@ -12,21 +12,24 @@ import CabinReviews from '@/components/cabins/CabinReviews';
 import CabinAvailabilityCalendar from '@/components/cabins/CabinAvailabilityCalendar';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
 import CabinTransportSection from '@/components/cabins/CabinTransportSection';
-import { MapPin, Users, Anchor, ChevronLeft, Check, User } from 'lucide-react';
+import { MapPin, Users, Anchor, ChevronLeft, Check, User, Flag } from 'lucide-react';
 import CabinImageGallery from '@/components/cabins/CabinImageGallery';
 import AskProviderQuestion from '@/components/shared/AskProviderQuestion';
+import ReportProviderModal from '@/components/shared/ReportProviderModal';
+import { useState as useModalState } from 'react';
 
 export default function CabinDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState(1);
   const [message, setMessage] = useState('');
   const [hostTransportCost, setHostTransportCost] = useState(0);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const { data: cabin, isLoading } = useQuery({
     queryKey: ['cabin', id],
@@ -86,6 +89,13 @@ export default function CabinDetail() {
 
   return (
     <div className="min-h-screen pt-16 bg-background">
+      {showReportModal && cabin.host_email && (
+        <ReportProviderModal
+          providerEmail={cabin.host_email}
+          providerName={cabin.host_name}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back */}
         <button onClick={() => navigate('/cabins')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors">
@@ -180,6 +190,19 @@ export default function CabinDetail() {
               hostName={cabin.host_name}
               currentUserEmail={user?.email}
             />
+
+            {/* Report provider */}
+            {cabin.host_email && (
+              <div className="pt-2">
+                <button
+                  onClick={() => setShowReportModal(true)}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  <Flag className="w-3.5 h-3.5" />
+                  {lang === 'en' ? 'Report provider' : 'Rapportér udbyder'}
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right — booking card */}

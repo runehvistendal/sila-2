@@ -6,6 +6,7 @@ import { MapPin, Users, Anchor, Star } from 'lucide-react';
 import { useCurrency } from '@/lib/CurrencyContext';
 import { useLanguage } from '@/lib/LanguageContext';
 import FavouriteButton from '@/components/shared/FavouriteButton';
+import ProviderBadge from '@/components/shared/ProviderBadge';
 
 export default function CabinCard({ cabin }) {
   const [imageError, setImageError] = useState(false);
@@ -91,6 +92,7 @@ export default function CabinCard({ cabin }) {
               )}
             </div>
             <span className="text-xs text-muted-foreground underline-offset-2 hover:underline">{cabin.host_name}</span>
+            <ProviderBadge providerEmail={cabin.host_email} />
           </button>
         )}
       </div>

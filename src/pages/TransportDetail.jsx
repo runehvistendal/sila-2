@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare, User } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Calendar, Clock, Users, Anchor, RefreshCw, MessageSquare, User, Flag } from 'lucide-react';
+import ReportProviderModal from '@/components/shared/ReportProviderModal';
 import ListingImageGallery from '@/components/shared/ListingImageGallery';
 import { format } from 'date-fns';
 import StripeCheckoutButton from '@/components/bookings/StripeCheckoutButton';
@@ -24,8 +25,9 @@ export default function TransportDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [seats, setSeats] = useState(1);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [message, setMessage] = useState('');
   const [addReturn, setAddReturn] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState(false);
@@ -430,7 +432,28 @@ export default function TransportDetail() {
 
         {/* Reviews */}
         <TransportReviews transportId={transport.id} providerEmail={transport.provider_email} providerName={transport.provider_name} />
+
+        {/* Report provider */}
+        {transport.provider_email && (
+          <div className="pt-2 pb-4">
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
+            >
+              <Flag className="w-3.5 h-3.5" />
+              {lang === 'en' ? 'Report provider' : 'Rapportér udbyder'}
+            </button>
+          </div>
+        )}
       </div>
+
+      {showReportModal && transport.provider_email && (
+        <ReportProviderModal
+          providerEmail={transport.provider_email}
+          providerName={transport.provider_name}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
 
       {/* Transport Drawer for other providers' return trips */}
       <AnimatePresence>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, ArrowLeft, Calendar, Clock, Users, Anchor, Home, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/lib/LanguageContext';
+import ProviderBadge from '@/components/shared/ProviderBadge';
 
 export default function TransportCard({ transport, returnTrip = null, compact = false }) {
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
                 {t('by_provider')} {transport.provider_name}
               </button>
             )}
+            <ProviderBadge providerEmail={transport.provider_email} />
             {avgRating && (
               <span className="flex items-center gap-0.5">
                 <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
