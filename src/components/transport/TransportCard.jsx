@@ -52,10 +52,10 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
   };
 
   const content = (
-    <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow ${minimal ? 'p-3' : 'p-5'} flex flex-col h-full ${compact ? '' : 'hover:border-primary/30'}`}>
+    <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow ${minimal ? 'p-2' : 'p-5'} flex flex-col h-full ${compact ? '' : 'hover:border-primary/30'}`}>
       {/* Boat Image */}
       {images.length > 0 && showImages && (
-        <div className="relative overflow-hidden rounded-lg aspect-video mb-4 bg-muted">
+        <div className={`relative overflow-hidden rounded-lg aspect-video ${minimal ? 'mb-2' : 'mb-4'} bg-muted`}>
           <img
             src={imageUrl}
             alt={transport.boat_type || 'boat'}
@@ -80,7 +80,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
         </div>
       )}
       {/* Route */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className={`flex items-center gap-3 ${minimal ? 'mb-2' : 'mb-4'}`}>
         {transport.provider_avatar && (
           <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0 overflow-hidden">
             <img src={transport.provider_avatar} alt="" className="w-full h-full object-cover" />
@@ -120,7 +120,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
 
 
       {/* Details row */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className={`flex flex-wrap gap-2 ${minimal ? 'mb-2' : 'mb-4'}`}>
         <span className="inline-flex items-center gap-1.5 text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
           <Calendar className="w-3 h-3" />
           {format(new Date(transport.departure_date), 'MMM d')}
@@ -152,7 +152,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
       </div>
 
       {/* Return trip badge — from own listing or linked listing */}
-      <div className="mb-4 h-[3.5rem] flex items-start">
+      <div className={`${minimal ? 'mb-2' : 'mb-4'} ${minimal ? 'h-[2.5rem]' : 'h-[3.5rem]'} flex items-start`}>
         {transport.return_date ? (
           <div className="bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2 w-full">
             <ArrowLeft className="w-3.5 h-3.5 text-accent shrink-0" />
