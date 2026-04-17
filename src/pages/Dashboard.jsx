@@ -495,7 +495,7 @@ export default function Dashboard() {
                     {t('reviews')}
                     {avgRating && (
                       <span className="text-sm font-normal text-muted-foreground">
-                        — {t('avg_rating') || 'gennemsnitlig vurdering'} {avgRating} ★
+                        — {t('avg_rating')} {avgRating} ★
                       </span>
                     )}
                   </h3>
@@ -543,7 +543,7 @@ function OpenRequestsList({ nearby, others, userHomeCity, type, t }) {
           {type === 'transport' ? t('no_transport_requests') : t('no_cabin_requests')}
         </p>
         <p className="text-xs text-muted-foreground">
-          {t('requests_appear_here') || 'Nye anmodninger fra rejsende vises her'}
+          {t('requests_appear_here')}
         </p>
       </div>
     );
@@ -555,7 +555,7 @@ function OpenRequestsList({ nearby, others, userHomeCity, type, t }) {
       {totalNearby > 0 && userHomeCity && (
         <div>
           <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">
-            {t('near_you') || 'Nær dig'} — {userHomeCity}
+            {t('near_you')} — {userHomeCity}
           </p>
           <div className="space-y-3">
             {nearby.map(r => (
@@ -572,7 +572,7 @@ function OpenRequestsList({ nearby, others, userHomeCity, type, t }) {
         <div>
           {userHomeCity && totalNearby > 0 && (
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-              {t('other_regions') || 'Andre regioner'}
+              {t('other_regions')}
             </p>
           )}
           <div className="space-y-3">
@@ -612,7 +612,7 @@ function TransportRequestCard({ r, t, highlight }) {
             <p className="text-xs text-muted-foreground mt-0.5">{r.guest_name || r.guest_email}</p>
             <p className="text-xs text-muted-foreground">
               {r.travel_date ? format(new Date(r.travel_date), 'd. MMM yyyy') : '—'}
-              {r.passengers ? ` · ${r.passengers} ${t('passengers') || 'passagerer'}` : ''}
+              {r.passengers ? ` · ${r.passengers} ${t('passengers')}` : ''}
             </p>
           </div>
         </div>
@@ -638,7 +638,7 @@ function CabinRequestCard({ r, t, highlight }) {
             <p className="text-xs text-muted-foreground">
               {r.check_in ? format(new Date(r.check_in), 'd. MMM') : '—'}
               {r.check_out ? ` – ${format(new Date(r.check_out), 'd. MMM yyyy')}` : ''}
-              {r.guests ? ` · ${r.guests} ${t('guests') || 'gæster'}` : ''}
+              {r.guests ? ` · ${r.guests} ${t('guests')}` : ''}
             </p>
           </div>
         </div>
@@ -667,8 +667,8 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
             <p className="font-semibold text-sm text-foreground">{booking.listing_title}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               {isHost
-                ? `${t('from') || 'Fra'}: ${booking.guest_name || booking.guest_email}`
-                : `${t('booked') || 'Booket'} ${format(new Date(booking.created_date), 'd. MMM yyyy')}`}
+                ? `${t('from')}: ${booking.guest_name || booking.guest_email}`
+                : `${t('booked')} ${format(new Date(booking.created_date), 'd. MMM yyyy')}`}
             </p>
           </div>
         </div>
@@ -696,12 +696,12 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
               )}
               {booking.guests && (
                 <span className="flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5" />{booking.guests} {t('guests') || 'gæster'}
+                  <Users className="w-3.5 h-3.5" />{booking.guests} {t('guests')}
                 </span>
               )}
               {booking.seats && (
                 <span className="flex items-center gap-1">
-                  <Anchor className="w-3.5 h-3.5" />{booking.seats} {t('seats_plural') || 'pladser'}
+                  <Anchor className="w-3.5 h-3.5" />{booking.seats} {t('seats_plural')}
                 </span>
               )}
             </div>
@@ -716,10 +716,10 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
           {isHost && booking.status === 'pending' && (
             <div className="flex gap-2">
               <Button size="sm" onClick={onConfirm} className="bg-primary text-white hover:bg-primary/90 rounded-lg gap-1.5">
-                <Check className="w-3.5 h-3.5" /> {t('confirm') || 'Bekræft'}
+                <Check className="w-3.5 h-3.5" /> {t('confirm')}
               </Button>
               <Button size="sm" variant="outline" onClick={onDecline} className="rounded-lg gap-1.5 text-destructive border-destructive/30 hover:bg-destructive hover:text-white">
-                <X className="w-3.5 h-3.5" /> {t('decline') || 'Afvis'}
+                <X className="w-3.5 h-3.5" /> {t('decline')}
               </Button>
             </div>
           )}
@@ -736,8 +736,8 @@ function RatingRow({ rating, showTo, t = () => '' }) {
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div>
           <p className="text-xs text-muted-foreground">
-            {showTo ? `${t('to') || 'Til'}: ${rating.to_email}` : `${t('from') || 'Fra'}: ${rating.from_email}`}
-            {' · '}{rating.request_type === 'transport' ? t('transport_label') || 'Transport' : t('cabin') || 'Hytte'}
+            {showTo ? `${t('to')}: ${rating.to_email}` : `${t('from')}: ${rating.from_email}`}
+            {' · '}{rating.request_type === 'transport' ? t('transport_label') : t('cabin')}
           </p>
           <div className="flex gap-0.5 mt-1">
             {[1, 2, 3, 4, 5].map(n => (
