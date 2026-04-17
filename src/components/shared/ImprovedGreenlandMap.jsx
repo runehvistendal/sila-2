@@ -241,12 +241,12 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
       });
   }, [transports, layers.routes]);
 
-  const showTransportLegend = departurePins.length > 0 || destinationPins.length > 0;
+  const showTransportLegend = routeCurves.length > 0 || departurePins.length > 0 || destinationPins.length > 0;
 
   return (
     <div className="space-y-3">
       {/* Lag-toggle og legende */}
-      {(cabins.length > 0 || transports.length > 0) && (
+      {(cabins.length > 0 || transports.length > 0) && showTransportLegend && (
         <div className="flex flex-wrap items-center gap-2">
           {cabins.length > 0 && (
             <button
