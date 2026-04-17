@@ -23,8 +23,8 @@ export default function CabinCard({ cabin }) {
       })
     : [];
   
-  const images = cabinImages.length > 0 ? cabinImages : (cabin.images && cabin.images.length > 0 ? cabin.images : ['https://images.unsplash.com/photo-1542314503-37143f4f1c21?w=600&h=400&fit=crop&q=80']);
-  const fallbackImage = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=400&fit=crop&q=80';
+  const images = cabinImages.length > 0 ? cabinImages : (cabin.images && cabin.images.length > 0 ? cabin.images : ['https://images.unsplash.com/photo-1570129477492-45a003cf17b7?w=600&h=400&fit=crop&q=80']);
+  const fallbackImage = 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe3e?w=600&h=400&fit=crop&q=80';
   const imageUrl = imageError ? fallbackImage : images[currentImageIndex];
   
   const handlePrevImage = (e) => {

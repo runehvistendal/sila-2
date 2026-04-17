@@ -36,7 +36,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
   
   // If filtered list is empty, use original images
   const images = boatImages.length > 0 ? boatImages : (transport.images || []);
-  const fallbackBoatImage = 'https://images.unsplash.com/photo-1527821712519-f3f5e0e75c6c?w=200&h=150&fit=crop&q=80';
+  const fallbackBoatImage = 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=200&h=150&fit=crop&q=80';
   const imageUrl = imageError || images.length === 0 ? fallbackBoatImage : images[currentImageIndex];
   
   const handlePrevImage = (e) => {
