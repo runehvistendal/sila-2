@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 
+const VALID_LANGS = ['da', 'en', 'kl'];
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -93,6 +95,10 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
+      // Apply saved language preference
+      if (currentUser?.language && VALID_LANGS.includes(currentUser.language)) {
+        localStorage.setItem('sila_language', currentUser.language);
+      }
     } catch (error) {
       console.error('User auth check failed:', error);
       setIsLoadingAuth(false);

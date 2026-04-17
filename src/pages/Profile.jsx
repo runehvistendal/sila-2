@@ -88,7 +88,13 @@ function RoleTypeCards({ value, onChange, lang }) {
   );
 }
 
-function OnboardingStep({ user, t, lang }) {
+const SUPPORTED_LANGUAGES = [
+  { code: 'da', label: 'Dansk' },
+  { code: 'en', label: 'English' },
+  { code: 'kl', label: 'Kalaallisut (Grønlandsk)' },
+];
+
+function OnboardingStep({ user, t, lang, setLang }) {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   const qc = useQueryClient();
@@ -97,6 +103,7 @@ function OnboardingStep({ user, t, lang }) {
     phone: user?.phone || '',
     location_id: null,
     role_type: 'traveler',
+    language: lang,
   });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -112,6 +119,7 @@ function OnboardingStep({ user, t, lang }) {
       phone: obForm.phone,
       location_id: obForm.location_id,
       role_type: obForm.role_type,
+      language: obForm.language,
     });
     await refreshUser();
     qc.invalidateQueries(['user-profile']);
@@ -160,6 +168,23 @@ function OnboardingStep({ user, t, lang }) {
             />
           </div>
           <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('display_language')}</label>
+            <Select
+              value={obForm.language}
+              onValueChange={v => {
+                setObForm(f => ({ ...f, language: v }));
+                setLang(v);
+              }}
+            >
+              <SelectTrigger className="h-10 rounded-xl text-sm"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_LANGUAGES.map(l => (
+                  <SelectItem key={l.code} value={l.code}>{l.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('i_am')} *</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
               {Object.entries(ROLE_CARDS).map(([key, card]) => {
@@ -189,7 +214,7 @@ function OnboardingStep({ user, t, lang }) {
 
 export default function Profile() {
   const { user } = useAuth();
-  const { t, lang } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const { currentRole } = useRole();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
@@ -218,6 +243,7 @@ export default function Profile() {
         avatar_url: userData.avatar_url || '',
         phone: userData.phone || '',
         notification_prefs: userData.notification_prefs || 'email',
+        language: userData.language || lang,
       });
     }
     if (userData && !providerForm) {
@@ -251,7 +277,7 @@ export default function Profile() {
 
   const saveMutation = useMutation({
     mutationFn: () => {
-      const data = { ...form };
+      const data = { ...form, language: form.language || lang };
       if (currentRole === 'provider' && providerForm) {
         data.provider_name = providerForm.provider_name;
         data.provider_bio = providerForm.provider_bio;
@@ -281,7 +307,7 @@ export default function Profile() {
   }
 
   if (isOnboarding) {
-    return <OnboardingStep user={user} t={t} lang={lang} />;
+    return <OnboardingStep user={user} t={t} lang={lang} setLang={setLang} />;
   }
 
   const allRatingValues = [...myRatingsReceived.map(r => r.stars), ...myReviews.map(r => r.rating)];
@@ -395,6 +421,23 @@ export default function Profile() {
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('languages')}</label>
                   <Input value={currentForm.languages} onChange={e => setForm(f => ({ ...f, languages: e.target.value }))} className="h-10 rounded-xl text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('display_language')}</label>
+                  <Select
+                    value={currentForm.language || lang}
+                    onValueChange={v => {
+                      setForm(f => ({ ...f, language: v }));
+                      setLang(v);
+                    }}
+                  >
+                    <SelectTrigger className="h-10 rounded-xl text-sm"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_LANGUAGES.map(l => (
+                        <SelectItem key={l.code} value={l.code}>{l.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div>

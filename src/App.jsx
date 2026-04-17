@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { RoleProvider } from '@/lib/RoleContext';
-import { LanguageProvider } from '@/lib/LanguageContext';
+import { LanguageProvider, useLanguage } from '@/lib/LanguageContext';
 import { CurrencyProvider } from '@/lib/CurrencyContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Layout from '@/components/layout/Layout';
@@ -63,6 +63,18 @@ const NewUserRedirect = () => {
   return null;
 };
 
+// Syncs user.language from profile to the app's language context on login
+const LanguageSyncer = () => {
+  const { user } = useAuth();
+  const { setLang } = useLanguage();
+  useEffect(() => {
+    if (user?.language && ['da', 'en', 'kl'].includes(user.language)) {
+      setLang(user.language);
+    }
+  }, [user?.language]);
+  return null;
+};
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
 
@@ -84,6 +96,7 @@ const AuthenticatedApp = () => {
   return (
     <>
       <NewUserRedirect />
+      <LanguageSyncer />
       <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
