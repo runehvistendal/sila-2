@@ -303,15 +303,8 @@ export default function Home() {
             </div>
 
             <div className="relative">
-              <div className="rounded-2xl overflow-hidden aspect-[4/3] shadow-card-hover">
-                <img
-                  src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=900&h=700&fit=crop&q=85"
-                  alt="Grønlandsk sejltur"
-                  className="w-full h-full object-cover"
-                  onError={(e) => e.target.style.display = 'none'}
-                />
-              </div>
-              {/* Floating card — overlaps bottom-left edge of image */}
+              <ImprovedGreenlandMap cabins={featuredCabins} transports={transports} height="400px" />
+              {/* Floating card — overlaps bottom-left edge of map */}
               {nextTransport && (
                 <div
                   className="absolute bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.18)] p-4 w-[175px] cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.22)] transition-shadow"
@@ -329,21 +322,6 @@ export default function Home() {
               )}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* MAP SECTION */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
-                <Map className="w-7 h-7 text-primary" /> {t('how_title')}
-              </h2>
-              <p className="text-muted-foreground">{t('featured_subtitle')}</p>
-            </div>
-          </div>
-          <ImprovedGreenlandMap cabins={featuredCabins} height="450px" />
         </div>
       </section>
 
