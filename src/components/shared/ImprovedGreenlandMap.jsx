@@ -267,7 +267,7 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
                 }`}
               >
                 <Waves className="w-3.5 h-3.5" />
-                {t('map_boats') || 'Transport'}
+                Transport
               </button>
               <button
                 onClick={() => setMode('both')}
