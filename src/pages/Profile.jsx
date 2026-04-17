@@ -13,7 +13,7 @@ import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Backpack, Users
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
-import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
+import AvatarUploader from '@/components/image-editor/AvatarUploader';
 import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
 import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
@@ -406,12 +406,16 @@ export default function Profile() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('profile_picture')}</label>
-                <ImageUploadWithEditor
-                  images={currentForm.avatar_url ? [currentForm.avatar_url] : []}
-                  onChange={(urls) => setForm(f => ({ ...f, avatar_url: urls[0] || '' }))}
-                  maxImages={1}
-                  shape="circle"
-                  hidePrimaryLabel
+                <AvatarUploader
+                  currentUrl={currentForm.avatar_url}
+                  uploading={saveMutation.isPending}
+                  onSave={async (dataUrl) => {
+                    const res = await fetch(dataUrl);
+                    const blob = await res.blob();
+                    const file = new File([blob], 'avatar.png', { type: 'image/png' });
+                    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                    setForm(f => ({ ...f, avatar_url: file_url }));
+                  }}
                 />
               </div>
 

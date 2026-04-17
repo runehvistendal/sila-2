@@ -489,6 +489,9 @@ const translations = {
     onboarding_name_required: 'Please enter your full name.',
     onboarding_city_required: 'Please select your city.',
     onboarding_role_required: 'Please select your role.',
+    change_photo: 'Change photo',
+    drag_to_reposition: 'Drag to reposition',
+    save: 'Save',
   },
   da: {
     nav_experiences: 'Oplevelser',
@@ -973,6 +976,9 @@ const translations = {
     onboarding_name_required: 'Angiv venligst dit fulde navn.',
     onboarding_city_required: 'Vælg venligst din by.',
     onboarding_role_required: 'Vælg venligst din rolle.',
+    change_photo: 'Skift billede',
+    drag_to_reposition: 'Træk for at placere',
+    save: 'Gem',
   },
   kl: {
     nav_experiences: 'Suliffinneqarnerit',
@@ -1264,6 +1270,9 @@ const translations = {
     onboarding_name_required: 'Angiv venligst dit fulde navn.',
     onboarding_city_required: 'Vælg venligst din by.',
     onboarding_role_required: 'Vælg venligst din rolle.',
+    change_photo: 'Skift billede',
+    drag_to_reposition: 'Træk for at placere',
+    save: 'Gem',
   },
   };
 
