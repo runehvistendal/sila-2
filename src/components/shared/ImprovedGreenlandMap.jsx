@@ -181,7 +181,6 @@ const TransportHubPopup = ({ location, transports, type = 'departure' }) => {
  */
 export default function ImprovedGreenlandMap({ cabins = [], transports = [], height = '500px' }) {
   const { t } = useLanguage();
-  const [mode, setMode] = React.useState('both'); // 'cabins', 'transports', 'both'
   const [layers, setLayers] = React.useState({
     cabins: true,
     routes: true,
@@ -190,16 +189,16 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
   });
 
   const cabinPins = useMemo(() => {
-    if (!layers.cabins || (mode !== 'cabins' && mode !== 'both')) return [];
+    if (!layers.cabins) return [];
     return (cabins || [])
       .filter((c) => c && c.id && c.location)
       .map((c) => ({ ...c, coords: LOCATIONS[c.location] }))
       .filter((c) => c.coords);
-  }, [cabins, layers.cabins, mode]);
+  }, [cabins, layers.cabins]);
 
   // Afgangshavne (fra)
   const departurePins = useMemo(() => {
-    if (!layers.departures || (mode !== 'transports' && mode !== 'both')) return [];
+    if (!layers.departures) return [];
     const hubs = {};
     (transports || []).forEach((t) => {
       if (!t.from_location) return;
@@ -209,11 +208,11 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
     return Object.entries(hubs)
       .map(([location, ts]) => ({ location, transports: ts, coords: LOCATIONS[location] }))
       .filter((p) => p.coords);
-  }, [transports, layers.departures, mode]);
+  }, [transports, layers.departures]);
 
   // Destinationer (til)
   const destinationPins = useMemo(() => {
-    if (!layers.destinations || (mode !== 'transports' && mode !== 'both')) return [];
+    if (!layers.destinations) return [];
     const hubs = {};
     (transports || []).forEach((t) => {
       if (!t.to_location) return;
@@ -227,11 +226,11 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
       .filter(([loc]) => !departureLocations.has(loc))
       .map(([location, ts]) => ({ location, transports: ts, coords: LOCATIONS[location] }))
       .filter((p) => p.coords);
-  }, [transports, layers.destinations, departurePins, mode]);
+  }, [transports, layers.destinations, departurePins]);
 
   // Transportruter med kurver
   const routeCurves = useMemo(() => {
-    if (!layers.routes || (mode !== 'transports' && mode !== 'both')) return [];
+    if (!layers.routes) return [];
     return (transports || [])
       .filter((t) => t.from_location && t.to_location && LOCATIONS[t.from_location] && LOCATIONS[t.to_location])
       .map((transport) => {
@@ -240,46 +239,16 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
         const controlPoint = calculateControlPoint(from, to);
         return { transport, from, to, controlPoint };
       });
-  }, [transports, layers.routes, mode]);
+  }, [transports, layers.routes]);
 
   const showTransportLegend = routeCurves.length > 0 || departurePins.length > 0 || destinationPins.length > 0;
 
   return (
     <div className="space-y-3">
-      {/* Mode toggles */}
-      {(cabins.length > 0 || transports.length > 0) && (
+      {/* Lag-toggle og legende */}
+      {(cabins.length > 0 || transports.length > 0) && showTransportLegend && (
         <div className="flex flex-wrap items-center gap-2">
-          {cabins.length > 0 && transports.length > 0 ? (
-            <>
-              <button
-                onClick={() => setMode('cabins')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                  mode === 'cabins' ? 'bg-primary text-white border-primary' : 'bg-white text-muted-foreground border-border'
-                }`}
-              >
-                <HomeIcon className="w-3.5 h-3.5" />
-                {t('map_cabins')}
-              </button>
-              <button
-                onClick={() => setMode('transports')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                  mode === 'transports' ? 'bg-primary text-white border-primary' : 'bg-white text-muted-foreground border-border'
-                }`}
-              >
-                <Waves className="w-3.5 h-3.5" />
-                Transport
-              </button>
-              <button
-                onClick={() => setMode('both')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                  mode === 'both' ? 'bg-primary text-white border-primary' : 'bg-white text-muted-foreground border-border'
-                }`}
-              >
-                <Anchor className="w-3.5 h-3.5" />
-                Begge
-              </button>
-            </>
-          ) : cabins.length > 0 ? (
+          {cabins.length > 0 && (
             <button
               onClick={() => setLayers((p) => ({ ...p, cabins: !p.cabins }))}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
@@ -289,9 +258,43 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
               <HomeIcon className="w-3.5 h-3.5" />
               {t('map_cabins')} {cabinPins.length > 0 && `(${cabinPins.length})`}
             </button>
-          ) : null}
-          </div>
           )}
+          {transports.length > 0 && (
+            <>
+              <button
+                onClick={() => setLayers((p) => ({ ...p, routes: !p.routes }))}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                  layers.routes ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
+                }`}
+                style={layers.routes ? { backgroundColor: '#0077be' } : {}}
+              >
+                <Waves className="w-3.5 h-3.5" />
+                Ruter {routeCurves.length > 0 && `(${routeCurves.length})`}
+              </button>
+              <button
+                onClick={() => setLayers((p) => ({ ...p, departures: !p.departures }))}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                  layers.departures ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
+                }`}
+                style={layers.departures ? { backgroundColor: '#1a5276' } : {}}
+              >
+                <span>⚓</span>
+                {t('map_departures')} {departurePins.length > 0 && `(${departurePins.length})`}
+              </button>
+              <button
+                onClick={() => setLayers((p) => ({ ...p, destinations: !p.destinations }))}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                  layers.destinations ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
+                }`}
+                style={layers.destinations ? { backgroundColor: '#1e8449' } : {}}
+              >
+                <span>🏁</span>
+                {t('map_destinations')} {destinationPins.length > 0 && `(${destinationPins.length})`}
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Kort */}
       <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card">
