@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Backpack, Users } from 'lucide-react';
+import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
@@ -233,32 +233,16 @@ export default function Profile() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('i_am')}</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { value: 'traveler', icon: Backpack, title: 'Rejsende', subtitle: 'Book hytter og sejlture. Du ser dine bookinger og anmodninger.' },
-                    { value: 'provider', icon: Home, title: 'Udbyder', subtitle: 'Opret og sælg hytter og sejlture. Du ser åbne ønsker, annoncer og din indbakke.' },
-                    { value: 'both', icon: Users, title: 'Begge', subtitle: 'Fuld adgang — rejse og udbyde på samme tid.' },
-                  ].map(({ value, icon: Icon, title, subtitle }) => {
-                    const selected = currentForm.role_type === value;
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setForm(f => ({ ...f, role_type: value }))}
-                        className={`flex flex-col items-center text-center p-4 rounded-xl border-2 transition-all gap-2 ${
-                          selected
-                            ? 'border-primary bg-primary/5 text-primary'
-                            : 'border-border bg-white text-foreground hover:border-primary/40'
-                        }`}
-                      >
-                        <Icon className={`w-6 h-6 ${selected ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <span className="text-sm font-semibold">{title}</span>
-                        <span className="text-xs text-muted-foreground leading-snug">{subtitle}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">Dit valg bestemmer hvilke funktioner der vises i dit dashboard.</p>
+                <Select value={currentForm.role_type} onValueChange={v => setForm(f => ({ ...f, role_type: v }))}>
+                  <SelectTrigger className="h-10 rounded-xl text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                     <SelectItem value="traveler">{t('traveler_desc')}</SelectItem>
+                     <SelectItem value="provider">{t('provider_desc')}</SelectItem>
+                     <SelectItem value="both">{t('both_desc')}</SelectItem>
+                   </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('notifications')}</label>
