@@ -113,6 +113,7 @@ function OnboardingStep({ user, t, lang }) {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">{t('welcome_to_sila')}</h1>
           <p className="text-muted-foreground text-sm mt-2">{t('complete_profile_subtitle')}</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">{lang === 'en' ? 'You can always update this later under your profile.' : lang === 'kl' ? 'Tamanna kingornussiatit profili pillugit naleqquppat allanngortissavarsi.' : 'Du kan altid ændre dine oplysninger senere under din profil.'}</p>
         </div>
         <div className="space-y-4">
           <div>

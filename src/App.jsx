@@ -50,13 +50,13 @@ const NewUserRedirect = () => {
   useEffect(() => {
     if (isLoadingAuth || !user) return;
 
-    const isAlreadyOnboarding = location.pathname === '/profile' && location.search.includes('onboarding=true');
-    if (isAlreadyOnboarding) return;
-
+    const isOnOnboardingPage = location.pathname === '/profile' && location.search.includes('onboarding=true');
     const missingBasicInfo = !user.full_name?.trim() || !user.location?.trim();
 
-    if (missingBasicInfo) {
+    if (missingBasicInfo && !isOnOnboardingPage) {
       navigate('/profile?onboarding=true', { replace: true });
+    } else if (!missingBasicInfo && isOnOnboardingPage) {
+      navigate('/', { replace: true });
     }
   }, [user, isLoadingAuth, navigate, location.pathname, location.search]);
 
