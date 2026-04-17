@@ -186,6 +186,7 @@ export default function Profile() {
         full_name: userData.full_name || '',
         bio: userData.bio || '',
         location_id: userData.location_id || null,
+        location: userData.location || '',
         languages: userData.languages || '',
         role_type: userData.role_type || 'traveler',
         avatar_url: userData.avatar_url || '',
@@ -318,9 +319,9 @@ export default function Profile() {
                 <div>
                   <h1 className="text-xl font-bold text-foreground">{user.full_name || user.email.split('@')[0]}</h1>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
-                  {user.location_name && (
+                  {(user.location_name || user.location) && (
                     <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                      <MapPin className="w-3.5 h-3.5" />{user.location_name}
+                      <MapPin className="w-3.5 h-3.5" />{user.location_name || user.location}
                     </p>
                   )}
                 </div>
