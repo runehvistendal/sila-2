@@ -104,9 +104,13 @@ export default function TransportDetail() {
         </button>
 
         {/* Images */}
-        {transport.images?.length > 0 && (
-          <ListingImageGallery images={transport.images} title={`${transport.from_location} → ${transport.to_location}`} />
-        )}
+         {transport.images && transport.images.length > 0 ? (
+           <ListingImageGallery images={transport.images} title={`${transport.from_location} → ${transport.to_location}`} />
+         ) : (
+           <div className="w-full h-80 bg-muted rounded-2xl flex items-center justify-center mb-6">
+             <Anchor className="w-16 h-16 text-muted-foreground/30" />
+           </div>
+         )}
 
         {/* Info card */}
         <div className="bg-white rounded-2xl border border-border shadow-card p-6 sm:p-8 mb-6">

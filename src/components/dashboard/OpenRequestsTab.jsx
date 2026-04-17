@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Home, Anchor, MapPin, Calendar, Users, X } from 'lucide-react';
+import { Home, Anchor, MapPin, Calendar, Users, X, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
@@ -303,6 +303,7 @@ export default function OpenRequestsTab() {
 }
 
 function RequestCard({ request, t }) {
+  const [showModal, setShowModal] = React.useState(false);
   const navigate = useNavigate();
   const isTransport = request.type === 'transport';
   const statusLabel = {
@@ -322,8 +323,9 @@ function RequestCard({ request, t }) {
   }[request.status] || 'bg-gray-100 text-gray-500';
 
   return (
+    <>
     <button
-      onClick={() => navigate(isTransport ? `/request-transport/${request.id}` : `/request-cabin/${request.id}`)}
+      onClick={() => setShowModal(true)}
       className="w-full text-left bg-white rounded-xl border border-border p-4 hover:shadow-md transition-shadow"
     >
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -367,5 +369,89 @@ function RequestCard({ request, t }) {
         </div>
       </div>
     </button>
+    {showModal && (
+      <RequestDetailModal request={request} isTransport={isTransport} t={t} onClose={() => setShowModal(false)} />
+    )}
+    </>
+  );
+}
+
+function RequestDetailModal({ request, isTransport, t, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
+      <div className="bg-white rounded-2xl max-w-md w-full mx-4 sm:mx-0 p-6 sm:p-8 shadow-lg max-h-[90vh] overflow-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-foreground">{t('request_details')}</h2>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4 mb-6">
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase">{t('name')}</p>
+            <p className="text-sm font-semibold text-foreground mt-1">{request.guest_name}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase">{t('email')}</p>
+            <p className="text-sm text-foreground mt-1">{request.guest_email}</p>
+          </div>
+
+          {isTransport ? (
+            <>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase">{t('route')}</p>
+                <p className="text-sm text-foreground mt-1">{request.from_location} → {request.to_location}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase">{t('date')}</p>
+                <p className="text-sm text-foreground mt-1">{format(new Date(request.travel_date), 'd. MMM yyyy')}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase">{t('passengers')}</p>
+                <p className="text-sm text-foreground mt-1">{request.passengers}</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase">{t('location')}</p>
+                <p className="text-sm text-foreground mt-1">{request.location}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase">{t('dates')}</p>
+                <p className="text-sm text-foreground mt-1">{format(new Date(request.check_in), 'd. MMM')} – {format(new Date(request.check_out), 'd. MMM yyyy')}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase">{t('guests')}</p>
+                <p className="text-sm text-foreground mt-1">{request.guests}</p>
+              </div>
+            </>
+          )}
+
+          {request.message && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase">{t('message')}</p>
+              <p className="text-sm text-foreground mt-1 italic">"{request.message}"</p>
+            </div>
+          )}
+        </div>
+
+        <Button
+          onClick={() => window.location.href = `mailto:${request.guest_email}`}
+          className="w-full bg-primary text-white hover:bg-primary/90 rounded-xl h-10 font-semibold gap-2 mb-3"
+        >
+          <MessageSquare className="w-4 h-4" />
+          {t('contact_requester')}
+        </Button>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          className="w-full rounded-xl h-10"
+        >
+          {t('close')}
+        </Button>
+      </div>
+    </div>
   );
 }

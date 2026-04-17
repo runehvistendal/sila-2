@@ -199,15 +199,21 @@ export default function Dashboard() {
             )}
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
-              <MapPin className="w-4 h-4" /> {t('request_cabin_btn')}
-            </Button>
-            <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
-              <Anchor className="w-4 h-4" /> {t('request_transport_btn')}
-            </Button>
-            <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
-              <PlusCircle className="w-4 h-4" /> {t('new_listing')}
-            </Button>
+            {isTraveler && (
+              <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
+                <MapPin className="w-4 h-4" /> {t('request_cabin_btn')}
+              </Button>
+            )}
+            {isTraveler && (
+              <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
+                <Anchor className="w-4 h-4" /> {t('request_transport_btn')}
+              </Button>
+            )}
+            {isProvider && (
+              <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
+                <PlusCircle className="w-4 h-4" /> {t('new_listing')}
+              </Button>
+            )}
           </div>
         </div>
 

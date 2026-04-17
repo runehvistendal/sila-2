@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -125,6 +125,7 @@ export default function Transport() {
                    <TransportCard
                      transport={{
                        ...t,
+                       images: t.images && t.images.length > 0 ? t.images : ['https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&h=400&fit=crop&q=80'],
                        round_trip_price: t.round_trip_price || PRICE_EXAMPLES[t.from_location] || PRICE_EXAMPLES[t.to_location] || 1800
                      }}
                      returnTrip={getReturnTrip(t)}
