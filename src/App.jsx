@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { RoleProvider } from '@/lib/RoleContext';
@@ -45,17 +45,20 @@ import CabinRequestDetail from '@/pages/CabinRequestDetail';
 const NewUserRedirect = () => {
   const { user, isLoadingAuth } = useAuth();
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
   useEffect(() => {
     if (isLoadingAuth || !user) return;
-    const alreadyOnboarding = window.location.pathname === '/profile' && window.location.search.includes('onboarding=true');
-    if (alreadyOnboarding) return;
-    const createdRecently = user.created_date && (Date.now() - new Date(user.created_date).getTime()) < 5 * 60_000;
-    const missingBasicInfo = !user.full_name || !user.location;
-    if (createdRecently && missingBasicInfo) {
-      navigate('/profile?onboarding=true');
+
+    const isAlreadyOnboarding = location.pathname === '/profile' && location.search.includes('onboarding=true');
+    if (isAlreadyOnboarding) return;
+
+    const missingBasicInfo = !user.full_name?.trim() || !user.location?.trim();
+
+    if (missingBasicInfo) {
+      navigate('/profile?onboarding=true', { replace: true });
     }
-  }, [user, isLoadingAuth]);
+  }, [user, isLoadingAuth, navigate, location.pathname, location.search]);
 
   return null;
 };
