@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Link } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import MapAttributionController from '@/components/shared/MapAttributionController';
 
 // Fix leaflet default icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -77,12 +78,13 @@ const MapPopupContent = ({ cabin }) => {
       return (
       <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card">
        <MapContainer
-         center={[68, -50]}
-         zoom={5}
-         style={{ height: '100%', width: '100%' }}
-         scrollWheelZoom={false}
-       >
-         <TileLayer
+          center={[68, -50]}
+          zoom={5}
+          style={{ height: '100%', width: '100%' }}
+          scrollWheelZoom={false}
+        >
+          <MapAttributionController />
+          <TileLayer
            attribution='&copy; CartoDB'
            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
          />

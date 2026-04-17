@@ -49,3 +49,16 @@
     font-family: var(--font-sans);
   }
 }
+
+/* Leaflet attribution styling */
+.leaflet-control-attribution {
+  background: transparent !important;
+  font-size: 10px !important;
+  color: rgba(0, 0, 0, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.leaflet-control-attribution a {
+  color: rgba(0, 0, 0, 0.6) !important;
+  text-decoration: none !important;
+}

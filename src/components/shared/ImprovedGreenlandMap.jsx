@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Eye, EyeOff, Anchor, Home as HomeIcon } from 'lucide-react';
+import MapAttributionController from '@/components/shared/MapAttributionController';
 import { Button } from '@/components/ui/button';
 import { useCurrency } from '@/lib/CurrencyContext';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -231,6 +232,7 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
           style={{ height: '100%', width: '100%' }}
           scrollWheelZoom={false}
         >
+          <MapAttributionController />
           <TileLayer
             attribution='&copy; CartoDB'
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
