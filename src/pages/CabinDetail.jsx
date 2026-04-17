@@ -163,7 +163,9 @@ export default function CabinDetail() {
             {/* Host profile */}
             {cabin.host_name && (
               <div>
-                <h2 className="text-xl font-bold text-foreground mb-3">{t('your_host')}</h2>
+                <h2 className="text-xl font-bold text-foreground mb-3">
+                  {lang === 'en' ? 'Your host' : lang === 'kl' ? 'Din vært' : 'Din vært'}
+                </h2>
                 <button
                   onClick={() => navigate(`/profile/user?email=${encodeURIComponent(cabin.host_email)}&type=host`)}
                   className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-border hover:border-primary/30 hover:shadow-card transition-all w-full text-left"
