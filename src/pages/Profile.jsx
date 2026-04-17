@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Backpack, Users } from 'lucide-react';
+import { capitalizeFirst } from '@/lib/statusUtils';
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
@@ -234,7 +235,7 @@ export default function Profile() {
     onSuccess: () => {
       qc.invalidateQueries(['user-profile']);
       setEditing(false);
-      toast({ title: t('saved') });
+      toast({ title: capitalizeFirst(t('saved')), duration: 2000 });
     },
   });
 
@@ -490,7 +491,7 @@ export default function Profile() {
                   <img src={c.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=80&h=60&fit=crop'} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{c.title}</p>
-                    <p className="text-xs text-muted-foreground">{c.location} · {c.price_per_night} DKK/nat</p>
+                    <p className="text-xs text-muted-foreground">{c.location} · {c.price_per_night} DKK/{t('per_night')}</p>
                   </div>
                 </a>
               ))}
@@ -502,11 +503,11 @@ export default function Profile() {
         <div className="bg-white rounded-2xl border border-border p-6">
           <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
             <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-            Anmeldelser
-            {avgRating && <span className="text-sm font-normal text-muted-foreground ml-1">{avgRating} ★ gennemsnitlig vurdering</span>}
+            {t('reviews')}
+            {avgRating && <span className="text-sm font-normal text-muted-foreground ml-1">{avgRating} ★ {t('avg_rating')}</span>}
           </h2>
           {allRatingValues.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Ingen anmeldelser endnu</p>
+            <p className="text-sm text-muted-foreground">{t('no_ratings')}</p>
           ) : (
             <div className="space-y-3">
               {myRatingsReceived.map(r => (

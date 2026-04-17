@@ -199,7 +199,7 @@ export default function CabinDetail() {
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive transition-colors"
                 >
                   <Flag className="w-3.5 h-3.5" />
-                  {lang === 'en' ? 'Report provider' : 'Rapportér udbyder'}
+                  {t('incident_type_other') || 'Rapportér udbyder'}
                 </button>
               </div>
             )}
@@ -266,7 +266,7 @@ export default function CabinDetail() {
                 <StripeCheckoutButton
                   payload={stripePayload}
                   disabled={!stripePayload}
-                  label={nights > 0 ? `Betal ${total} DKK` : t('select_dates_to_book')}
+                  label={nights > 0 ? `${t('pay_amount')} ${total} DKK` : t('select_dates_to_book')}
                 />
               )}
               <p className="text-xs text-muted-foreground text-center mt-3">{t('secure_payment')}</p>

@@ -66,7 +66,7 @@ export default function RequestCabin() {
                {t('my_dashboard')}
              </Button>
              <Button onClick={() => { setDone(false); setForm({ location: '', check_in: '', check_out: '', guests: 2, note: '' }); }} className="bg-primary text-white rounded-xl">
-               {t('new_request') || 'Ny forespørgsel'}
+               {t('new_request')}
              </Button>
            </div>
          </div>

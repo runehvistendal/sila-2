@@ -38,7 +38,7 @@ export default function Favourites() {
             <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
               <Heart className="w-7 h-7 fill-red-500 text-red-500" /> {t('nav_favourites')}
             </h1>
-            <p className="text-muted-foreground mt-1">{favs.length} {t('saved') || 'gemte opslag'}</p>
+            <p className="text-muted-foreground mt-1">{favs.length} {t('saved')}</p>
           </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -49,8 +49,8 @@ export default function Favourites() {
         ) : favs.length === 0 ? (
           <div className="text-center py-24">
             <Heart className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-            <p className="text-lg font-medium text-foreground mb-1">{t('no_favourites') || 'Ingen favoritter endnu'}</p>
-            <p className="text-muted-foreground text-sm mb-6">{t('save_on_heart') || 'Tryk på hjertet på hytter og transport for at gemme dem her'}</p>
+            <p className="text-lg font-medium text-foreground mb-1">{t('no_favourites')}</p>
+            <p className="text-muted-foreground text-sm mb-6">{t('save_on_heart')}</p>
             <Button variant="outline" onClick={() => window.location.href = '/cabins'} className="rounded-xl">{t('explore_cabins')}</Button>
           </div>
         ) : (

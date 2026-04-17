@@ -141,7 +141,7 @@ export default function Dashboard() {
     onSuccess: () => {
       qc.invalidateQueries(['host-bookings']);
       qc.invalidateQueries(['my-bookings']);
-      toast({ title: t('booking_updated') || 'Booking opdateret', duration: 2000 });
+      toast({ title: capitalizeFirst(t('booking_updated')), duration: 2000 });
     },
   });
 

@@ -533,6 +533,7 @@ const translations = {
     requests_appear_here: 'New requests from travelers will appear here',
     create_listing: 'Create listing',
     booking_updated: 'Booking updated',
+    saved: 'Saved',
     // Role labels
     role_traveler: 'Traveler',
     role_provider: 'Provider',
@@ -1101,6 +1102,7 @@ const translations = {
     requests_appear_here: 'Nye anmodninger fra rejsende vises her',
     create_listing: 'Opret annonce',
     booking_updated: 'Booking opdateret',
+    saved: 'Gemt',
     // Role labels
     role_traveler: 'Rejsende',
     role_provider: 'Udbyder',
@@ -1483,6 +1485,7 @@ const translations = {
     requests_appear_here: 'Forespørgsler vises her',
     create_listing: 'Opret',
     booking_updated: 'Booking opdateret',
+    saved: 'Gemmit',
     // Role labels
     role_traveler: 'Angallattoq',
     role_provider: 'Nalunaarsuisoq',
