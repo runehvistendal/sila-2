@@ -559,7 +559,7 @@ export default function Profile() {
         <div className="bg-white rounded-2xl border border-border p-6">
           <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
             <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-            {t('reviews')}
+            {t('reviews')?.charAt(0).toUpperCase() + t('reviews')?.slice(1)}
             {avgRating && <span className="text-sm font-normal text-muted-foreground ml-1">{avgRating} ★ {t('avg_rating')}</span>}
           </h2>
           {allRatingValues.length === 0 ? (
