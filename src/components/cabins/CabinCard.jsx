@@ -15,7 +15,15 @@ export default function CabinCard({ cabin }) {
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const images = cabin.images && cabin.images.length > 0 ? cabin.images : ['https://images.unsplash.com/photo-1542314503-37143f4f1c21?w=600&h=400&fit=crop&q=80'];
+  // Filter to only show relevant interior/exterior cabin images
+  const cabinImages = cabin.images && cabin.images.length > 0 
+    ? cabin.images.filter(img => {
+        const url = img.toLowerCase();
+        return !url.includes('boat') && !url.includes('person') && !url.includes('diver') && !url.includes('fish');
+      })
+    : [];
+  
+  const images = cabinImages.length > 0 ? cabinImages : (cabin.images && cabin.images.length > 0 ? cabin.images : ['https://images.unsplash.com/photo-1542314503-37143f4f1c21?w=600&h=400&fit=crop&q=80']);
   const fallbackImage = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=400&fit=crop&q=80';
   const imageUrl = imageError ? fallbackImage : images[currentImageIndex];
   
