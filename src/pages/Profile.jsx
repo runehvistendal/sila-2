@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -14,6 +15,7 @@ import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
 import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
 import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
 const ROLE_CARDS = {
   traveler: {
@@ -86,6 +88,75 @@ function RoleTypeCards({ value, onChange, lang }) {
   );
 }
 
+function OnboardingStep({ user, t, lang }) {
+  const navigate = useNavigate();
+  const CITIES = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
+  const [obForm, setObForm] = useState({ full_name: user?.full_name || '', phone: user?.phone || '', location: '', role_type: 'traveler' });
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const l = lang || 'da';
+
+  const handleSubmit = async () => {
+    if (!obForm.full_name.trim()) { setError(t('onboarding_name_required')); return; }
+    if (!obForm.location) { setError(t('onboarding_city_required')); return; }
+    setError('');
+    setSaving(true);
+    await base44.auth.updateMe({ full_name: obForm.full_name.trim(), phone: obForm.phone, location: obForm.location, role_type: obForm.role_type });
+    setSaving(false);
+    navigate('/');
+  };
+
+  return (
+    <div className="min-h-screen pt-16 bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-lg bg-white rounded-2xl border border-border shadow-card p-8 space-y-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground">{t('welcome_to_sila')}</h1>
+          <p className="text-muted-foreground text-sm mt-2">{t('complete_profile_subtitle')}</p>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('full_name')} *</label>
+            <Input value={obForm.full_name} onChange={e => setObForm(f => ({ ...f, full_name: e.target.value }))} className="h-10 rounded-xl text-sm" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('phone_optional')}</label>
+            <Input value={obForm.phone} onChange={e => setObForm(f => ({ ...f, phone: e.target.value }))} placeholder="+299 ..." className="h-10 rounded-xl text-sm" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')} *</label>
+            <Select value={obForm.location} onValueChange={v => setObForm(f => ({ ...f, location: v }))}>
+              <SelectTrigger className="h-10 rounded-xl text-sm"><SelectValue placeholder={t('select_departure')} /></SelectTrigger>
+              <SelectContent>{CITIES.map(city => <SelectItem key={city} value={city}>{city}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('i_am')} *</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
+              {Object.entries(ROLE_CARDS).map(([key, card]) => {
+                const Icon = card.icon;
+                const selected = obForm.role_type === key;
+                return (
+                  <button key={key} type="button" onClick={() => setObForm(f => ({ ...f, role_type: key }))}
+                    className={`text-left p-3 rounded-xl border-2 transition-all ${selected ? 'border-primary bg-primary/5 shadow-sm' : 'border-border bg-white hover:border-primary/40'}`}>
+                    <Icon className={`w-5 h-5 mb-1.5 ${selected ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <p className={`text-xs font-semibold mb-1 ${selected ? 'text-primary' : 'text-foreground'}`}>{card.title[l] || card.title.da}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{card.desc[l] || card.desc.da}</p>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground italic mt-2">{ROLE_NOTE[l] || ROLE_NOTE.da}</p>
+          </div>
+        </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        <Button onClick={handleSubmit} disabled={saving} className="w-full h-11 bg-primary text-white rounded-xl font-semibold">
+          {saving ? t('saving') : t('get_started')}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function Profile() {
   const { user } = useAuth();
   const { t, lang } = useLanguage();
@@ -94,6 +165,9 @@ export default function Profile() {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(null);
   const [providerForm, setProviderForm] = useState(null);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const isOnboarding = urlParams.get('onboarding') === 'true';
 
   const { data: userData } = useQuery({
     queryKey: ['user-profile', user?.email],
@@ -187,6 +261,10 @@ export default function Profile() {
         </Button>
       </div>
     );
+  }
+
+  if (isOnboarding) {
+    return <OnboardingStep user={user} t={t} lang={lang} />;
   }
 
   const allRatingValues = [...myRatingsReceived.map(r => r.stars), ...myReviews.map(r => r.rating)];

@@ -483,6 +483,12 @@ const translations = {
     ask_provider_sent: 'Question sent!',
     ask_provider_sent_desc: 'The provider will reply as soon as possible.',
     ask_provider_login: 'Log in to ask a question',
+    welcome_to_sila: 'Welcome to Sila 👋',
+    complete_profile_subtitle: 'Fill in your profile — it takes less than a minute',
+    get_started: 'Get started',
+    onboarding_name_required: 'Please enter your full name.',
+    onboarding_city_required: 'Please select your city.',
+    onboarding_role_required: 'Please select your role.',
   },
   da: {
     nav_experiences: 'Oplevelser',
@@ -961,6 +967,12 @@ const translations = {
     ask_provider_sent: 'Spørgsmål sendt!',
     ask_provider_sent_desc: 'Udbyderen svarer hurtigst muligt.',
     ask_provider_login: 'Log ind for at stille et spørgsmål',
+    welcome_to_sila: 'Velkommen til Sila 👋',
+    complete_profile_subtitle: 'Udfyld din profil — det tager under et minut',
+    get_started: 'Kom i gang',
+    onboarding_name_required: 'Angiv venligst dit fulde navn.',
+    onboarding_city_required: 'Vælg venligst din by.',
+    onboarding_role_required: 'Vælg venligst din rolle.',
   },
   kl: {
     nav_experiences: 'Suliffinneqarnerit',
@@ -1246,6 +1258,12 @@ const translations = {
     ask_provider_sent: 'Nassatassueqataanngitsumik!',
     ask_provider_sent_desc: 'Suliartortitsisoq nalunaarsuiffigeqqinnissaminnik.',
     ask_provider_login: 'Loggi nalunaarsuiffigeqqinnissaminnik',
+    welcome_to_sila: 'Tikilluarit Silamut 👋',
+    complete_profile_subtitle: 'Udfyld din profil — det tager under et minut',
+    get_started: 'Kom i gang',
+    onboarding_name_required: 'Angiv venligst dit fulde navn.',
+    onboarding_city_required: 'Vælg venligst din by.',
+    onboarding_role_required: 'Vælg venligst din rolle.',
   },
   };
 

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { RoleProvider } from '@/lib/RoleContext';
@@ -42,6 +42,24 @@ import UserProfile from '@/pages/UserProfile';
 import TransportRequestDetail from '@/pages/TransportRequestDetail';
 import CabinRequestDetail from '@/pages/CabinRequestDetail';
 
+const NewUserRedirect = () => {
+  const { user, isLoadingAuth } = useAuth();
+  const navigate = useNavigate ? useNavigate() : null;
+  
+  useEffect(() => {
+    if (isLoadingAuth || !user || !navigate) return;
+    const alreadyOnboarding = window.location.pathname === '/profile' && window.location.search.includes('onboarding=true');
+    if (alreadyOnboarding) return;
+    const createdRecently = user.created_date && (Date.now() - new Date(user.created_date).getTime()) < 60_000;
+    const missingBasicInfo = !user.full_name && !user.location;
+    if (createdRecently || missingBasicInfo) {
+      navigate('/profile?onboarding=true');
+    }
+  }, [user, isLoadingAuth]);
+
+  return null;
+};
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
 
@@ -61,7 +79,9 @@ const AuthenticatedApp = () => {
   }
 
   return (
-    <Routes>
+    <>
+      <NewUserRedirect />
+      <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/cabins" element={<Cabins />} />
@@ -95,6 +115,7 @@ const AuthenticatedApp = () => {
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </>
   );
 };
 
