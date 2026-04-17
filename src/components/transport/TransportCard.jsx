@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { useLanguage } from '@/lib/LanguageContext';
 import ProviderBadge from '@/components/shared/ProviderBadge';
 
-export default function TransportCard({ transport, returnTrip = null, compact = false, showImages = true }) {
+export default function TransportCard({ transport, returnTrip = null, compact = false, showImages = true, minimal = false }) {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [imageError, setImageError] = useState(false);
@@ -52,7 +52,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
   };
 
   const content = (
-    <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col h-full ${compact ? '' : 'hover:border-primary/30'}`}>
+    <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow ${minimal ? 'p-3' : 'p-5'} flex flex-col h-full ${compact ? '' : 'hover:border-primary/30'}`}>
       {/* Boat Image */}
       {images.length > 0 && showImages && (
         <div className="relative overflow-hidden rounded-lg aspect-video mb-4 bg-muted">
