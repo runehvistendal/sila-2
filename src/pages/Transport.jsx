@@ -9,6 +9,9 @@ import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Anchor, Grid, Map, Calendar, ArrowRight } from 'lucide-react';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
+
+const CITIES = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
 
 const PRICE_EXAMPLES = {
   'Nuuk': 1500,
@@ -189,8 +192,6 @@ export default function Transport() {
         setDone(true);
         };
 
-        const locations = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Aasiaat', 'Tasiilaq', 'Qaqortoq', 'Maniitsoq'];
-
         return (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6">
@@ -216,15 +217,15 @@ export default function Transport() {
                 <div>
                   <label className="text-sm font-medium text-foreground block mb-1">{t('from')}</label>
                   <select value={form.from_location} onChange={e => setForm(f => ({ ...f, from_location: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input bg-transparent text-sm" required>
-                    <option value="">{t('select_departure')}</option>
-                    {locations.map(l => <option key={l} value={l}>{l}</option>)}
+                    <option value="">{t('select_city')}</option>
+                    {CITIES.map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-foreground block mb-1">{t('to')}</label>
                   <select value={form.to_location} onChange={e => setForm(f => ({ ...f, to_location: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input bg-transparent text-sm" required>
-                    <option value="">{t('select_destination')}</option>
-                    {locations.map(l => <option key={l} value={l}>{l}</option>)}
+                    <option value="">{t('select_city')}</option>
+                    {CITIES.map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
                 </div>
               </div>

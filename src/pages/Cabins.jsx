@@ -9,6 +9,9 @@ import ImprovedGreenlandMap from '@/components/shared/ImprovedGreenlandMap';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Home, Map, Grid, MapPin, ArrowRight } from 'lucide-react';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
+
+const CITIES = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -196,8 +199,8 @@ function CabinRequestModal({ onClose }) {
               <div>
                 <label className="text-sm font-medium text-foreground block mb-1">{t('location')}</label>
                 <select value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} className="w-full h-10 px-3 rounded-lg border border-input bg-transparent text-sm">
-                  <option value="">{t('select_destination')}</option>
-                  {['Nuuk', 'Ilulissat', 'Sisimiut', 'Aasiaat', 'Tasiilaq'].map(l => <option key={l} value={l}>{l}</option>)}
+                  <option value="">{t('select_city')}</option>
+                  {CITIES.map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">

@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 import SearchSuggestions from './SearchSuggestions';
+
+const CITIES = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
 
 const AMENITIES = ['Wi-Fi', 'Sauna', 'Toilet', 'Electricity', 'Running water', 'Fireplace', 'Boat access', 'Fishing'];
 
@@ -46,15 +49,7 @@ export default function CabinFilters({ filters, onChange, cabins = [] }) {
           className={`${selectClass} w-[180px]`}
         >
           <option value="all">{t('all_locations')}</option>
-          <option value="Nuuk">Nuuk</option>
-          <option value="Ilulissat">Ilulissat</option>
-          <option value="Sisimiut">Sisimiut</option>
-          <option value="Disko Bay">Disko Bay</option>
-          <option value="Kangerlussuaq">Kangerlussuaq</option>
-          <option value="Tasiilaq">Tasiilaq</option>
-          <option value="Upernavik">Upernavik</option>
-          <option value="Qaqortoq">Qaqortoq</option>
-          <option value="Narsaq">Narsaq</option>
+          {CITIES.map(city => <option key={city} value={city}>{city}</option>)}
         </select>
 
         <select

@@ -12,6 +12,9 @@ import { Home, Anchor, X, Plus } from 'lucide-react';
 import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
 import AddOnServicesEditor from '@/components/shared/AddOnServicesEditor';
 import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
+
+const CITIES = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
 import { toast } from '@/components/ui/use-toast';
 
 export default function CreateListing() {
@@ -283,10 +286,16 @@ export default function CreateListing() {
           <form onSubmit={handleTransportSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <Field label={t('from') || 'From *'}>
-                <Input placeholder={t('from_placeholder') || 'e.g. Nuuk'} value={transportForm.from_location} onChange={(e) => setTransportForm((p) => ({ ...p, from_location: e.target.value }))} required className="rounded-xl" />
+                <select value={transportForm.from_location} onChange={(e) => setTransportForm((p) => ({ ...p, from_location: e.target.value }))} required className="w-full h-9 px-3 rounded-xl border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  <option value="">{t('select_city')}</option>
+                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
               </Field>
               <Field label={t('to') || 'To *'}>
-                <Input placeholder={t('to_placeholder') || 'e.g. Ilulissat'} value={transportForm.to_location} onChange={(e) => setTransportForm((p) => ({ ...p, to_location: e.target.value }))} required className="rounded-xl" />
+                <select value={transportForm.to_location} onChange={(e) => setTransportForm((p) => ({ ...p, to_location: e.target.value }))} required className="w-full h-9 px-3 rounded-xl border border-input bg-transparent text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  <option value="">{t('select_city')}</option>
+                  {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-4">

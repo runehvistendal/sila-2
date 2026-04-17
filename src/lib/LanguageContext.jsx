@@ -492,6 +492,7 @@ const translations = {
     change_photo: 'Change photo',
     drag_to_reposition: 'Drag to reposition',
     save: 'Save',
+    select_city: 'Select city',
   },
   da: {
     nav_experiences: 'Oplevelser',
@@ -979,6 +980,7 @@ const translations = {
     change_photo: 'Skift billede',
     drag_to_reposition: 'Træk for at placere',
     save: 'Gem',
+    select_city: 'Vælg by',
   },
   kl: {
     nav_experiences: 'Suliffinneqarnerit',
@@ -1273,6 +1275,7 @@ const translations = {
     change_photo: 'Skift billede',
     drag_to_reposition: 'Træk for at placere',
     save: 'Gem',
+    select_city: 'Nalunaarsorneqassasoq',
   },
   };
 

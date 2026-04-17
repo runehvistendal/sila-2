@@ -4,8 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
+import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
-const LOCATIONS = ['Nuuk', 'Ilulissat', 'Sisimiut', 'Disko Bay', 'Kangerlussuaq', 'Tasiilaq', 'Upernavik', 'Qaqortoq', 'Narsaq'];
+const CITIES = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
 const BOAT_TYPES = ['Speedbåd', 'Fiskerbåd', 'Zodiakbåd', 'Kutter', 'Sejlbåd'];
 
 export default function TransportFilters({ filters, onChange }) {
@@ -31,20 +32,20 @@ export default function TransportFilters({ filters, onChange }) {
         </div>
         <Select value={filters.fromLoc} onValueChange={(v) => set('fromLoc', v)}>
           <SelectTrigger className="w-[160px] h-10 rounded-xl">
-            <SelectValue placeholder={t('from')} />
+            <SelectValue placeholder={t('select_city')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('all_departures')}</SelectItem>
-            {LOCATIONS.map((loc) => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+            {CITIES.map((loc) => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filters.toLoc} onValueChange={(v) => set('toLoc', v)}>
           <SelectTrigger className="w-[160px] h-10 rounded-xl">
-            <SelectValue placeholder={t('to')} />
+            <SelectValue placeholder={t('select_city')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t('all_destinations')}</SelectItem>
-            {LOCATIONS.map((loc) => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+            {CITIES.map((loc) => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
           </SelectContent>
         </Select>
         <Button variant="outline" size="sm" className="rounded-xl h-10 gap-1.5" onClick={() => setShowAdvanced(!showAdvanced)}>
