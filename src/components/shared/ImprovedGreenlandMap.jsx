@@ -29,16 +29,22 @@ const LOCATIONS = {
   'Narsaq': [60.912, -46.059]
 };
 
-// Cabin icon — blue house pin
-const createCabinIcon = () => new L.Icon({
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+// Cabin icon — house icon
+const createCabinIcon = () => {
+  const svg = `<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#2563eb" stroke="white" stroke-width="2"/>
+    <path d="M 16 8 L 10 14 L 10 22 L 22 22 L 22 14 Z" fill="white"/>
+    <path d="M 16 8 L 10 14" stroke="white" stroke-width="1.5" fill="none"/>
+    <path d="M 16 8 L 22 14" stroke="white" stroke-width="1.5" fill="none"/>
+  </svg>`;
+  return new L.DivIcon({
+    html: svg,
+    className: '',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -18],
+  });
+};
 
 // Departure icon — teal anchor circle
 const createDepartureIcon = () => {
@@ -369,29 +375,35 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
           ))}
 
           {/* Hytter */}
-          {cabinPins.map((cabin) => (
-            <Marker key={`cabin-${cabin.id}`} position={cabin.coords} icon={createCabinIcon()}>
-              <Popup><CabinPopup cabin={cabin} /></Popup>
-            </Marker>
-          ))}
+          <LayerGroup>
+            {cabinPins.map((cabin) => (
+              <Marker key={`cabin-${cabin.id}`} position={cabin.coords} icon={createCabinIcon()}>
+                <Popup><CabinPopup cabin={cabin} /></Popup>
+              </Marker>
+            ))}
+          </LayerGroup>
 
           {/* Afgangshavne */}
-          {departurePins.map((pin) => (
-            <Marker key={`dep-${pin.location}`} position={pin.coords} icon={createDepartureIcon()}>
-              <Popup>
-                <TransportHubPopup location={pin.location} transports={pin.transports} type="departure" />
-              </Popup>
-            </Marker>
-          ))}
+          <LayerGroup>
+            {departurePins.map((pin) => (
+              <Marker key={`dep-${pin.location}`} position={pin.coords} icon={createDepartureIcon()}>
+                <Popup>
+                  <TransportHubPopup location={pin.location} transports={pin.transports} type="departure" />
+                </Popup>
+              </Marker>
+            ))}
+          </LayerGroup>
 
           {/* Destinationer */}
-          {destinationPins.map((pin) => (
-            <Marker key={`dst-${pin.location}`} position={pin.coords} icon={createDestinationIcon()}>
-              <Popup>
-                <TransportHubPopup location={pin.location} transports={pin.transports} type="destination" />
-              </Popup>
-            </Marker>
-          ))}
+          <LayerGroup>
+            {destinationPins.map((pin) => (
+              <Marker key={`dst-${pin.location}`} position={pin.coords} icon={createDestinationIcon()}>
+                <Popup>
+                  <TransportHubPopup location={pin.location} transports={pin.transports} type="destination" />
+                </Popup>
+              </Marker>
+            ))}
+          </LayerGroup>
         </MapContainer>
       </div>
     </div>
