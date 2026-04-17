@@ -42,16 +42,18 @@ export default function Home() {
     },
   });
 
-  const { data: transports = [] } = useQuery({
-    queryKey: ['transports-home'],
-    queryFn: async () => {
-      const res = await base44.functions.invoke('getActiveTransports', {});
-      return res.data.transports || [];
-    },
+  const { data: nextTransport } = useQuery({
+    queryKey: ['next-transport-home'],
+    queryFn: () => base44.entities.Transport.filter({ status: 'scheduled' }, 'departure_date', 3),
     staleTime: 60_000,
+    select: (data) => {
+      if (!data || data.length === 0) return null;
+      // Sort by departure_date ascending, pick soonest future departure
+      const today = new Date().toISOString().split('T')[0];
+      const future = data.filter(t => t.departure_date >= today);
+      return future.length > 0 ? future[0] : data[0];
+    },
   });
-
-  const nextTransport = transports.length > 0 ? transports[0] : null;
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -341,7 +343,7 @@ export default function Home() {
               <p className="text-muted-foreground">{t('featured_subtitle')}</p>
             </div>
           </div>
-          <ImprovedGreenlandMap cabins={featuredCabins} transports={transports} height="450px" />
+          <ImprovedGreenlandMap cabins={featuredCabins} height="450px" />
         </div>
       </section>
 
