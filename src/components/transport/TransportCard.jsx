@@ -142,20 +142,20 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
       </div>
 
       {/* Return trip badge — from own listing or linked listing */}
-      <div className="mb-4 min-h-[2rem]">
+      <div className="mb-4 h-[3.5rem] flex items-start">
         {transport.return_date ? (
-          <div className="bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2">
+          <div className="bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2 w-full">
             <ArrowLeft className="w-3.5 h-3.5 text-accent shrink-0" />
-            <span className="text-xs font-medium text-accent">
+            <span className="text-xs font-medium text-accent line-clamp-2">
               {t('return_trip')}: {transport.to_location} → {transport.from_location} · {format(new Date(transport.return_date), 'd. MMM')}
               {transport.return_time && ` kl. ${transport.return_time}`}
               {transport.return_seats && ` · ${transport.return_seats} ${t('seats_plural')}`}
             </span>
           </div>
         ) : returnTrip ? (
-          <div className="bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2">
+          <div className="bg-accent/8 border border-accent/25 rounded-xl px-3 py-2 flex items-center gap-2 w-full">
             <ArrowLeft className="w-3.5 h-3.5 text-accent shrink-0" />
-            <span className="text-xs font-medium text-accent">
+            <span className="text-xs font-medium text-accent line-clamp-2">
               {t('return_trip_available')}: {returnTrip.to_location} → {returnTrip.from_location} · {format(new Date(returnTrip.departure_date), 'd. MMM')}
             </span>
           </div>
