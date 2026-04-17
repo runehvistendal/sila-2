@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -9,14 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   PlusCircle, Home, Anchor, Calendar, MapPin, Users, Check, X,
-  ArrowRight, Eye, Star, ChevronRight, Briefcase, Clock, Ship, ChevronDown, DollarSign
+  ArrowRight, Eye, Star, ChevronRight, Briefcase, Clock, Ship,
+  ChevronDown, DollarSign, Inbox
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
 import { IncomingRequestsTab, MyTransportRequestsTab } from '@/components/dashboard/TransportRequestsTab';
 import { IncomingCabinRequestsTab, MyCabinRequestsTab } from '@/components/dashboard/CabinRequestsTab';
 import HostCalendarTab from '@/components/dashboard/HostCalendarTab';
-import OpenRequestsTab from '@/components/dashboard/OpenRequestsTab';
 import BookingReviewButton from '@/components/bookings/BookingReviewButton';
 import ProviderTrustCard from '@/components/provider/ProviderTrustCard';
 import GuestBookingsTab from '@/components/dashboard/GuestBookingsTab';
@@ -52,7 +52,6 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return R * c;
 };
 
-// Build city coordinates from GREENLAND_LOCATIONS
 const CITY_COORDS = {};
 GREENLAND_LOCATIONS.forEach(loc => {
   if (!CITY_COORDS[loc.name_dk]) {
@@ -65,80 +64,91 @@ export default function Dashboard() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const [requestType, setRequestType] = useState('transport'); // 'transport' or 'cabin'
+  const [requestType, setRequestType] = useState('transport');
   const [searchInput, setSearchInput] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [bookingFilter, setBookingFilter] = useState('active'); // 'active' | 'history'
   const [activeTab, setActiveTab] = useState('bookings');
 
   const CITIES = Object.keys(CITY_COORDS);
-
-  // Get user's home city (or set as default)
   const userHomeCity = user?.location || '';
   const [selectedCity, setSelectedCity] = useState(userHomeCity);
 
-  // Find matching cities based on search input
-  const matchingCities = searchInput.trim() === '' 
-    ? CITIES
-    : CITIES.filter(city =>
-        city.toLowerCase().includes(searchInput.toLowerCase())
-      );
+  // Re-sync selectedCity if user location loads after mount
+  useEffect(() => {
+    if (userHomeCity && !selectedCity) {
+      setSelectedCity(userHomeCity);
+    }
+  }, [userHomeCity]);
 
-  // Sort cities by distance from user's home city
-  const sortedCities = matchingCities.sort((a, b) => {
+  const matchingCities = searchInput.trim() === ''
+    ? CITIES
+    : CITIES.filter(city => city.toLowerCase().includes(searchInput.toLowerCase()));
+
+  const sortedCities = [...matchingCities].sort((a, b) => {
     if (!userHomeCity) return 0;
     const homeCoords = CITY_COORDS[userHomeCity];
     if (!homeCoords) return 0;
-    const distA = calculateDistance(homeCoords.lat, homeCoords.lon, CITY_COORDS[a].lat, CITY_COORDS[a].lon);
-    const distB = calculateDistance(homeCoords.lat, homeCoords.lon, CITY_COORDS[b].lat, CITY_COORDS[b].lon);
+    const distA = calculateDistance(homeCoords.lat, homeCoords.lon, CITY_COORDS[a]?.lat, CITY_COORDS[a]?.lon);
+    const distB = calculateDistance(homeCoords.lat, homeCoords.lon, CITY_COORDS[b]?.lat, CITY_COORDS[b]?.lon);
     return distA - distB;
   });
 
+  // ── Queries ───────────────────────────────────────────────────────────────
   const { data: myBookings = [] } = useQuery({
     queryKey: ['my-bookings', user?.email],
     queryFn: () => base44.entities.Booking.filter({ guest_email: user.email }, '-created_date', 30),
     enabled: !!user,
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
   const { data: hostBookings = [] } = useQuery({
     queryKey: ['host-bookings', user?.email],
     queryFn: () => base44.entities.Booking.filter({ host_email: user.email }, '-created_date', 30),
     enabled: !!user,
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
   const { data: myCabins = [] } = useQuery({
     queryKey: ['my-cabins', user?.email],
     queryFn: () => base44.entities.Cabin.filter({ host_email: user.email }, '-created_date', 20),
     enabled: !!user,
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
   const { data: myTransports = [] } = useQuery({
     queryKey: ['my-transports', user?.email],
     queryFn: () => base44.entities.Transport.filter({ provider_email: user.email }, '-departure_date', 20),
     enabled: !!user,
-  });
-
-  const { data: myRatingsGiven = [] } = useQuery({
-    queryKey: ['my-ratings-given', user?.email],
-    queryFn: () => base44.entities.Rating.filter({ from_email: user.email }, '-created_date', 20),
-    enabled: !!user,
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
   const { data: myRatingsReceived = [] } = useQuery({
     queryKey: ['my-ratings-received', user?.email],
     queryFn: () => base44.entities.Rating.filter({ to_email: user.email }, '-created_date', 20),
     enabled: !!user,
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
   const { data: allCabinRequests = [] } = useQuery({
     queryKey: ['all-cabin-requests'],
     queryFn: () => base44.entities.CabinRequest.filter({}, '-created_date', 100),
     enabled: !!user,
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
   const { data: allTransportRequests = [] } = useQuery({
     queryKey: ['all-transport-requests'],
     queryFn: () => base44.entities.TransportRequest.filter({}, '-created_date', 100),
     enabled: !!user,
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 
   const updateBooking = useMutation({
@@ -146,14 +156,35 @@ export default function Dashboard() {
     onSuccess: () => {
       qc.invalidateQueries(['host-bookings']);
       qc.invalidateQueries(['my-bookings']);
-      toast({ title: 'Booking opdateret' });
+      toast({ title: t('booking_updated') || 'Booking opdateret', duration: 2000 });
     },
   });
 
-  const pendingHostBookings = hostBookings.filter((b) => b.status === 'pending').length;
+  // ── Derived state ─────────────────────────────────────────────────────────
+  const pendingHostBookings = hostBookings.filter(b => b.status === 'pending').length;
   const userRoleType = user?.role_type || 'traveler';
   const isProvider = userRoleType === 'provider' || userRoleType === 'both';
   const isTraveler = userRoleType === 'traveler' || userRoleType === 'both';
+
+  // Open requests filtered by proximity — nearby first, rest after divider
+  const openTransportRequests = allTransportRequests.filter(r => r.status === 'pending');
+  const openCabinRequests = allCabinRequests.filter(r => r.status === 'pending');
+
+  const nearbyTransport = openTransportRequests.filter(r =>
+    !userHomeCity || r.from_location === userHomeCity || r.to_location === userHomeCity
+  );
+  const otherTransport = openTransportRequests.filter(r =>
+    userHomeCity && r.from_location !== userHomeCity && r.to_location !== userHomeCity
+  );
+
+  const nearbyCabin = openCabinRequests.filter(r =>
+    !userHomeCity || r.location === userHomeCity
+  );
+  const otherCabin = openCabinRequests.filter(r =>
+    userHomeCity && r.location !== userHomeCity
+  );
+
+  const totalOpenRequests = openTransportRequests.length + openCabinRequests.length;
 
   if (!user) return null;
 
@@ -161,238 +192,341 @@ export default function Dashboard() {
     ? (myRatingsReceived.reduce((s, r) => s + r.stars, 0) / myRatingsReceived.length).toFixed(1)
     : null;
 
-  // Determine default tab
-  const defaultTab = 'bookings';
+  // Booking splits for combined tab
+  const activeBookings = myBookings.filter(b => ['pending', 'on_hold', 'confirmed'].includes(b.status));
+  const historyBookings = myBookings.filter(b => ['completed', 'cancelled', 'declined'].includes(b.status));
 
   return (
     <div className="min-h-screen pt-16 bg-background">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Header */}
-         <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
-           <div>
-             <h1 className="text-2xl font-bold text-foreground">{t('my_dashboard')}</h1>
-             <p className="text-muted-foreground text-sm mt-1">{t('hello')} {user.full_name || user.email}</p>
-             {avgRating && (
-               <div className="flex items-center gap-1 mt-1.5">
-                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                 <span className="text-sm font-semibold text-foreground">{avgRating}</span>
-                 <span className="text-xs text-muted-foreground">({myRatingsReceived.length} {t('ratings_avg')})</span>
-               </div>
-             )}
-           </div>
-           <div className="flex gap-2 flex-wrap">
-              {isProvider && (
-                <Button variant="outline" onClick={() => setActiveTab('open-requests')} className="rounded-xl gap-2 text-sm">
-                  <DollarSign className="w-4 h-4" /> {t('see_open_requests')}
-                </Button>
-              )}
-              <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
-                <MapPin className="w-4 h-4" /> {t('request_cabin_btn')}
-              </Button>
-              <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
-                <Anchor className="w-4 h-4" /> {t('request_transport_btn')}
-              </Button>
-              <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
-                <PlusCircle className="w-4 h-4" /> {t('new_listing')}
-              </Button>
+        <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{t('my_dashboard')}</h1>
+            <p className="text-muted-foreground text-sm mt-1">{t('hello')} {user.full_name || user.email}</p>
+            {avgRating && (
+              <div className="flex items-center gap-1 mt-1.5">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <span className="text-sm font-semibold text-foreground">{avgRating}</span>
+                <span className="text-xs text-muted-foreground">({myRatingsReceived.length} {t('ratings_avg')})</span>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={() => navigate('/request-cabin')} className="rounded-xl gap-2 text-sm">
+              <MapPin className="w-4 h-4" /> {t('request_cabin_btn')}
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/request-transport')} className="rounded-xl gap-2 text-sm">
+              <Anchor className="w-4 h-4" /> {t('request_transport_btn')}
+            </Button>
+            <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
+              <PlusCircle className="w-4 h-4" /> {t('new_listing')}
+            </Button>
           </div>
         </div>
 
+        {/* ── TABS ─────────────────────────────────────────────────────────── */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-8 bg-muted rounded-xl p-1 h-auto flex-wrap gap-1">
-             <TabsTrigger value="bookings" className="rounded-lg px-4 py-2 text-sm gap-2">
-               <Calendar className="w-4 h-4" /> {t('my_bookings')}
-               {pendingHostBookings > 0 && (
-                 <span className="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                   {pendingHostBookings}
-                 </span>
-               )}
-             </TabsTrigger>
-             <TabsTrigger value="requests" className="rounded-lg px-4 py-2 text-sm gap-2">
-               <Clock className="w-4 h-4" /> {t('my_requests')}
-             </TabsTrigger>
-             {isProvider && (
-               <>
-                 <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
-                   <Briefcase className="w-4 h-4" /> Forespørgsler & Bookinger
-                 </TabsTrigger>
-                 <TabsTrigger value="listings" className="rounded-lg px-4 py-2 text-sm gap-2">
-                   <Home className="w-4 h-4" /> Mine annoncer
-                 </TabsTrigger>
-               </>
-             )}
-             <TabsTrigger value="history" className="rounded-lg px-4 py-2 text-sm gap-2">
-               <Clock className="w-4 h-4" /> {t('history')}
-             </TabsTrigger>
-             {isProvider && (
-               <TabsTrigger value="kalender" className="rounded-lg px-4 py-2 text-sm gap-2">
-                 <Calendar className="w-4 h-4" /> {t('calendar')}
-               </TabsTrigger>
-             )}
-           </TabsList>
 
-          {/* MY BOOKINGS — for guests */}
-          <TabsContent value="bookings">
-            {isTraveler ? (
-              <GuestBookingsTab bookings={myBookings} t={t} />
-            ) : (
-              <EmptyState icon={Calendar} message={t('no_bookings')} cta={t('explore_cabins')} ctaHref="/cabins" />
+            {/* 1. Bookinger */}
+            <TabsTrigger value="bookings" className="rounded-lg px-4 py-2 text-sm gap-2">
+              <Calendar className="w-4 h-4" /> {t('my_bookings')}
+              {pendingHostBookings > 0 && (
+                <span className="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {pendingHostBookings}
+                </span>
+              )}
+            </TabsTrigger>
+
+            {/* 2. Anmodninger (rejsende) */}
+            <TabsTrigger value="requests" className="rounded-lg px-4 py-2 text-sm gap-2">
+              <Clock className="w-4 h-4" /> {t('my_requests')}
+            </TabsTrigger>
+
+            {/* 3. Åbne ønsker (kun udbydere) */}
+            {isProvider && (
+              <TabsTrigger value="open-requests" className="rounded-lg px-4 py-2 text-sm gap-2">
+                <Inbox className="w-4 h-4" /> {t('open_requests') || 'Åbne ønsker'}
+                {totalOpenRequests > 0 && (
+                  <span className="bg-amber-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalOpenRequests}
+                  </span>
+                )}
+              </TabsTrigger>
             )}
+
+            {/* 4. Annoncer & Kalender (kun udbydere) */}
+            {isProvider && (
+              <TabsTrigger value="listings" className="rounded-lg px-4 py-2 text-sm gap-2">
+                <Home className="w-4 h-4" /> {t('my_listings') || 'Annoncer'}
+              </TabsTrigger>
+            )}
+
+            {/* 5. Min indbakke (kun udbydere) */}
+            {isProvider && (
+              <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
+                <Briefcase className="w-4 h-4" /> {t('my_inbox') || 'Min indbakke'}
+                {hostBookings.filter(b => b.status === 'pending').length > 0 && (
+                  <span className="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {hostBookings.filter(b => b.status === 'pending').length}
+                  </span>
+                )}
+              </TabsTrigger>
+            )}
+          </TabsList>
+
+          {/* ── TAB 1: BOOKINGER (aktive + historik) ────────────────────── */}
+          <TabsContent value="bookings">
+            <div className="space-y-4">
+              {/* Sub-filter */}
+              <div className="flex gap-2 bg-muted rounded-xl p-1 w-fit">
+                <button
+                  onClick={() => setBookingFilter('active')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    bookingFilter === 'active' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {t('active') || 'Aktive'}
+                  {activeBookings.length > 0 && (
+                    <span className="ml-1.5 bg-primary/10 text-primary text-xs rounded-full px-1.5">{activeBookings.length}</span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setBookingFilter('history')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    bookingFilter === 'history' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {t('history') || 'Historik'}
+                </button>
+              </div>
+
+              {bookingFilter === 'active' ? (
+                isTraveler ? (
+                  activeBookings.length > 0 ? (
+                    <div className="space-y-3">
+                      {activeBookings.map(b => (
+                        <BookingRow key={b.id} booking={b} isHost={false} t={t}
+                          onConfirm={() => updateBooking.mutate({ id: b.id, status: 'confirmed' })}
+                          onDecline={() => updateBooking.mutate({ id: b.id, status: 'declined' })}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyState icon={Calendar} message={t('no_bookings') || 'Ingen aktive bookinger'} cta={t('explore_cabins') || 'Udforsk hytter'} ctaHref="/cabins" />
+                  )
+                ) : (
+                  <EmptyState icon={Calendar} message={t('no_bookings') || 'Ingen bookinger'} cta={t('explore_cabins') || 'Udforsk hytter'} ctaHref="/cabins" />
+                )
+              ) : (
+                historyBookings.length > 0 ? (
+                  <div className="space-y-3">
+                    {historyBookings.map(b => (
+                      <BookingRow key={b.id} booking={b} isHost={false} t={t} />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState icon={Clock} message={t('no_history') || 'Ingen historik endnu'} cta={t('explore_cabins') || 'Udforsk hytter'} ctaHref="/cabins" />
+                )
+              )}
+
+              {/* Host bookings (for providers who are also travelers) */}
+              {isProvider && hostBookings.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="font-semibold text-foreground mb-3">{t('incoming_bookings') || 'Indkommende bookinger'}</h3>
+                  <div className="space-y-3">
+                    {hostBookings
+                      .filter(b => bookingFilter === 'active'
+                        ? ['pending', 'confirmed'].includes(b.status)
+                        : ['completed', 'cancelled'].includes(b.status))
+                      .map(b => (
+                        <BookingRow key={b.id} booking={b} isHost={true} t={t}
+                          onConfirm={() => updateBooking.mutate({ id: b.id, status: 'confirmed' })}
+                          onDecline={() => updateBooking.mutate({ id: b.id, status: 'declined' })}
+                        />
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </TabsContent>
 
-          {/* MY REQUESTS */}
-           <TabsContent value="requests">
-             <div className="space-y-8">
-               <div>
-                 <h3 className="font-semibold text-foreground mb-3">{t('transport_requests')}</h3>
-                 <MyTransportRequestsTab />
-               </div>
-               <div>
-                 <h3 className="font-semibold text-foreground mb-3">{t('cabin_requests')}</h3>
-                 <MyCabinRequestsTab />
-               </div>
-             </div>
-           </TabsContent>
+          {/* ── TAB 2: MINE ANMODNINGER ──────────────────────────────────── */}
+          <TabsContent value="requests">
+            <div className="space-y-8">
+              <div>
+                <h3 className="font-semibold text-foreground mb-3">{t('transport_requests') || 'Transportanmodninger'}</h3>
+                <MyTransportRequestsTab />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-3">{t('cabin_requests') || 'Hytteanmodninger'}</h3>
+                <MyCabinRequestsTab />
+              </div>
+            </div>
+          </TabsContent>
 
-          {/* OLD OPEN REQUESTS — hidden (now in provider overview) */}
+          {/* ── TAB 3: ÅBNE ØNSKER (udbydere) ────────────────────────────── */}
           {isProvider && (
-            <TabsContent value="open-requests" className="hidden">
+            <TabsContent value="open-requests">
               <div className="space-y-6">
-                {/* Toggle buttons */}
+
+                {/* Toggle transport / hytte */}
                 <div className="flex gap-2 bg-muted rounded-xl p-1 w-fit">
                   <button
                     onClick={() => setRequestType('transport')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      requestType === 'transport'
-                        ? 'bg-white text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
+                      requestType === 'transport' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <Anchor className="w-4 h-4 inline mr-2" />
-                    Transport
+                    {t('transport_label') || 'Transport'}
+                    {openTransportRequests.length > 0 && (
+                      <span className="ml-1.5 bg-amber-100 text-amber-700 text-xs rounded-full px-1.5">{openTransportRequests.length}</span>
+                    )}
                   </button>
                   <button
                     onClick={() => setRequestType('cabin')}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      requestType === 'cabin'
-                        ? 'bg-white text-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground'
+                      requestType === 'cabin' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <Home className="w-4 h-4 inline mr-2" />
-                    Hytte
+                    {t('cabin') || 'Hytte'}
+                    {openCabinRequests.length > 0 && (
+                      <span className="ml-1.5 bg-amber-100 text-amber-700 text-xs rounded-full px-1.5">{openCabinRequests.length}</span>
+                    )}
                   </button>
                 </div>
 
-                {/* City filter autocomplete dropdown */}
-                <div className="max-w-xs relative">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder={selectedCity || 'Søg efter by eller postnr...'}
-                      value={searchInput}
-                      onChange={(e) => {
-                        setSearchInput(e.target.value);
-                        setDropdownOpen(true);
-                      }}
-                      onFocus={() => setDropdownOpen(true)}
-                      className="w-full px-4 py-2 pr-9 rounded-xl border border-input bg-white text-sm"
-                    />
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                {/* Content */}
+                {requestType === 'transport' ? (
+                  <OpenRequestsList
+                    nearby={nearbyTransport}
+                    others={otherTransport}
+                    userHomeCity={userHomeCity}
+                    type="transport"
+                    t={t}
+                  />
+                ) : (
+                  <OpenRequestsList
+                    nearby={nearbyCabin}
+                    others={otherCabin}
+                    userHomeCity={userHomeCity}
+                    type="cabin"
+                    t={t}
+                  />
+                )}
+              </div>
+            </TabsContent>
+          )}
+
+          {/* ── TAB 4: ANNONCER & KALENDER ───────────────────────────────── */}
+          {isProvider && (
+            <TabsContent value="listings">
+              <div className="space-y-8">
+
+                {/* Listings */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-semibold text-foreground">{t('my_listings') || 'Mine annoncer'}</h3>
+                    <Button variant="ghost" size="sm" onClick={() => navigate('/create-listing')} className="text-primary gap-1">
+                      <PlusCircle className="w-3.5 h-3.5" /> {t('add') || 'Tilføj'}
+                    </Button>
                   </div>
-                  
-                  {dropdownOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-input rounded-xl shadow-lg z-10 max-h-64 overflow-y-auto">
-                      {selectedCity && (
-                        <button
-                          onClick={() => {
-                            setSelectedCity('');
-                            setSearchInput('');
-                            setDropdownOpen(false);
-                          }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-muted-foreground hover:bg-muted border-b border-border"
-                        >
-                          Alle byer
-                        </button>
-                      )}
-                      {sortedCities.map((city) => (
-                        <button
-                          key={city}
-                          onClick={() => {
-                            setSelectedCity(city);
-                            setSearchInput('');
-                            setDropdownOpen(false);
-                          }}
-                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                            selectedCity === city
-                              ? 'bg-primary/10 text-primary font-medium'
-                              : 'hover:bg-muted text-foreground'
-                          }`}
-                        >
-                          {city}
-                        </button>
-                      ))}
-                      {sortedCities.length === 0 && (
-                        <div className="px-4 py-3 text-sm text-muted-foreground text-center">
-                          Ingen byer fundet
+                  <div className="space-y-3">
+                    {myCabins.map(c => (
+                      <div key={c.id} className="bg-white rounded-xl border border-border p-4 flex gap-4 items-center">
+                        <img
+                          src={c.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=100&h=80&fit=crop'}
+                          alt=""
+                          className="w-16 h-16 rounded-lg object-cover shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <Home className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <p className="font-semibold text-sm text-foreground truncate">{c.title}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <MapPin className="w-3 h-3" />{c.location}
+                          </p>
+                          <p className="text-xs font-medium text-primary mt-1">{c.price_per_night} DKK/{t('per_night') || 'nat'}</p>
                         </div>
-                      )}
-                    </div>
-                  )}
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/cabins/${c.id}`)}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    {myTransports.map(tr => (
+                      <div key={tr.id} className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
+                        <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                          <Ship className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                            <span className="truncate">{tr.from_location}</span>
+                            <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0" />
+                            <span className="truncate">{tr.to_location}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {format(new Date(tr.departure_date), 'd. MMM yyyy')} · {tr.seats_available} {t('seats_plural') || 'pladser'}
+                          </p>
+                        </div>
+                        <Badge className={tr.status === 'scheduled' ? 'bg-green-100 text-green-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>
+                          {tr.status}
+                        </Badge>
+                      </div>
+                    ))}
+                    {myCabins.length === 0 && myTransports.length === 0 && (
+                      <EmptyState
+                        icon={Home}
+                        message={t('no_listings') || 'Ingen annoncer endnu'}
+                        cta={t('create_listing') || 'Opret annonce'}
+                        ctaHref="/create-listing"
+                      />
+                    )}
+                  </div>
                 </div>
-                {selectedCity && (
-                  <button
-                    onClick={() => setSelectedCity('')}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    Ryd filter
-                  </button>
+
+                {/* Trust score */}
+                {(myCabins.length > 0 || myTransports.length > 0) && (
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-3">{t('my_trust_score') || 'Min trustscore'}</h3>
+                    <ProviderTrustCard providerEmail={user.email} />
+                  </div>
                 )}
 
-                {/* Display transport or cabin requests */}
-                <div className="space-y-3">
-                  {requestType === 'transport'
-                    ? allTransportRequests
-                        .filter((r) => !selectedCity || r.from_location === selectedCity || r.to_location === selectedCity)
-                        .map((r) => (
-                          <div key={r.id} className="bg-white rounded-xl border border-border p-4">
-                            <div className="flex items-center justify-between gap-3">
-                              <div>
-                                <p className="font-semibold text-sm text-foreground">{r.from_location} → {r.to_location}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">{r.guest_name || r.guest_email}</p>
-                                <p className="text-xs text-muted-foreground">{format(new Date(r.travel_date), 'd. MMM yyyy')} · {r.passengers} passagerer</p>
-                              </div>
-                              <Badge className={r.status === 'pending' ? 'bg-amber-100 text-amber-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{r.status}</Badge>
-                            </div>
-                          </div>
-                        ))
-                    : allCabinRequests
-                        .filter((r) => !selectedCity || r.location === selectedCity)
-                        .map((r) => (
-                          <div key={r.id} className="bg-white rounded-xl border border-border p-4">
-                            <div className="flex items-center justify-between gap-3">
-                              <div>
-                                <p className="font-semibold text-sm text-foreground">{r.location}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5">{r.guest_name || r.guest_email}</p>
-                                <p className="text-xs text-muted-foreground">{format(new Date(r.check_in), 'd. MMM')} – {format(new Date(r.check_out), 'd. MMM yyyy')} · {r.guests} gæster</p>
-                              </div>
-                              <Badge className={r.status === 'pending' ? 'bg-amber-100 text-amber-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{r.status}</Badge>
-                            </div>
-                          </div>
-                        ))}
-                  {(requestType === 'transport'
-                    ? allTransportRequests.filter((r) => !selectedCity || r.from_location === selectedCity || r.to_location === selectedCity)
-                    : allCabinRequests.filter((r) => !selectedCity || r.location === selectedCity)
-                  ).length === 0 && (
-                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">Ingen anmodninger fundet</p>
+                {/* Kalender */}
+                <div>
+                  <h3 className="font-semibold text-foreground mb-3">{t('calendar') || 'Kalender'}</h3>
+                  <HostCalendarTab />
+                </div>
+
+                {/* Anmeldelser */}
+                <div>
+                  <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    {t('reviews') || 'Anmeldelser'}
+                    {avgRating && (
+                      <span className="text-sm font-normal text-muted-foreground">
+                        — {t('avg_rating') || 'gennemsnitlig vurdering'} {avgRating} ★
+                      </span>
+                    )}
+                  </h3>
+                  {myRatingsReceived.length === 0 ? (
+                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_reviews') || 'Ingen anmeldelser endnu'}</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {myRatingsReceived.map(r => <RatingRow key={r.id} rating={r} t={t} />)}
+                    </div>
                   )}
                 </div>
               </div>
             </TabsContent>
           )}
 
-          {/* PROVIDER OVERVIEW — forespørgsler & bookinger */}
+          {/* ── TAB 5: MIN INDBAKKE ──────────────────────────────────────── */}
           {isProvider && (
             <TabsContent value="provider">
               <ProviderOverviewTab
@@ -404,112 +538,136 @@ export default function Dashboard() {
               />
             </TabsContent>
           )}
-
-          {/* MY LISTINGS */}
-          {isProvider && (
-            <TabsContent value="listings">
-              <div className="space-y-8">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-foreground">{t('my_listings')}</h3>
-                    <Button variant="ghost" size="sm" onClick={() => navigate('/create-listing')} className="text-primary gap-1">
-                      <PlusCircle className="w-3.5 h-3.5" /> {t('add')}
-                    </Button>
-                  </div>
-                  <div className="space-y-3">
-                    {myCabins.map((c) => (
-                      <div key={c.id} className="bg-white rounded-xl border border-border p-4 flex gap-4 items-center">
-                        <img src={c.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=100&h=80&fit=crop'} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <Home className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <p className="font-semibold text-sm text-foreground truncate">{c.title}</p>
-                          </div>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3" />{c.location}</p>
-                          <p className="text-xs font-medium text-primary mt-1">{c.price_per_night} DKK/nat</p>
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={() => navigate(`/cabins/${c.id}`)}>
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {myTransports.map((t) => (
-                      <div key={t.id} className="bg-white rounded-xl border border-border p-4 flex items-center gap-3">
-                        <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                          <Ship className="w-4 h-4 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                            <span className="truncate">{t.from_location}</span>
-                            <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0" />
-                            <span className="truncate">{t.to_location}</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">{format(new Date(t.departure_date), 'd. MMM yyyy')} · {t.seats_available} pladser</p>
-                        </div>
-                        <Badge className={t.status === 'scheduled' ? 'bg-green-100 text-green-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>{t.status}</Badge>
-                      </div>
-                    ))}
-                    {myCabins.length === 0 && myTransports.length === 0 && (
-                      <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_listings')}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Trust score */}
-                {myTransports.length > 0 && (
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-3">{t('my_trust_score')}</h3>
-                    <ProviderTrustCard providerEmail={user.email} />
-                  </div>
-                )}
-
-                {/* Anmeldelser */}
-                <div>
-                  <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> Anmeldelser
-                    {avgRating && <span className="text-sm font-normal text-muted-foreground">— gennemsnitlig vurdering {avgRating} ★</span>}
-                  </h3>
-                  {myRatingsReceived.length === 0 ? (
-                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">Ingen anmeldelser endnu</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {myRatingsReceived.map((r) => <RatingRow key={r.id} rating={r} />)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </TabsContent>
-          )}
-
-          {/* HISTORY */}
-          <TabsContent value="history">
-            <div className="space-y-4">
-              <h3 className="font-semibold text-foreground mb-3">{t('purchase_history')}</h3>
-              {myBookings.filter(b => ['completed', 'confirmed'].includes(b.status)).length === 0 ? (
-                <EmptyState icon={Clock} message={t('no_history')} cta={t('explore_cabins')} ctaHref="/cabins" />
-              ) : (
-                <div className="space-y-3">
-                  {myBookings
-                    .filter(b => ['completed', 'confirmed'].includes(b.status))
-                    .map((b) => <BookingRow key={b.id} booking={b} isHost={false} t={t} />)
-                  }
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          {/* KALENDER */}
-          {isProvider && (
-            <TabsContent value="kalender">
-              <HostCalendarTab />
-            </TabsContent>
-          )}
         </Tabs>
       </div>
     </div>
   );
 }
 
+// ── OpenRequestsList ──────────────────────────────────────────────────────────
+function OpenRequestsList({ nearby, others, userHomeCity, type, t }) {
+  const totalNearby = nearby.length;
+  const totalOthers = others.length;
+  const totalAll = totalNearby + totalOthers;
+
+  if (totalAll === 0) {
+    return (
+      <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-border">
+        <Inbox className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+        <p className="text-muted-foreground font-medium mb-1">
+          {type === 'transport'
+            ? (t('no_transport_requests') || 'Ingen åbne transportønsker')
+            : (t('no_cabin_requests') || 'Ingen åbne hytteønsker')}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {t('requests_appear_here') || 'Nye anmodninger fra rejsende vises her'}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Nearby */}
+      {totalNearby > 0 && userHomeCity && (
+        <div>
+          <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">
+            {t('near_you') || 'Nær dig'} — {userHomeCity}
+          </p>
+          <div className="space-y-3">
+            {nearby.map(r => (
+              type === 'transport'
+                ? <TransportRequestCard key={r.id} r={r} t={t} highlight />
+                : <CabinRequestCard key={r.id} r={r} t={t} highlight />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Others */}
+      {totalOthers > 0 && (
+        <div>
+          {userHomeCity && totalNearby > 0 && (
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+              {t('other_regions') || 'Andre regioner'}
+            </p>
+          )}
+          <div className="space-y-3">
+            {others.map(r => (
+              type === 'transport'
+                ? <TransportRequestCard key={r.id} r={r} t={t} />
+                : <CabinRequestCard key={r.id} r={r} t={t} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* No city set — show all */}
+      {!userHomeCity && (
+        <div className="space-y-3">
+          {[...nearby, ...others].map(r => (
+            type === 'transport'
+              ? <TransportRequestCard key={r.id} r={r} t={t} />
+              : <CabinRequestCard key={r.id} r={r} t={t} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TransportRequestCard({ r, t, highlight }) {
+  return (
+    <div className={`bg-white rounded-xl border p-4 ${highlight ? 'border-primary/30 shadow-sm' : 'border-border'}`}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+            <Anchor className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm text-foreground">{r.from_location} → {r.to_location}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{r.guest_name || r.guest_email}</p>
+            <p className="text-xs text-muted-foreground">
+              {r.travel_date ? format(new Date(r.travel_date), 'd. MMM yyyy') : '—'}
+              {r.passengers ? ` · ${r.passengers} ${t('passengers') || 'passagerer'}` : ''}
+            </p>
+          </div>
+        </div>
+        <Badge className="bg-amber-100 text-amber-700 border-0 shrink-0">
+          {t('open') || 'Åben'}
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+function CabinRequestCard({ r, t, highlight }) {
+  return (
+    <div className={`bg-white rounded-xl border p-4 ${highlight ? 'border-primary/30 shadow-sm' : 'border-border'}`}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+            <Home className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <p className="font-semibold text-sm text-foreground">{r.location}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{r.guest_name || r.guest_email}</p>
+            <p className="text-xs text-muted-foreground">
+              {r.check_in ? format(new Date(r.check_in), 'd. MMM') : '—'}
+              {r.check_out ? ` – ${format(new Date(r.check_out), 'd. MMM yyyy')}` : ''}
+              {r.guests ? ` · ${r.guests} ${t('guests') || 'gæster'}` : ''}
+            </p>
+          </div>
+        </div>
+        <Badge className="bg-amber-100 text-amber-700 border-0 shrink-0">
+          {t('open') || 'Åben'}
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+// ── BookingRow ────────────────────────────────────────────────────────────────
 function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
   const [expanded, setExpanded] = useState(false);
   return (
@@ -525,7 +683,9 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
           <div>
             <p className="font-semibold text-sm text-foreground">{booking.listing_title}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {isHost ? `${t('from')}: ${booking.guest_name || booking.guest_email}` : `${t('booked')} ${format(new Date(booking.created_date), 'd. MMM yyyy')}`}
+              {isHost
+                ? `${t('from') || 'Fra'}: ${booking.guest_name || booking.guest_email}`
+                : `${t('booked') || 'Booket'} ${format(new Date(booking.created_date), 'd. MMM yyyy')}`}
             </p>
           </div>
         </div>
@@ -533,7 +693,9 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
           <Badge className={`${STATUS_COLORS[booking.status] || 'bg-gray-100 text-gray-500'} border-0 text-xs`}>
             {STATUS_LABELS[booking.status] || booking.status}
           </Badge>
-          {booking.total_price > 0 && <span className="text-sm font-bold text-foreground">{booking.total_price} DKK</span>}
+          {booking.total_price > 0 && (
+            <span className="text-sm font-bold text-foreground">{booking.total_price} DKK</span>
+          )}
           <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expanded ? 'rotate-90' : ''}`} />
         </div>
       </button>
@@ -549,8 +711,16 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
                   {booking.check_out && ` – ${format(new Date(booking.check_out), 'd. MMM yyyy')}`}
                 </span>
               )}
-              {booking.guests && <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{booking.guests} {t('guests')}</span>}
-              {booking.seats && <span className="flex items-center gap-1"><Anchor className="w-3.5 h-3.5" />{booking.seats} {t('seats_plural')}</span>}
+              {booking.guests && (
+                <span className="flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5" />{booking.guests} {t('guests') || 'gæster'}
+                </span>
+              )}
+              {booking.seats && (
+                <span className="flex items-center gap-1">
+                  <Anchor className="w-3.5 h-3.5" />{booking.seats} {t('seats_plural') || 'pladser'}
+                </span>
+              )}
             </div>
           )}
 
@@ -563,10 +733,10 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
           {isHost && booking.status === 'pending' && (
             <div className="flex gap-2">
               <Button size="sm" onClick={onConfirm} className="bg-primary text-white hover:bg-primary/90 rounded-lg gap-1.5">
-                <Check className="w-3.5 h-3.5" /> {t('confirm')}
+                <Check className="w-3.5 h-3.5" /> {t('confirm') || 'Bekræft'}
               </Button>
               <Button size="sm" variant="outline" onClick={onDecline} className="rounded-lg gap-1.5 text-destructive border-destructive/30 hover:bg-destructive hover:text-white">
-                <X className="w-3.5 h-3.5" /> {t('decline')}
+                <X className="w-3.5 h-3.5" /> {t('decline') || 'Afvis'}
               </Button>
             </div>
           )}
@@ -576,42 +746,39 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
   );
 }
 
+// ── RatingRow ─────────────────────────────────────────────────────────────────
 function RatingRow({ rating, showTo, t = () => '' }) {
-   return (
-     <div className="bg-white rounded-xl border border-border p-4">
-       <div className="flex items-center justify-between gap-2 flex-wrap">
-         <div>
-           <p className="text-xs text-muted-foreground">
-             {showTo ? `${t('to')}: ${rating.to_email}` : `${t('from')}: ${rating.from_email}`}
-             {' · '}{rating.request_type === 'transport' ? t('transport_label') : t('cabin')}
-           </p>
+  return (
+    <div className="bg-white rounded-xl border border-border p-4">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div>
+          <p className="text-xs text-muted-foreground">
+            {showTo ? `${t('to') || 'Til'}: ${rating.to_email}` : `${t('from') || 'Fra'}: ${rating.from_email}`}
+            {' · '}{rating.request_type === 'transport' ? t('transport_label') || 'Transport' : t('cabin') || 'Hytte'}
+          </p>
           <div className="flex gap-0.5 mt-1">
-            {[1,2,3,4,5].map(n => (
+            {[1, 2, 3, 4, 5].map(n => (
               <Star key={n} className={`w-4 h-4 ${n <= rating.stars ? 'fill-amber-400 text-amber-400' : 'text-muted'}`} />
             ))}
           </div>
-          {rating.comment && <p className="text-sm text-muted-foreground mt-1.5 italic">"{rating.comment}"</p>}
+          {rating.comment && (
+            <p className="text-sm text-muted-foreground mt-1.5 italic">"{rating.comment}"</p>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
+// ── EmptyState ────────────────────────────────────────────────────────────────
 function EmptyState({ icon: IconComponent, message, cta, ctaHref }) {
-   return (
-     <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-border">
-       <IconComponent className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-       <p className="text-muted-foreground font-medium mb-4">{message}</p>
-       <Button variant="outline" onClick={() => window.location.href = ctaHref} className="rounded-xl px-6">{cta}</Button>
-     </div>
-   );
- }
-
-const STATUS_LABELS_TRANSLATED = {
-  pending: 'labels.pending',
-  on_hold: 'labels.on_hold',
-  confirmed: 'labels.confirmed',
-  declined: 'labels.declined',
-  cancelled: 'labels.cancelled',
-  completed: 'labels.completed',
-};
+  return (
+    <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-border">
+      <IconComponent className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+      <p className="text-muted-foreground font-medium mb-4">{message}</p>
+      <Button variant="outline" onClick={() => window.location.href = ctaHref} className="rounded-xl px-6">
+        {cta}
+      </Button>
+    </div>
+  );
+}
