@@ -606,8 +606,12 @@ function OpenRequestsList({ nearby, others, userHomeCity, type, t }) {
 }
 
 function TransportRequestCard({ r, t, highlight }) {
+  const navigate = useNavigate();
   return (
-    <div className={`bg-white rounded-xl border p-4 ${highlight ? 'border-primary/30 shadow-sm' : 'border-border'}`}>
+    <button
+      onClick={() => navigate(`/request-transport/${r.id}`)}
+      className={`w-full text-left bg-white rounded-xl border p-4 ${highlight ? 'border-primary/30 shadow-sm' : 'border-border'} hover:shadow-md hover:border-primary/20 transition-all`}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
@@ -626,13 +630,17 @@ function TransportRequestCard({ r, t, highlight }) {
           {capitalizeFirst(t('status_open'))}
         </Badge>
       </div>
-    </div>
+    </button>
   );
 }
 
 function CabinRequestCard({ r, t, highlight }) {
+  const navigate = useNavigate();
   return (
-    <div className={`bg-white rounded-xl border p-4 ${highlight ? 'border-primary/30 shadow-sm' : 'border-border'}`}>
+    <button
+      onClick={() => navigate(`/request-cabin/${r.id}`)}
+      className={`w-full text-left bg-white rounded-xl border p-4 ${highlight ? 'border-primary/30 shadow-sm' : 'border-border'} hover:shadow-md hover:border-primary/20 transition-all`}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
@@ -652,7 +660,7 @@ function CabinRequestCard({ r, t, highlight }) {
           {capitalizeFirst(t('status_open'))}
         </Badge>
       </div>
-    </div>
+    </button>
   );
 }
 
