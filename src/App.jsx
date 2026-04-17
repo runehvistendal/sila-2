@@ -50,9 +50,8 @@ const NewUserRedirect = () => {
     if (isLoadingAuth || !user) return;
     const alreadyOnboarding = window.location.pathname === '/profile' && window.location.search.includes('onboarding=true');
     if (alreadyOnboarding) return;
-    const createdRecently = user.created_date && (Date.now() - new Date(user.created_date).getTime()) < 60_000;
-    const missingBasicInfo = !user.full_name && !user.location;
-    if (createdRecently || missingBasicInfo) {
+    const missingBasicInfo = !user.full_name || !user.location;
+    if (missingBasicInfo) {
       navigate('/profile?onboarding=true');
     }
   }, [user, isLoadingAuth]);
