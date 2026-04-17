@@ -55,6 +55,14 @@ export default function Home() {
     },
   });
 
+  const { data: allTransports = [] } = useQuery({
+    queryKey: ['all-transports-home'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getActiveTransports', {});
+      return res.data.transports || [];
+    },
+  });
+
   const handleSearch = (e) => {
     e.preventDefault();
     setShowSuggestions(false);
@@ -343,7 +351,7 @@ export default function Home() {
               <p className="text-muted-foreground">{t('featured_subtitle')}</p>
             </div>
           </div>
-          <ImprovedGreenlandMap cabins={featuredCabins} height="450px" />
+          <ImprovedGreenlandMap cabins={featuredCabins} transports={allTransports} height="450px" />
         </div>
       </section>
 

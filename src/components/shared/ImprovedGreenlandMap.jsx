@@ -61,11 +61,11 @@ const createDepartureIcon = () => {
   });
 };
 
-// Destination icon — green flag circle
+// Destination icon — purple flag circle
 const createDestinationIcon = () => {
   const svg = `<svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="18" cy="18" r="17" fill="#1e8449" stroke="white" stroke-width="2"/>
-    <text x="18" y="24" text-anchor="middle" font-size="16" fill="white">🏁</text>
+    <circle cx="18" cy="18" r="17" fill="#9333ea" stroke="white" stroke-width="2"/>
+    <text x="18" y="24" text-anchor="middle" font-size="16" fill="white">🚩</text>
   </svg>`;
   return new L.DivIcon({
     html: svg,
@@ -78,17 +78,17 @@ const createDestinationIcon = () => {
 
 // Boat icon for route start
 const createBoatIcon = () => {
-  const svg = `<svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="14" cy="14" r="13" fill="#0077be" stroke="white" stroke-width="2"/>
-    <path d="M 14 8 L 18 16 L 10 16 Z" fill="white"/>
-    <circle cx="14" cy="18" r="1.5" fill="white"/>
+  const svg = `<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="16" cy="16" r="15" fill="#0077be" stroke="white" stroke-width="2"/>
+    <path d="M 16 9 L 22 19 L 10 19 Z" fill="white"/>
+    <circle cx="16" cy="21" r="1.5" fill="white"/>
   </svg>`;
   return new L.DivIcon({
     html: svg,
     className: '',
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -15],
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -18],
   });
 };
 
