@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -12,6 +12,7 @@ import ProviderBadge from '@/components/shared/ProviderBadge';
 export default function TransportCard({ transport, returnTrip = null, compact = false }) {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const [imageError, setImageError] = useState(false);
 
   const { data: reviews = [] } = useQuery({
     queryKey: ['transport-card-reviews', transport.id],
@@ -23,8 +24,23 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
     : null;
 
+  const boatImage = transport.images?.[0] || 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=200&h=150&fit=crop&q=80';
+  const fallbackBoatImage = 'https://images.unsplash.com/photo-1527821712519-f3f5e0e75c6c?w=200&h=150&fit=crop&q=80';
+  const imageUrl = imageError ? fallbackBoatImage : boatImage;
+
   const content = (
-    <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col ${compact ? '' : 'hover:border-primary/30'}`}>
+    <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col h-full ${compact ? '' : 'hover:border-primary/30'}`}>
+      {/* Boat Image */}
+      {transport.images && transport.images.length > 0 && (
+        <div className="relative overflow-hidden rounded-lg aspect-video mb-4 bg-muted">
+          <img
+            src={imageUrl}
+            alt={transport.boat_type || 'boat'}
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
+          />
+        </div>
+      )}
       {/* Route */}
       <div className="flex items-center gap-3 mb-4">
         {transport.provider_avatar && (
@@ -69,7 +85,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
       <div className="flex flex-wrap gap-2 mb-4">
         <span className="inline-flex items-center gap-1.5 text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full">
           <Calendar className="w-3 h-3" />
-          {format(new Date(transport.departure_date), 'MMM d, yyyy')}
+          {format(new Date(transport.departure_date), 'MMM d')}
         </span>
         {transport.departure_time && (
           <span className="inline-flex items-center gap-1.5 text-xs bg-muted text-muted-foreground px-2.5 py-1 rounded-full">

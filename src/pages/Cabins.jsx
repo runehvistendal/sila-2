@@ -91,8 +91,9 @@ export default function Cabins() {
             {[...Array(6)].map((_, i) => (
               <div key={i} className="space-y-3">
                 <Skeleton className="aspect-[4/3] rounded-2xl" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-5 w-3/4 rounded" />
+                <Skeleton className="h-4 w-1/2 rounded" />
+                <Skeleton className="h-4 w-2/3 rounded" />
               </div>
             ))}
           </div>

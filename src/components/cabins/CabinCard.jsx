@@ -13,8 +13,8 @@ export default function CabinCard({ cabin }) {
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const coverImage = cabin.images?.[0] || 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=600&h=400&fit=crop&q=80';
-  const fallbackImage = 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=80';
+  const coverImage = cabin.images?.[0] || 'https://images.unsplash.com/photo-1542314503-37143f4f1c21?w=600&h=400&fit=crop&q=80';
+  const fallbackImage = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=400&fit=crop&q=80';
   const imageUrl = imageError ? fallbackImage : coverImage;
 
   const { data: reviews = [] } = useQuery({

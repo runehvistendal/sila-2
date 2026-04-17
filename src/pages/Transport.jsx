@@ -104,9 +104,16 @@ export default function Transport() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-48 rounded-2xl" />)}
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="w-full h-40 rounded-2xl" />
+                  <Skeleton className="h-5 w-3/4 rounded" />
+                  <Skeleton className="h-4 w-2/3 rounded" />
+                  <Skeleton className="h-4 w-1/2 rounded" />
+                </div>
+              ))}
+            </div>
         ) : view === 'map' ? (
           <ImprovedGreenlandMap transports={filtered} height="600px" />
         ) : filtered.length > 0 ? (
