@@ -91,6 +91,7 @@ function RoleTypeCards({ value, onChange, lang }) {
 
 function OnboardingStep({ user, t, lang }) {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const CITIES = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
   const [obForm, setObForm] = useState({ full_name: user?.full_name || '', phone: user?.phone || '', location: '', role_type: 'traveler' });
   const [error, setError] = useState('');
@@ -103,6 +104,7 @@ function OnboardingStep({ user, t, lang }) {
     setError('');
     setSaving(true);
     await base44.auth.updateMe({ full_name: obForm.full_name.trim(), phone: obForm.phone, location: obForm.location, role_type: obForm.role_type });
+    await refreshUser();
     setSaving(false);
     navigate('/');
   };
