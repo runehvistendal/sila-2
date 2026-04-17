@@ -493,6 +493,7 @@ const translations = {
     drag_to_reposition: 'Drag to reposition',
     save: 'Save',
     select_city: 'Select city',
+    search_placeholder: 'Where in Greenland?',
   },
   da: {
     nav_experiences: 'Oplevelser',
@@ -981,6 +982,7 @@ const translations = {
     drag_to_reposition: 'Træk for at placere',
     save: 'Gem',
     select_city: 'Vælg by',
+    search_placeholder: 'Hvor i Grønland?',
   },
   kl: {
     nav_experiences: 'Suliffinneqarnerit',
@@ -1276,6 +1278,7 @@ const translations = {
     drag_to_reposition: 'Træk for at placere',
     save: 'Gem',
     select_city: 'Nalunaarsorneqassasoq',
+    search_placeholder: 'Sumi Kalaallit Nunanni?',
   },
   };
 
