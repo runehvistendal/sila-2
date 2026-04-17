@@ -176,7 +176,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
           <div className="space-y-3">
             {transports.map((tr) => (
               <div key={tr.id} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDrawerTransportId(tr.id); }} className="cursor-pointer [&_a]:pointer-events-none">
-                <TransportCard transport={tr} compact={false} />
+                <TransportCard transport={tr} showImages={false} />
               </div>
             ))}
           </div>
