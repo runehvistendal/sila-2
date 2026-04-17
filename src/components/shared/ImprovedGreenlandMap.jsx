@@ -42,7 +42,7 @@ const createCabinIcon = () => {
     className: '',
     iconSize: [32, 32],
     iconAnchor: [16, 16],
-    popupAnchor: [0, -18],
+    popupAnchor: [0, -18]
   });
 };
 
@@ -57,7 +57,7 @@ const createDepartureIcon = () => {
     className: '',
     iconSize: [36, 36],
     iconAnchor: [18, 18],
-    popupAnchor: [0, -20],
+    popupAnchor: [0, -20]
   });
 };
 
@@ -72,7 +72,7 @@ const createDestinationIcon = () => {
     className: '',
     iconSize: [36, 36],
     iconAnchor: [18, 18],
-    popupAnchor: [0, -20],
+    popupAnchor: [0, -20]
   });
 };
 
@@ -88,7 +88,7 @@ const createBoatIcon = () => {
     className: '',
     iconSize: [28, 28],
     iconAnchor: [14, 14],
-    popupAnchor: [0, -15],
+    popupAnchor: [0, -15]
   });
 };
 
@@ -97,24 +97,24 @@ const calculateControlPoint = (from, to) => {
   if (!from || !to) return null;
   const [lat1, lon1] = from;
   const [lat2, lon2] = to;
-  
+
   // Midtpunkt
   const midLat = (lat1 + lat2) / 2;
   const midLon = (lon1 + lon2) / 2;
-  
+
   // Beregn retning af rutelinje
   const dLat = lat2 - lat1;
   const dLon = lon2 - lon1;
-  
+
   // Vinkelret vektor (roteret 90 grader) — offset mod vest
   const perpLat = -dLon;
   const perpLon = dLat;
-  
+
   // Normaliser og skalér (offset-størrelse justeres her)
   const len = Math.sqrt(perpLat * perpLat + perpLon * perpLon);
   const offsetFactor = 1.5; // Justér for større/mindre kurve
-  const scale = (len > 0) ? (offsetFactor / len) : 0;
-  
+  const scale = len > 0 ? offsetFactor / len : 0;
+
   return [midLat + perpLat * scale, midLon + perpLon * scale];
 };
 
@@ -146,9 +146,9 @@ const TransportHubPopup = ({ location, transports, type = 'departure' }) => {
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
   const count = transports.length;
-  const avgPrice = transports.length > 0
-    ? Math.round(transports.reduce((s, tr) => s + (tr.round_trip_price || 0), 0) / count)
-    : 0;
+  const avgPrice = transports.length > 0 ?
+  Math.round(transports.reduce((s, tr) => s + (tr.round_trip_price || 0), 0) / count) :
+  0;
 
   const isDeparture = type === 'departure';
   const label = isDeparture ? t('map_departure_port') : t('map_destination_label');
@@ -162,14 +162,14 @@ const TransportHubPopup = ({ location, transports, type = 'departure' }) => {
       </p>
       <p className="text-muted-foreground text-xs mb-1">{label}</p>
       <p className="text-muted-foreground text-xs mb-2">{count} {t('map_routes_available')}</p>
-      {avgPrice > 0 && (
-        <p className="text-primary font-semibold text-xs">{t('map_avg_roundtrip')}: {formatPrice(avgPrice)}</p>
-      )}
+      {avgPrice > 0 &&
+      <p className="text-primary font-semibold text-xs">{t('map_avg_roundtrip')}: {formatPrice(avgPrice)}</p>
+      }
       <a href={`/transport?${linkParam}`} className="text-primary text-xs mt-2 font-semibold hover:underline block">
         {t('map_see_all_routes')}
       </a>
-    </div>
-  );
+    </div>);
+
 };
 
 /**
@@ -185,15 +185,15 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
     cabins: true,
     routes: true,
     departures: true,
-    destinations: true,
+    destinations: true
   });
 
   const cabinPins = useMemo(() => {
     if (!layers.cabins) return [];
-    return (cabins || [])
-      .filter((c) => c && c.id && c.location)
-      .map((c) => ({ ...c, coords: LOCATIONS[c.location] }))
-      .filter((c) => c.coords);
+    return (cabins || []).
+    filter((c) => c && c.id && c.location).
+    map((c) => ({ ...c, coords: LOCATIONS[c.location] })).
+    filter((c) => c.coords);
   }, [cabins, layers.cabins]);
 
   // Afgangshavne (fra)
@@ -205,9 +205,9 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
       if (!hubs[t.from_location]) hubs[t.from_location] = [];
       hubs[t.from_location].push(t);
     });
-    return Object.entries(hubs)
-      .map(([location, ts]) => ({ location, transports: ts, coords: LOCATIONS[location] }))
-      .filter((p) => p.coords);
+    return Object.entries(hubs).
+    map(([location, ts]) => ({ location, transports: ts, coords: LOCATIONS[location] })).
+    filter((p) => p.coords);
   }, [transports, layers.departures]);
 
   // Destinationer (til)
@@ -222,23 +222,23 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
     });
     // Exclude locations that are already departure pins
     const departureLocations = new Set(departurePins.map((p) => p.location));
-    return Object.entries(hubs)
-      .filter(([loc]) => !departureLocations.has(loc))
-      .map(([location, ts]) => ({ location, transports: ts, coords: LOCATIONS[location] }))
-      .filter((p) => p.coords);
+    return Object.entries(hubs).
+    filter(([loc]) => !departureLocations.has(loc)).
+    map(([location, ts]) => ({ location, transports: ts, coords: LOCATIONS[location] })).
+    filter((p) => p.coords);
   }, [transports, layers.destinations, departurePins]);
 
   // Transportruter med kurver
   const routeCurves = useMemo(() => {
     if (!layers.routes) return [];
-    return (transports || [])
-      .filter((t) => t.from_location && t.to_location && LOCATIONS[t.from_location] && LOCATIONS[t.to_location])
-      .map((transport) => {
-        const from = LOCATIONS[transport.from_location];
-        const to = LOCATIONS[transport.to_location];
-        const controlPoint = calculateControlPoint(from, to);
-        return { transport, from, to, controlPoint };
-      });
+    return (transports || []).
+    filter((t) => t.from_location && t.to_location && LOCATIONS[t.from_location] && LOCATIONS[t.to_location]).
+    map((transport) => {
+      const from = LOCATIONS[transport.from_location];
+      const to = LOCATIONS[transport.to_location];
+      const controlPoint = calculateControlPoint(from, to);
+      return { transport, from, to, controlPoint };
+    });
   }, [transports, layers.routes]);
 
   const showTransportLegend = routeCurves.length > 0 || departurePins.length > 0 || destinationPins.length > 0;
@@ -246,81 +246,81 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
   return (
     <div className="space-y-3">
       {/* Lag-toggle og legende */}
-      {(cabins.length > 0 || transports.length > 0) && showTransportLegend && (
-        <div className="flex flex-wrap items-center gap-2">
-          {cabins.length > 0 && (
-            <button
-              onClick={() => setLayers((p) => ({ ...p, cabins: !p.cabins }))}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                layers.cabins ? 'bg-primary text-white border-primary' : 'bg-white text-muted-foreground border-border'
-              }`}
-            >
+      {(cabins.length > 0 || transports.length > 0) && showTransportLegend &&
+      <div className="flex flex-wrap items-center gap-2">
+          {cabins.length > 0 &&
+        <button
+          onClick={() => setLayers((p) => ({ ...p, cabins: !p.cabins }))}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+          layers.cabins ? 'bg-primary text-white border-primary' : 'bg-white text-muted-foreground border-border'}`
+          }>
+          
               <HomeIcon className="w-3.5 h-3.5" />
               {t('map_cabins')} {cabinPins.length > 0 && `(${cabinPins.length})`}
             </button>
-          )}
-          {transports.length > 0 && (
-            <>
+        }
+          {transports.length > 0 &&
+        <>
               <button
-                onClick={() => setLayers((p) => ({ ...p, routes: !p.routes }))}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                  layers.routes ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
-                }`}
-                style={layers.routes ? { backgroundColor: '#0077be' } : {}}
-              >
+            onClick={() => setLayers((p) => ({ ...p, routes: !p.routes }))}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+            layers.routes ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'}`
+            }
+            style={layers.routes ? { backgroundColor: '#0077be' } : {}}>
+            
                 <Waves className="w-3.5 h-3.5" />
                 Ruter {routeCurves.length > 0 && `(${routeCurves.length})`}
               </button>
               <button
-                onClick={() => setLayers((p) => ({ ...p, departures: !p.departures }))}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                  layers.departures ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
-                }`}
-                style={layers.departures ? { backgroundColor: '#1a5276' } : {}}
-              >
+            onClick={() => setLayers((p) => ({ ...p, departures: !p.departures }))} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all text-white border-transparent hidden"
+
+
+
+            style={layers.departures ? { backgroundColor: '#1a5276' } : {}}>
+            
                 <span>⚓</span>
                 {t('map_departures')} {departurePins.length > 0 && `(${departurePins.length})`}
               </button>
               <button
-                onClick={() => setLayers((p) => ({ ...p, destinations: !p.destinations }))}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                  layers.destinations ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
-                }`}
-                style={layers.destinations ? { backgroundColor: '#1e8449' } : {}}
-              >
+            onClick={() => setLayers((p) => ({ ...p, destinations: !p.destinations }))}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+            layers.destinations ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'}`
+            }
+            style={layers.destinations ? { backgroundColor: '#1e8449' } : {}}>
+            
                 <span>🏁</span>
                 {t('map_destinations')} {destinationPins.length > 0 && `(${destinationPins.length})`}
               </button>
             </>
-          )}
+        }
         </div>
-      )}
+      }
 
       {/* Kort */}
-      <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card relative z-0">
+      <div style={{ height }} className="rounded-2xl overflow-hidden border border-border shadow-card">
         <MapContainer
           center={[68, -50]}
           zoom={5}
           style={{ height: '100%', width: '100%' }}
-          scrollWheelZoom={false}
-        >
+          scrollWheelZoom={false}>
+          
           <MapAttributionController />
           <TileLayer
             attribution='&copy; CartoDB'
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          />
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+          
 
           {/* Transportruter (Bezier-lignende kurver) */}
-          {routeCurves.map((route, idx) => (
-            <LayerGroup key={`route-${idx}`}>
+          {routeCurves.map((route, idx) =>
+          <LayerGroup key={`route-${idx}`}>
               {/* Kurve fra start til kontrolpunkt */}
               <Polyline
-                positions={[route.from, route.controlPoint]}
-                pathOptions={{ color: '#0077be', weight: 3, dashArray: '5, 10', opacity: 0.7 }}
-                eventHandlers={{
-                  click: () => {},
-                }}
-              >
+              positions={[route.from, route.controlPoint]}
+              pathOptions={{ color: '#0077be', weight: 3, dashArray: '5, 10', opacity: 0.7 }}
+              eventHandlers={{
+                click: () => {}
+              }}>
+              
                 <Popup>
                   <div className="text-sm">
                     <p className="font-bold text-foreground">{route.transport.from_location} → {route.transport.to_location}</p>
@@ -331,12 +331,12 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
 
               {/* Kurve fra kontrolpunkt til slutpunkt */}
               <Polyline
-                positions={[route.controlPoint, route.to]}
-                pathOptions={{ color: '#0077be', weight: 3, dashArray: '5, 10', opacity: 0.7 }}
-                eventHandlers={{
-                  click: () => {},
-                }}
-              >
+              positions={[route.controlPoint, route.to]}
+              pathOptions={{ color: '#0077be', weight: 3, dashArray: '5, 10', opacity: 0.7 }}
+              eventHandlers={{
+                click: () => {}
+              }}>
+              
                 <Popup>
                   <div className="text-sm">
                     <p className="font-bold text-foreground">{route.transport.from_location} → {route.transport.to_location}</p>
@@ -357,13 +357,13 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
 
               {/* Cirkelmarkør ved slutpunkt */}
               <CircleMarker
-                center={route.to}
-                radius={6}
-                pathOptions={{ color: '#0077be', fill: true, fillColor: '#0077be', fillOpacity: 0.8, weight: 2, opacity: 1 }}
-                eventHandlers={{
-                  click: () => {},
-                }}
-              >
+              center={route.to}
+              radius={6}
+              pathOptions={{ color: '#0077be', fill: true, fillColor: '#0077be', fillOpacity: 0.8, weight: 2, opacity: 1 }}
+              eventHandlers={{
+                click: () => {}
+              }}>
+              
                 <Popup>
                   <div className="text-sm">
                     <p className="font-bold text-foreground">{route.transport.to_location}</p>
@@ -372,40 +372,40 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
                 </Popup>
               </CircleMarker>
             </LayerGroup>
-          ))}
+          )}
 
           {/* Hytter */}
           <LayerGroup>
-            {cabinPins.map((cabin) => (
-              <Marker key={`cabin-${cabin.id}`} position={cabin.coords} icon={createCabinIcon()}>
+            {cabinPins.map((cabin) =>
+            <Marker key={`cabin-${cabin.id}`} position={cabin.coords} icon={createCabinIcon()}>
                 <Popup><CabinPopup cabin={cabin} /></Popup>
               </Marker>
-            ))}
+            )}
           </LayerGroup>
 
           {/* Afgangshavne */}
           <LayerGroup>
-            {departurePins.map((pin) => (
-              <Marker key={`dep-${pin.location}`} position={pin.coords} icon={createDepartureIcon()}>
+            {departurePins.map((pin) =>
+            <Marker key={`dep-${pin.location}`} position={pin.coords} icon={createDepartureIcon()}>
                 <Popup>
                   <TransportHubPopup location={pin.location} transports={pin.transports} type="departure" />
                 </Popup>
               </Marker>
-            ))}
+            )}
           </LayerGroup>
 
           {/* Destinationer */}
           <LayerGroup>
-            {destinationPins.map((pin) => (
-              <Marker key={`dst-${pin.location}`} position={pin.coords} icon={createDestinationIcon()}>
+            {destinationPins.map((pin) =>
+            <Marker key={`dst-${pin.location}`} position={pin.coords} icon={createDestinationIcon()}>
                 <Popup>
                   <TransportHubPopup location={pin.location} transports={pin.transports} type="destination" />
                 </Popup>
               </Marker>
-            ))}
+            )}
           </LayerGroup>
         </MapContainer>
       </div>
-    </div>
-  );
+    </div>);
+
 }
