@@ -282,10 +282,10 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
                 {t('map_departures')} {departurePins.length > 0 && `(${departurePins.length})`}
               </button>
               <button
-            onClick={() => setLayers((p) => ({ ...p, destinations: !p.destinations }))}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-            layers.destinations ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'}`
-            }
+            onClick={() => setLayers((p) => ({ ...p, destinations: !p.destinations }))} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all text-white border-transparent hidden"
+
+
+
             style={layers.destinations ? { backgroundColor: '#1e8449' } : {}}>
             
                 <span>🏁</span>
