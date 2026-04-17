@@ -54,7 +54,7 @@ export default function TransportCard({ transport, returnTrip = null, compact = 
   const content = (
     <div className={`bg-white rounded-2xl border border-border shadow-card hover:shadow-card-hover transition-shadow p-5 flex flex-col h-full ${compact ? '' : 'hover:border-primary/30'}`}>
       {/* Boat Image */}
-      {images.length > 0 && (
+      {images.length > 0 && !compact && (
         <div className="relative overflow-hidden rounded-lg aspect-video mb-4 bg-muted">
           <img
             src={imageUrl}

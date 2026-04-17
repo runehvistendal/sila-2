@@ -171,7 +171,7 @@ export default function CabinTransportSection({ cabin, transports, guests, onTra
 
       {/* ── OTHER TRANSPORT LISTINGS ── */}
       <div className="mb-5">
-        <p className="text-sm font-medium text-muted-foreground mb-3">{t('other_transport_to')} {cabin.location}:</p>
+        <p className="text-sm font-bold text-foreground mb-3">{t('other_transport_to')} <strong>{cabin.location}</strong>:</p>
         {transports.length > 0 ? (
           <div className="space-y-3">
             {transports.map((tr) => (
