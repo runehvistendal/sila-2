@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Eye, EyeOff, Anchor, Home as HomeIcon } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, LayerGroup, LayersControl } from 'react-leaflet';
+import { Eye, EyeOff, Anchor, Home as HomeIcon, Waves } from 'lucide-react';
 import MapAttributionController from '@/components/shared/MapAttributionController';
 import { Button } from '@/components/ui/button';
 import { useCurrency } from '@/lib/CurrencyContext';
@@ -70,6 +70,48 @@ const createDestinationIcon = () => {
   });
 };
 
+// Boat icon for route start
+const createBoatIcon = () => {
+  const svg = `<svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="14" cy="14" r="13" fill="#0077be" stroke="white" stroke-width="2"/>
+    <path d="M 14 8 L 18 16 L 10 16 Z" fill="white"/>
+    <circle cx="14" cy="18" r="1.5" fill="white"/>
+  </svg>`;
+  return new L.DivIcon({
+    html: svg,
+    className: '',
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -15],
+  });
+};
+
+// Beregn kontrolpunkt for kurve (offset mod vest over vandet)
+const calculateControlPoint = (from, to) => {
+  if (!from || !to) return null;
+  const [lat1, lon1] = from;
+  const [lat2, lon2] = to;
+  
+  // Midtpunkt
+  const midLat = (lat1 + lat2) / 2;
+  const midLon = (lon1 + lon2) / 2;
+  
+  // Beregn retning af rutelinje
+  const dLat = lat2 - lat1;
+  const dLon = lon2 - lon1;
+  
+  // Vinkelret vektor (roteret 90 grader) — offset mod vest
+  const perpLat = -dLon;
+  const perpLon = dLat;
+  
+  // Normaliser og skalér (offset-størrelse justeres her)
+  const len = Math.sqrt(perpLat * perpLat + perpLon * perpLon);
+  const offsetFactor = 1.5; // Justér for større/mindre kurve
+  const scale = (len > 0) ? (offsetFactor / len) : 0;
+  
+  return [midLat + perpLat * scale, midLon + perpLon * scale];
+};
+
 const CabinPopup = ({ cabin }) => {
   const [imageError, setImageError] = React.useState(false);
   const { formatPrice } = useCurrency();
@@ -137,6 +179,7 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
     cabins: true,
     departures: true,
     destinations: true,
+    routes: true,
   });
 
   const cabinPins = useMemo(() => {
@@ -179,6 +222,19 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
       .filter((p) => p.coords);
   }, [transports, layers.destinations, departurePins]);
 
+  // Transportruter med kurver
+  const routeCurves = useMemo(() => {
+    if (!layers.routes) return [];
+    return (transports || [])
+      .filter((t) => t.from_location && t.to_location && LOCATIONS[t.from_location] && LOCATIONS[t.to_location])
+      .map((transport) => {
+        const from = LOCATIONS[transport.from_location];
+        const to = LOCATIONS[transport.to_location];
+        const controlPoint = calculateControlPoint(from, to);
+        return { transport, from, to, controlPoint };
+      });
+  }, [transports, layers.routes]);
+
   const showTransportLegend = departurePins.length > 0 || destinationPins.length > 0;
 
   return (
@@ -199,6 +255,16 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
           )}
           {transports.length > 0 && (
             <>
+              <button
+                onClick={() => setLayers((p) => ({ ...p, routes: !p.routes }))}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                  layers.routes ? 'text-white border-transparent' : 'bg-white text-muted-foreground border-border'
+                }`}
+                style={layers.routes ? { backgroundColor: '#0077be' } : {}}
+              >
+                <Waves className="w-3.5 h-3.5" />
+                Ruter {routeCurves.length > 0 && `(${routeCurves.length})`}
+              </button>
               <button
                 onClick={() => setLayers((p) => ({ ...p, departures: !p.departures }))}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
@@ -237,6 +303,70 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
             attribution='&copy; CartoDB'
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           />
+
+          {/* Transportruter (Bezier-lignende kurver) */}
+          {routeCurves.map((route, idx) => (
+            <LayerGroup key={`route-${idx}`}>
+              {/* Kurve fra start til kontrolpunkt */}
+              <Polyline
+                positions={[route.from, route.controlPoint]}
+                pathOptions={{ color: '#0077be', weight: 3, dashArray: '5, 10', opacity: 0.7 }}
+                eventHandlers={{
+                  click: () => {},
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <p className="font-bold text-foreground">{route.transport.from_location} → {route.transport.to_location}</p>
+                    <p className="text-xs text-muted-foreground">{route.transport.round_trip_price} DKK</p>
+                  </div>
+                </Popup>
+              </Polyline>
+
+              {/* Kurve fra kontrolpunkt til slutpunkt */}
+              <Polyline
+                positions={[route.controlPoint, route.to]}
+                pathOptions={{ color: '#0077be', weight: 3, dashArray: '5, 10', opacity: 0.7 }}
+                eventHandlers={{
+                  click: () => {},
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <p className="font-bold text-foreground">{route.transport.from_location} → {route.transport.to_location}</p>
+                    <p className="text-xs text-muted-foreground">{route.transport.round_trip_price} DKK</p>
+                  </div>
+                </Popup>
+              </Polyline>
+
+              {/* Båd-ikon ved start */}
+              <Marker position={route.from} icon={createBoatIcon()}>
+                <Popup>
+                  <div className="text-sm">
+                    <p className="font-bold text-foreground">{route.transport.from_location}</p>
+                    <p className="text-xs text-muted-foreground">{route.transport.round_trip_price} DKK (round trip)</p>
+                  </div>
+                </Popup>
+              </Marker>
+
+              {/* Cirkelmarkør ved slutpunkt */}
+              <CircleMarker
+                center={route.to}
+                radius={6}
+                pathOptions={{ color: '#0077be', fill: true, fillColor: '#0077be', fillOpacity: 0.8, weight: 2, opacity: 1 }}
+                eventHandlers={{
+                  click: () => {},
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <p className="font-bold text-foreground">{route.transport.to_location}</p>
+                    <p className="text-xs text-muted-foreground">{route.transport.round_trip_price} DKK (round trip)</p>
+                  </div>
+                </Popup>
+              </CircleMarker>
+            </LayerGroup>
+          ))}
 
           {/* Hytter */}
           {cabinPins.map((cabin) => (
