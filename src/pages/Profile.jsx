@@ -96,7 +96,7 @@ const SUPPORTED_LANGUAGES = [
 
 function OnboardingStep({ user, t, lang, setLang }) {
   const navigate = useNavigate();
-  const { refreshUser } = useAuth();
+  const { updateUserProfile } = useAuth();
   const qc = useQueryClient();
   const [obForm, setObForm] = useState({
     full_name: user?.full_name || '',
@@ -114,14 +114,13 @@ function OnboardingStep({ user, t, lang, setLang }) {
     if (!obForm.location_id) { setError(t('onboarding_city_required')); return; }
     setError('');
     setSaving(true);
-    await base44.auth.updateMe({
+    await updateUserProfile({
       full_name: obForm.full_name.trim(),
       phone: obForm.phone,
       location_id: obForm.location_id,
       role_type: obForm.role_type,
       language: obForm.language,
     });
-    await refreshUser();
     qc.invalidateQueries(['user-profile']);
     setSaving(false);
     setTimeout(() => navigate('/'), 100);
@@ -213,7 +212,7 @@ function OnboardingStep({ user, t, lang, setLang }) {
 }
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const { t, lang, setLang } = useLanguage();
   const { currentRole } = useRole();
   const qc = useQueryClient();
@@ -285,7 +284,7 @@ export default function Profile() {
         data.provider_phone = providerForm.provider_phone;
         data.provider_avatar = providerForm.provider_avatar;
       }
-      return base44.auth.updateMe(data);
+      return updateUserProfile(data);
     },
     onSuccess: () => {
       qc.invalidateQueries(['user-profile']);

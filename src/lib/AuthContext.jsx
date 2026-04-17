@@ -141,6 +141,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUserProfile = async (data) => {
+    await base44.auth.updateMe(data);
+    await refreshUser();
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -152,7 +157,8 @@ export const AuthProvider = ({ children }) => {
       logout,
       navigateToLogin,
       checkAppState,
-      refreshUser
+      refreshUser,
+      updateUserProfile
     }}>
       {children}
     </AuthContext.Provider>
