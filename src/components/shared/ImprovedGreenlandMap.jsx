@@ -183,9 +183,9 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
   const { t } = useLanguage();
   const [layers, setLayers] = React.useState({
     cabins: true,
+    routes: true,
     departures: true,
     destinations: true,
-    routes: true,
   });
 
   const cabinPins = useMemo(() => {
