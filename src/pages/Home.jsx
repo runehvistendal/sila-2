@@ -211,7 +211,7 @@ export default function Home() {
                 icon: HomeIcon,
                 step: '03',
                 title: t('how_step3_title'),
-                desc: 'Oplev Grønland på den rigtige måde',
+                desc: t('how_step3_desc'),
               },
             ].map((item, i) => (
               <div key={i} className="text-center">
