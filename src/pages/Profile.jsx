@@ -13,7 +13,6 @@ import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Backpack, Users
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
-import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
 import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
 import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
@@ -52,6 +51,38 @@ const ROLE_NOTE = {
   en: 'Your choice determines which features appear in your dashboard.',
   kl: 'Dit valg bestemmer hvilke funktioner der vises i dit dashboard.',
 };
+
+function AvatarUpload({ url, onChange, label }) {
+  const [uploading, setUploading] = useState(false);
+  const inputRef = React.useRef(null);
+
+  const handleFile = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    onChange(file_url);
+    setUploading(false);
+  };
+
+  return (
+    <div className="flex items-center gap-4">
+      <div style={{ width: 96, height: 96, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }} className="bg-primary/10 flex items-center justify-center">
+        {url ? (
+          <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <User className="w-9 h-9 text-primary" />
+        )}
+      </div>
+      <div>
+        <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+        <Button type="button" variant="outline" size="sm" className="rounded-xl gap-1.5" disabled={uploading} onClick={() => inputRef.current?.click()}>
+          <Camera className="w-3.5 h-3.5" />
+          {uploading ? '...' : label}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function RoleTypeCards({ value, onChange, lang }) {
   const l = lang || 'da';
@@ -406,12 +437,10 @@ export default function Profile() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('profile_picture')}</label>
-                <ImageUploadWithEditor
-                  images={currentForm.avatar_url ? [currentForm.avatar_url] : []}
-                  onChange={(urls) => setForm(f => ({ ...f, avatar_url: urls[0] || '' }))}
-                  maxImages={1}
-                  shape="circle"
-                  hidePrimaryLabel
+                <AvatarUpload
+                  url={currentForm.avatar_url}
+                  onChange={(url) => setForm(f => ({ ...f, avatar_url: url }))}
+                  label={t('change_photo')}
                 />
               </div>
 
