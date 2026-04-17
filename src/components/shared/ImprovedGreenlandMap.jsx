@@ -271,26 +271,26 @@ export default function ImprovedGreenlandMap({ cabins = [], transports = [], hei
                 <Waves className="w-3.5 h-3.5" />
                 Ruter {routeCurves.length > 0 && `(${routeCurves.length})`}
               </button>
-              <button
-            onClick={() => setLayers((p) => ({ ...p, departures: !p.departures }))} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all text-white border-transparent hidden"
+              
 
 
 
-            style={layers.departures ? { backgroundColor: '#1a5276' } : {}}>
-            
-                <span>⚓</span>
-                {t('map_departures')} {departurePins.length > 0 && `(${departurePins.length})`}
-              </button>
-              <button
-            onClick={() => setLayers((p) => ({ ...p, destinations: !p.destinations }))} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all text-white border-transparent hidden"
 
 
 
-            style={layers.destinations ? { backgroundColor: '#1e8449' } : {}}>
-            
-                <span>🏁</span>
-                {t('map_destinations')} {destinationPins.length > 0 && `(${destinationPins.length})`}
-              </button>
+
+
+          
+              
+
+
+
+
+
+
+
+
+          
             </>
         }
         </div>
