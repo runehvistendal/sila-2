@@ -9,14 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Backpack, Users } from 'lucide-react';
+import { User, MapPin, Star, Anchor, Home, Check, Edit2, Backpack, Users } from 'lucide-react';
 import { capitalizeFirst } from '@/lib/statusUtils';
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
 import AvatarUploader from '@/components/image-editor/AvatarUploader';
 import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
-import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
 
 const ROLE_CARDS = {
   traveler: {
@@ -93,18 +92,27 @@ function OnboardingStep({ user, t, lang }) {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   const qc = useQueryClient();
-  const CITIES = [...new Set(GREENLAND_LOCATIONS.map(l => l.name_dk))].sort();
-  const [obForm, setObForm] = useState({ full_name: user?.full_name || '', phone: user?.phone || '', location: '', role_type: 'traveler' });
+  const [obForm, setObForm] = useState({
+    full_name: user?.full_name || '',
+    phone: user?.phone || '',
+    location_id: null,
+    role_type: 'traveler',
+  });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const l = lang || 'da';
 
   const handleSubmit = async () => {
     if (!obForm.full_name.trim()) { setError(t('onboarding_name_required')); return; }
-    if (!obForm.location) { setError(t('onboarding_city_required')); return; }
+    if (!obForm.location_id) { setError(t('onboarding_city_required')); return; }
     setError('');
     setSaving(true);
-    await base44.auth.updateMe({ full_name: obForm.full_name.trim(), phone: obForm.phone, location: obForm.location, role_type: obForm.role_type });
+    await base44.auth.updateMe({
+      full_name: obForm.full_name.trim(),
+      phone: obForm.phone,
+      location_id: obForm.location_id,
+      role_type: obForm.role_type,
+    });
     await refreshUser();
     qc.invalidateQueries(['user-profile']);
     setSaving(false);
@@ -117,23 +125,39 @@ function OnboardingStep({ user, t, lang }) {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">{t('welcome_to_sila')}</h1>
           <p className="text-muted-foreground text-sm mt-2">{t('complete_profile_subtitle')}</p>
-          <p className="text-xs text-muted-foreground/70 mt-1">{lang === 'en' ? 'You can always update this later under your profile.' : lang === 'kl' ? 'Tamanna kingornussiatit profili pillugit naleqquppat allanngortissavarsi.' : 'Du kan altid ændre dine oplysninger senere under din profil.'}</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">
+            {lang === 'en'
+              ? 'You can always update this later under your profile.'
+              : lang === 'kl'
+              ? 'Tamanna kingornussiatit profili pillugit naleqquppat allanngortissavarsi.'
+              : 'Du kan altid ændre dine oplysninger senere under din profil.'}
+          </p>
         </div>
         <div className="space-y-4">
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('full_name')} *</label>
-            <Input value={obForm.full_name} onChange={e => setObForm(f => ({ ...f, full_name: e.target.value }))} className="h-10 rounded-xl text-sm" />
+            <Input
+              value={obForm.full_name}
+              onChange={e => setObForm(f => ({ ...f, full_name: e.target.value }))}
+              className="h-10 rounded-xl text-sm"
+            />
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('phone_optional')}</label>
-            <Input value={obForm.phone} onChange={e => setObForm(f => ({ ...f, phone: e.target.value }))} placeholder="+299 ..." className="h-10 rounded-xl text-sm" />
+            <Input
+              value={obForm.phone}
+              onChange={e => setObForm(f => ({ ...f, phone: e.target.value }))}
+              placeholder="+299 ..."
+              className="h-10 rounded-xl text-sm"
+            />
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')} *</label>
-            <Select value={obForm.location} onValueChange={v => setObForm(f => ({ ...f, location: v }))}>
-              <SelectTrigger className="h-10 rounded-xl text-sm"><SelectValue placeholder={t('select_departure')} /></SelectTrigger>
-              <SelectContent>{CITIES.map(city => <SelectItem key={city} value={city}>{city}</SelectItem>)}</SelectContent>
-            </Select>
+            <LocationAutocomplete
+              value={obForm.location_id ? { id: obForm.location_id } : null}
+              onChange={(loc) => setObForm(f => ({ ...f, location_id: loc?.id || null }))}
+              className="h-10"
+            />
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('i_am')} *</label>
@@ -181,7 +205,7 @@ export default function Profile() {
     enabled: !!user,
   });
 
-  // Initialize form when data loads (replaces broken onSuccess)
+  // Initialize form when data loads
   useEffect(() => {
     if (userData && !form) {
       setForm({
@@ -228,11 +252,10 @@ export default function Profile() {
   const saveMutation = useMutation({
     mutationFn: () => {
       const data = { ...form };
-      // If editing provider profile, include provider fields
       if (currentRole === 'provider' && providerForm) {
         data.provider_name = providerForm.provider_name;
         data.provider_bio = providerForm.provider_bio;
-        data.provider_location = providerForm.provider_location;
+        data.provider_location_id = providerForm.provider_location_id;
         data.provider_phone = providerForm.provider_phone;
         data.provider_avatar = providerForm.provider_avatar;
       }
@@ -244,19 +267,6 @@ export default function Profile() {
       toast({ title: capitalizeFirst(t('saved')), duration: 2000 });
     },
   });
-
-  // Auto-sync provider data to user on mount
-  useEffect(() => {
-    if (currentRole === 'user' && providerForm?.provider_name && form && !form.full_name) {
-      setForm(f => ({
-        ...f,
-        full_name: providerForm.provider_name || f.full_name,
-        phone: providerForm.provider_phone || f.phone,
-        location_id: providerForm.provider_location_id || f.location_id,
-        avatar_url: providerForm.provider_avatar || f.avatar_url,
-      }));
-    }
-  }, [providerForm, currentRole]);
 
   if (!user) {
     return (
@@ -372,7 +382,7 @@ export default function Profile() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')}</label>
-                  <LocationAutocomplete 
+                  <LocationAutocomplete
                     value={currentForm.location_id ? { id: currentForm.location_id } : null}
                     onChange={(loc) => setForm(f => ({ ...f, location_id: loc?.id || null }))}
                     className="h-10"
@@ -426,67 +436,65 @@ export default function Profile() {
                 />
               </div>
 
-
-
               <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="bg-primary text-white rounded-xl gap-2">
                 <Check className="w-4 h-4" />
                 {saveMutation.isPending ? t('saving') : t('save_profile')}
               </Button>
-              </div>
-              )}
+            </div>
+          )}
         </div>
 
         {/* Provider profile (when in provider role) */}
-         {currentRole === 'provider' && (
-           <div className="bg-white rounded-2xl border border-border p-6 mb-6">
-             <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
-               <Anchor className="w-4 h-4 text-primary" /> {t('provider_profile')}
-             </h2>
-             {!editing ? (
-               <div className="space-y-3">
-                 <p className="text-sm text-muted-foreground">
-                   {providerForm?.provider_name || t('no_description_provided')}
-                 </p>
-                 <Button variant="outline" size="sm" onClick={() => { setEditing(true); setForm({ ...currentForm }); }} className="rounded-xl">
-                   {t('edit_provider_profile')}
-                 </Button>
-               </div>
-             ) : (
-               <div className="space-y-4 border-t border-border pt-6">
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                   <div>
-                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('provider_name')}</label>
-                     <Input
-                       value={providerForm?.provider_name || ''}
-                       onChange={e => setProviderForm(f => ({ ...f, provider_name: e.target.value }))}
-                       className="h-10 rounded-xl text-sm"
-                     />
-                   </div>
-                   <div>
-                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')}</label>
-                     <LocationAutocomplete 
-                       value={providerForm?.provider_location_id ? { id: providerForm.provider_location_id } : null}
-                       onChange={(loc) => setProviderForm(f => ({ ...f, provider_location_id: loc?.id || null }))}
-                       className="h-10"
-                     />
-                   </div>
-                   <div>
-                     <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('phone_optional')}</label>
-                     <Input
-                       value={providerForm?.provider_phone || ''}
-                       onChange={e => setProviderForm(f => ({ ...f, provider_phone: e.target.value }))}
-                       placeholder="+299 ..."
-                       className="h-10 rounded-xl text-sm"
-                     />
-                   </div>
-                 </div>
-               </div>
-             )}
-           </div>
-         )}
+        {currentRole === 'provider' && (
+          <div className="bg-white rounded-2xl border border-border p-6 mb-6">
+            <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <Anchor className="w-4 h-4 text-primary" /> {t('provider_profile')}
+            </h2>
+            {!editing ? (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  {providerForm?.provider_name || t('no_description_provided')}
+                </p>
+                <Button variant="outline" size="sm" onClick={() => { setEditing(true); setForm({ ...currentForm }); }} className="rounded-xl">
+                  {t('edit_provider_profile')}
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4 border-t border-border pt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('provider_name')}</label>
+                    <Input
+                      value={providerForm?.provider_name || ''}
+                      onChange={e => setProviderForm(f => ({ ...f, provider_name: e.target.value }))}
+                      className="h-10 rounded-xl text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('city_location')}</label>
+                    <LocationAutocomplete
+                      value={providerForm?.provider_location_id ? { id: providerForm.provider_location_id } : null}
+                      onChange={(loc) => setProviderForm(f => ({ ...f, provider_location_id: loc?.id || null }))}
+                      className="h-10"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('phone_optional')}</label>
+                    <Input
+                      value={providerForm?.provider_phone || ''}
+                      onChange={e => setProviderForm(f => ({ ...f, provider_phone: e.target.value }))}
+                      placeholder="+299 ..."
+                      className="h-10 rounded-xl text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* My cabins */}
-         {myCabins.length > 0 && (
+        {myCabins.length > 0 && (
           <div className="bg-white rounded-2xl border border-border p-6 mb-6">
             <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
               <Home className="w-4 h-4 text-primary" /> {t('my_cabins')}
