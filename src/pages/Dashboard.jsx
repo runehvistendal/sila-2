@@ -22,24 +22,9 @@ import ProviderTrustCard from '@/components/provider/ProviderTrustCard';
 import GuestBookingsTab from '@/components/dashboard/GuestBookingsTab';
 import ProviderOverviewTab from '@/components/dashboard/ProviderOverviewTab';
 import { GREENLAND_LOCATIONS } from '@/lib/greenlandLocations';
+import { capitalizeFirst, STATUS_COLORS, statusLabel } from '@/lib/statusUtils';
 
-const STATUS_COLORS = {
-  pending: 'bg-amber-100 text-amber-700',
-  on_hold: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-green-100 text-green-700',
-  declined: 'bg-red-100 text-red-700',
-  cancelled: 'bg-gray-100 text-gray-500',
-  completed: 'bg-blue-100 text-blue-700',
-};
 
-const STATUS_LABELS = {
-  pending: 'Afventer',
-  on_hold: 'På hold',
-  confirmed: 'Bekræftet',
-  declined: 'Afvist',
-  cancelled: 'Annulleret',
-  completed: 'Afsluttet',
-};
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371;
@@ -248,7 +233,7 @@ export default function Dashboard() {
             {/* 3. Åbne ønsker (kun udbydere) */}
             {isProvider && (
               <TabsTrigger value="open-requests" className="rounded-lg px-4 py-2 text-sm gap-2">
-                <Inbox className="w-4 h-4" /> {t('open_requests') || 'Åbne ønsker'}
+                <Inbox className="w-4 h-4" /> {t('open_requests')}
                 {totalOpenRequests > 0 && (
                   <span className="bg-amber-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {totalOpenRequests}
@@ -260,14 +245,14 @@ export default function Dashboard() {
             {/* 4. Annoncer & Kalender (kun udbydere) */}
             {isProvider && (
               <TabsTrigger value="listings" className="rounded-lg px-4 py-2 text-sm gap-2">
-                <Home className="w-4 h-4" /> {t('my_listings') || 'Annoncer'}
+                <Home className="w-4 h-4" /> {t('my_listings')}
               </TabsTrigger>
             )}
 
             {/* 5. Min indbakke (kun udbydere) */}
             {isProvider && (
               <TabsTrigger value="provider" className="rounded-lg px-4 py-2 text-sm gap-2">
-                <Briefcase className="w-4 h-4" /> {t('my_inbox') || 'Min indbakke'}
+                <Briefcase className="w-4 h-4" /> {t('my_inbox')}
                 {hostBookings.filter(b => b.status === 'pending').length > 0 && (
                   <span className="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {hostBookings.filter(b => b.status === 'pending').length}
@@ -288,7 +273,7 @@ export default function Dashboard() {
                     bookingFilter === 'active' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  {t('active') || 'Aktive'}
+                  {capitalizeFirst(t('booking_filter_active'))}
                   {activeBookings.length > 0 && (
                     <span className="ml-1.5 bg-primary/10 text-primary text-xs rounded-full px-1.5">{activeBookings.length}</span>
                   )}
@@ -299,7 +284,7 @@ export default function Dashboard() {
                     bookingFilter === 'history' ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  {t('history') || 'Historik'}
+                  {capitalizeFirst(t('history'))}
                 </button>
               </div>
 
@@ -335,7 +320,7 @@ export default function Dashboard() {
               {/* Host bookings (for providers who are also travelers) */}
               {isProvider && hostBookings.length > 0 && (
                 <div className="mt-8">
-                  <h3 className="font-semibold text-foreground mb-3">{t('incoming_bookings') || 'Indkommende bookinger'}</h3>
+                  <h3 className="font-semibold text-foreground mb-3">{t('incoming_bookings')}</h3>
                   <div className="space-y-3">
                     {hostBookings
                       .filter(b => bookingFilter === 'active'
@@ -357,11 +342,11 @@ export default function Dashboard() {
           <TabsContent value="requests">
             <div className="space-y-8">
               <div>
-                <h3 className="font-semibold text-foreground mb-3">{t('transport_requests') || 'Transportanmodninger'}</h3>
+                <h3 className="font-semibold text-foreground mb-3">{t('transport_requests')}</h3>
                 <MyTransportRequestsTab />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-3">{t('cabin_requests') || 'Hytteanmodninger'}</h3>
+                <h3 className="font-semibold text-foreground mb-3">{t('cabin_requests')}</h3>
                 <MyCabinRequestsTab />
               </div>
             </div>
@@ -430,9 +415,9 @@ export default function Dashboard() {
                 {/* Listings */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-foreground">{t('my_listings') || 'Mine annoncer'}</h3>
+                    <h3 className="font-semibold text-foreground">{t('my_listings')}</h3>
                     <Button variant="ghost" size="sm" onClick={() => navigate('/create-listing')} className="text-primary gap-1">
-                      <PlusCircle className="w-3.5 h-3.5" /> {t('add') || 'Tilføj'}
+                      <PlusCircle className="w-3.5 h-3.5" /> {t('add')}
                     </Button>
                   </div>
                   <div className="space-y-3">
@@ -473,16 +458,16 @@ export default function Dashboard() {
                             {format(new Date(tr.departure_date), 'd. MMM yyyy')} · {tr.seats_available} {t('seats_plural') || 'pladser'}
                           </p>
                         </div>
-                        <Badge className={tr.status === 'scheduled' ? 'bg-green-100 text-green-700 border-0' : 'bg-gray-100 text-gray-500 border-0'}>
-                          {tr.status}
+                        <Badge className={`${STATUS_COLORS[tr.status] || 'bg-gray-100 text-gray-500'} border-0`}>
+                          {statusLabel(tr.status, t)}
                         </Badge>
                       </div>
                     ))}
                     {myCabins.length === 0 && myTransports.length === 0 && (
                       <EmptyState
                         icon={Home}
-                        message={t('no_listings') || 'Ingen annoncer endnu'}
-                        cta={t('create_listing') || 'Opret annonce'}
+                        message={t('no_listings')}
+                        cta={t('create_listing')}
                         ctaHref="/create-listing"
                       />
                     )}
@@ -492,14 +477,14 @@ export default function Dashboard() {
                 {/* Trust score */}
                 {(myCabins.length > 0 || myTransports.length > 0) && (
                   <div>
-                    <h3 className="font-semibold text-foreground mb-3">{t('my_trust_score') || 'Min trustscore'}</h3>
+                    <h3 className="font-semibold text-foreground mb-3">{t('my_trust_score')}</h3>
                     <ProviderTrustCard providerEmail={user.email} />
                   </div>
                 )}
 
                 {/* Kalender */}
                 <div>
-                  <h3 className="font-semibold text-foreground mb-3">{t('calendar') || 'Kalender'}</h3>
+                  <h3 className="font-semibold text-foreground mb-3">{t('calendar')}</h3>
                   <HostCalendarTab />
                 </div>
 
@@ -507,7 +492,7 @@ export default function Dashboard() {
                 <div>
                   <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                     <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    {t('reviews') || 'Anmeldelser'}
+                    {t('reviews')}
                     {avgRating && (
                       <span className="text-sm font-normal text-muted-foreground">
                         — {t('avg_rating') || 'gennemsnitlig vurdering'} {avgRating} ★
@@ -515,7 +500,7 @@ export default function Dashboard() {
                     )}
                   </h3>
                   {myRatingsReceived.length === 0 ? (
-                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_reviews') || 'Ingen anmeldelser endnu'}</p>
+                    <p className="text-sm text-muted-foreground bg-muted rounded-xl p-4">{t('no_reviews')}</p>
                   ) : (
                     <div className="space-y-3">
                       {myRatingsReceived.map(r => <RatingRow key={r.id} rating={r} t={t} />)}
@@ -555,9 +540,7 @@ function OpenRequestsList({ nearby, others, userHomeCity, type, t }) {
       <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-border">
         <Inbox className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
         <p className="text-muted-foreground font-medium mb-1">
-          {type === 'transport'
-            ? (t('no_transport_requests') || 'Ingen åbne transportønsker')
-            : (t('no_cabin_requests') || 'Ingen åbne hytteønsker')}
+          {type === 'transport' ? t('no_transport_requests') : t('no_cabin_requests')}
         </p>
         <p className="text-xs text-muted-foreground">
           {t('requests_appear_here') || 'Nye anmodninger fra rejsende vises her'}
@@ -634,7 +617,7 @@ function TransportRequestCard({ r, t, highlight }) {
           </div>
         </div>
         <Badge className="bg-amber-100 text-amber-700 border-0 shrink-0">
-          {t('open') || 'Åben'}
+          {capitalizeFirst(t('status_open'))}
         </Badge>
       </div>
     </div>
@@ -660,7 +643,7 @@ function CabinRequestCard({ r, t, highlight }) {
           </div>
         </div>
         <Badge className="bg-amber-100 text-amber-700 border-0 shrink-0">
-          {t('open') || 'Åben'}
+          {capitalizeFirst(t('status_open'))}
         </Badge>
       </div>
     </div>
@@ -691,7 +674,7 @@ function BookingRow({ booking, isHost, t, onConfirm, onDecline }) {
         </div>
         <div className="flex items-center gap-2">
           <Badge className={`${STATUS_COLORS[booking.status] || 'bg-gray-100 text-gray-500'} border-0 text-xs`}>
-            {STATUS_LABELS[booking.status] || booking.status}
+            {statusLabel(booking.status, t)}
           </Badge>
           {booking.total_price > 0 && (
             <span className="text-sm font-bold text-foreground">{booking.total_price} DKK</span>
