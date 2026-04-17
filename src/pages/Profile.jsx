@@ -8,16 +8,87 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2 } from 'lucide-react';
+import { User, MapPin, Star, Anchor, Home, Camera, Check, Edit2, Backpack, Users } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { useRole } from '@/lib/RoleContext';
 import ImageUploadWithEditor from '@/components/image-editor/ImageUploadWithEditor';
 import LocationAutocomplete from '@/components/shared/LocationAutocomplete';
 
+const ROLE_CARDS = {
+  traveler: {
+    icon: Backpack,
+    title: { da: 'Rejsende', en: 'Traveler', kl: 'Angallattartoq' },
+    desc: {
+      da: 'Book hytter og sejlture. Du ser dine bookinger og anmodninger.',
+      en: 'Book cabins and boat trips. You see your bookings and requests.',
+      kl: 'Angallattartoq',
+    },
+  },
+  provider: {
+    icon: Home,
+    title: { da: 'Udbyder', en: 'Provider', kl: 'Nalunaarsuisartoq' },
+    desc: {
+      da: 'Opret og sælg hytter og sejlture. Du ser åbne ønsker, annoncer og din indbakke.',
+      en: 'List and sell cabins and boat trips. You see open requests, listings and your inbox.',
+      kl: 'Nalunaarsuisartoq',
+    },
+  },
+  both: {
+    icon: Users,
+    title: { da: 'Begge', en: 'Both', kl: 'Marlunnginnardlutik' },
+    desc: {
+      da: 'Fuld adgang — rejse og udbyde på samme tid.',
+      en: 'Full access — travel and provide at the same time.',
+      kl: 'Marlunnginnardlutik',
+    },
+  },
+};
+
+const ROLE_NOTE = {
+  da: 'Dit valg bestemmer hvilke funktioner der vises i dit dashboard.',
+  en: 'Your choice determines which features appear in your dashboard.',
+  kl: 'Dit valg bestemmer hvilke funktioner der vises i dit dashboard.',
+};
+
+function RoleTypeCards({ value, onChange, lang }) {
+  const l = lang || 'da';
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {Object.entries(ROLE_CARDS).map(([key, card]) => {
+          const Icon = card.icon;
+          const selected = value === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => onChange(key)}
+              className={`text-left p-4 rounded-xl border-2 transition-all ${
+                selected
+                  ? 'border-primary bg-primary/5 shadow-sm'
+                  : 'border-border bg-white hover:border-primary/40 hover:bg-muted/40'
+              }`}
+            >
+              <Icon className={`w-6 h-6 mb-2 ${selected ? 'text-primary' : 'text-muted-foreground'}`} />
+              <p className={`text-sm font-semibold mb-1 ${selected ? 'text-primary' : 'text-foreground'}`}>
+                {card.title[l] || card.title.da}
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {card.desc[l] || card.desc.da}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+      <p className="text-xs text-muted-foreground italic">{ROLE_NOTE[l] || ROLE_NOTE.da}</p>
+    </div>
+  );
+}
+
 export default function Profile() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { currentRole } = useRole();
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
@@ -233,16 +304,7 @@ export default function Profile() {
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('i_am')}</label>
-                <Select value={currentForm.role_type} onValueChange={v => setForm(f => ({ ...f, role_type: v }))}>
-                  <SelectTrigger className="h-10 rounded-xl text-sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                     <SelectItem value="traveler">{t('traveler_desc')}</SelectItem>
-                     <SelectItem value="provider">{t('provider_desc')}</SelectItem>
-                     <SelectItem value="both">{t('both_desc')}</SelectItem>
-                   </SelectContent>
-                </Select>
+                <RoleTypeCards value={currentForm.role_type} onChange={v => setForm(f => ({ ...f, role_type: v }))} lang={lang} />
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{t('notifications')}</label>
