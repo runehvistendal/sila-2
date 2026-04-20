@@ -2,6 +2,10 @@
   "name": "Review",
   "type": "object",
   "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "ID of the specific booking this review is for (enforces one review per booking)"
+    },
     "listing_type": {
       "type": "string",
       "enum": [
@@ -34,6 +38,7 @@
   },
   "required": [
     "listing_id",
-    "rating"
+    "rating",
+    "booking_id"
   ]
 }
