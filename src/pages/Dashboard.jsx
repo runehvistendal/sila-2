@@ -210,16 +210,6 @@ export default function Dashboard() {
               </Button>
             )}
             {isProvider && (
-              <Button variant="outline" onClick={() => setActiveTab('open-requests')} className="rounded-xl gap-2 text-sm">
-                <Inbox className="w-4 h-4" /> {t('open_requests')}
-                {totalOpenRequests > 0 && (
-                  <span className="bg-amber-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {totalOpenRequests}
-                  </span>
-                )}
-              </Button>
-            )}
-            {isProvider && (
               <Button onClick={() => navigate('/create-listing')} className="bg-primary text-white hover:bg-primary/90 rounded-xl gap-2 text-sm">
                 <PlusCircle className="w-4 h-4" /> {t('new_listing')}
               </Button>
