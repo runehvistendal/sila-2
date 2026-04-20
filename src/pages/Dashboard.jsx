@@ -53,7 +53,8 @@ export default function Dashboard() {
   const [searchInput, setSearchInput] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [bookingFilter, setBookingFilter] = useState('active'); // 'active' | 'history'
-  const [activeTab, setActiveTab] = useState('bookings');
+  const urlTab = new URLSearchParams(window.location.search).get('tab');
+  const [activeTab, setActiveTab] = useState(urlTab || 'bookings');
 
   const CITIES = Object.keys(CITY_COORDS);
   const userHomeCity = user?.location || '';

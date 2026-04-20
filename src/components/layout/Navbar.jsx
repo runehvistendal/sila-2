@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Menu, X, User, LayoutDashboard, LogOut, Plus, Waves, UserCircle, Heart, Home } from 'lucide-react';
+import { Menu, X, User, LayoutDashboard, LogOut, Plus, Waves, UserCircle, Heart, Home, Inbox } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
 import CurrencySelector from '@/components/shared/CurrencySelector';
@@ -112,6 +112,16 @@ export default function Navbar() {
                       <DropdownMenuItem asChild>
                         <Link to="/request-transport" className="flex items-center gap-2 cursor-pointer">
                           <Waves className="w-4 h-4" /> {t('nav_request_transport')}
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {isProvider && (
+                    <>
+                      {isTraveler && <DropdownMenuSeparator />}
+                      <DropdownMenuItem asChild>
+                        <Link to="/dashboard?tab=open-requests" className="flex items-center gap-2 cursor-pointer">
+                          <Inbox className="w-4 h-4" /> Åbne ønsker
                         </Link>
                       </DropdownMenuItem>
                     </>
