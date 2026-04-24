@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { Cabins, Transport } from '@/api/client';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,22 +37,22 @@ export default function Home() {
   const { data: featuredCabins = [] } = useQuery({
     queryKey: ['featured-cabins'],
     queryFn: async () => {
-      const res = await base44.functions.invoke('listCabins', { sort: '-created_date', limit: 6 });
-      return res.data.cabins || [];
+      const res = await Cabins.list({ sort: '-createdAt', limit: 6 });
+      return res.docs || [];
     },
   });
 
   const { data: transports = [] } = useQuery({
     queryKey: ['transports-home'],
     queryFn: async () => {
-      const res = await base44.functions.invoke('getActiveTransports', {});
-      return res.data.transports || [];
+      const res = await Transport.list({ sort: '-createdAt', limit: 10 });
+      return res.docs || [];
     },
     staleTime: 30_000,
   });
 
-  const nextTransport = transports.length > 0 
-    ? transports.find(t => t.status === 'scheduled' && t.departure_date >= new Date().toISOString().split('T')[0]) || transports[0]
+  const nextTransport = transports.length > 0
+    ? transports.find(t => t.status === 'scheduled' && t.checkIn >= new Date().toISOString().split('T')[0]) || transports[0]
     : null;
 
   const handleSearch = (e) => {
@@ -80,15 +80,12 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-
-          {/* Aurora Borealis animation */}
           <div className="absolute top-0 left-0 right-0 h-[55%] overflow-hidden pointer-events-none">
             <div className="aurora-band aurora-1" />
             <div className="aurora-band aurora-2" />
             <div className="aurora-band aurora-3" />
           </div>
         </div>
-
         <style>{`
           .aurora-band {
             position: absolute;
@@ -127,7 +124,6 @@ export default function Home() {
             100% { opacity: 0; transform: translateX(-8%) scaleY(0.9); }
           }
         `}</style>
-
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-16">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
@@ -139,16 +135,12 @@ export default function Home() {
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
               <span className="text-white/90 text-xs font-medium">Greenland's cabin & boat marketplace</span>
             </div>
-
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.08] tracking-tight mb-5">
               {t('hero_title')}
             </h1>
-
             <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-10">
               {t('hero_subtitle')}
             </p>
-
-            {/* Search bar */}
             <form onSubmit={handleSearch} className="flex gap-2 max-w-md">
               <div className="relative flex-1" ref={searchRef}>
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
@@ -192,27 +184,11 @@ export default function Home() {
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">{t('how_title')}</h2>
             <p className="text-muted-foreground text-lg max-w-md mx-auto">{t('how_step2_desc')}</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              {
-                icon: Search,
-                step: '01',
-                title: t('how_step1_title'),
-                desc: t('how_step1_desc'),
-              },
-              {
-                icon: Anchor,
-                step: '02',
-                title: t('how_step2_title'),
-                desc: t('how_step2_desc'),
-              },
-              {
-                icon: HomeIcon,
-                step: '03',
-                title: t('how_step3_title'),
-                desc: t('how_step3_desc'),
-              },
+              { icon: Search, step: '01', title: t('how_step1_title'), desc: t('how_step1_desc') },
+              { icon: Anchor, step: '02', title: t('how_step2_title'), desc: t('how_step2_desc') },
+              { icon: HomeIcon, step: '03', title: t('how_step3_title'), desc: t('how_step3_desc') },
             ].map((item, i) => (
               <div key={i} className="text-center">
                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
@@ -239,7 +215,6 @@ export default function Home() {
               {t('view_details')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
-
           {featuredCabins.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredCabins.map((cabin) => (
@@ -253,7 +228,6 @@ export default function Home() {
               <Button size="sm" onClick={() => navigate('/create-listing')} className="mt-2 bg-primary text-white">{t('nav_create_listing')}</Button>
             </div>
           )}
-
           <div className="mt-8 text-center sm:hidden">
             <Button variant="outline" onClick={() => navigate('/cabins')} className="rounded-xl px-6">View all cabins</Button>
           </div>
@@ -273,8 +247,8 @@ export default function Home() {
                 <em className="font-normal text-primary">del båden</em>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                En grønlænder på vej til sin hytte tilbyder en ledig plads i sin båd. 
-                Det er sådan, folk her altid har bevæget sig — og nu kan besøgende rejse med. 
+                En grønlænder på vej til sin hytte tilbyder en ledig plads i sin båd.
+                Det er sådan, folk her altid har bevæget sig — og nu kan besøgende rejse med.
                 Autentisk, overkommeligt og den eneste rigtige måde at se det ægte Grønland.
               </p>
               <div className="flex flex-wrap gap-6 mb-8">
@@ -301,10 +275,8 @@ export default function Home() {
                 Find en bådtur <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
-
             <div className="relative">
               <ImprovedGreenlandMap cabins={featuredCabins} transports={transports} height="400px" />
-              {/* Floating card — overlaps bottom-left edge of map */}
               {nextTransport && (
                 <div
                   className="absolute bg-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.18)] p-4 w-[175px] cursor-pointer hover:shadow-[0_12px_40px_rgba(0,0,0,0.22)] transition-shadow z-50"
@@ -313,10 +285,10 @@ export default function Home() {
                 >
                   <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide mb-1">Next available</p>
                   <p className="text-sm font-bold text-foreground leading-snug">
-                    {nextTransport.from_location} → {nextTransport.to_location}
+                    {nextTransport.fromLocation} → {nextTransport.toLocation}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {nextTransport.seats_available} pladser · {Math.round(nextTransport.round_trip_price * 0.6)} DKK/plads
+                    {nextTransport.maxPassengers} pladser · {nextTransport.price} DKK/plads
                   </p>
                 </div>
               )}
